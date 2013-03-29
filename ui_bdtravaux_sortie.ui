@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BdTravaux</class>
+ <widget class="QDialog" name="BdTravaux">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>802</width>
+    <height>685</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox_2">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>630</y>
+     <width>176</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QTabWidget" name="tabWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>0</y>
+     <width>771</width>
+     <height>611</height>
+    </rect>
+   </property>
+   <property name="tabPosition">
+    <enum>QTabWidget::North</enum>
+   </property>
+   <property name="tabShape">
+    <enum>QTabWidget::Rounded</enum>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="tab_quand">
+    <property name="toolTip">
+     <string>Informations générales du CR de sortie</string>
+    </property>
+    <property name="accessibleName">
+     <string/>
+    </property>
+    <attribute name="title">
+     <string>Infos générales</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>date et opération</string>
+    </attribute>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>311</width>
+       <height>151</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="lbl_obsv">
+        <property name="text">
+         <string>Rédacteur du CR</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="obsv">
+        <item>
+         <property name="text">
+          <string>Sandrine Gougaud</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mathieu Loquet</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Simon Bezille</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Alexis Thery</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbl_site">
+        <property name="text">
+         <string>Site visité</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="site"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>20</y>
+       <width>391</width>
+       <height>321</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="lbl_date">
+        <property name="text">
+         <string>Date de sortie sur le terrain</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCalendarWidget" name="date">
+        <property name="baseSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Date de début de l'opération</string>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="firstDayOfWeek">
+         <enum>Qt::Monday</enum>
+        </property>
+        <property name="verticalHeaderFormat">
+         <enum>QCalendarWidget::ISOWeekNumbers</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>410</y>
+       <width>631</width>
+       <height>103</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="lbl_jourope">
+        <property name="text">
+         <string>Jours opération (remplir à la fin d'un chantier) </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="jours_chan"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QCheckBox" name="chantfini">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>530</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Fin de chantier</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chantvol">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>530</y>
+       <width>191</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Chantier de volontaires</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_comm">
+    <attribute name="title">
+     <string>Commentaires</string>
+    </attribute>
+    <widget class="QTextEdit" name="comm">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>741</width>
+       <height>491</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_com">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>241</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Commentaires</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

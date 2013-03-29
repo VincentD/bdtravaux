@@ -1,3 +1,7 @@
+help/build/*
+ui_*.py
+*~
+
 *.py[cod]
 
 # C extensions

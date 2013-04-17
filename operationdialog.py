@@ -41,9 +41,9 @@ class OperationDialog(QtGui.QDialog):
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
         self.db.setHostName("localhost") 
-        self.db.setDatabaseName("bdtravaux")
+        self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
-        self.db.setPassword("essai")
+        self.db.setPassword("postgres")
         ok = self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
@@ -82,7 +82,7 @@ class OperationDialog(QtGui.QDialog):
     def sauverOpe(self):
         geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],QGis.Polygon) #compréhension de liste
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into operation_poly (sortie, plangestion, code_gh, ope_typ, libelle, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()).toInt()[0],\
+        query = u"""insert into bdtravaux.operation_surf (sortie, plangestion, code_gh, typ_operat, descriptio, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()).toInt()[0],\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\

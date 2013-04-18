@@ -30,32 +30,32 @@ class OperationDialog(QtGui.QDialog):
     def __init__(self, iface):
         
         QtGui.QDialog.__init__(self)
-        # Set up the user interface from Designer.
+        # Set up the user interface from QTDesigner.
         self.ui = Ui_operation()
         self.ui.setupUi(self)
-        # référenceemnt de iface dans l'interface
+        # référencement de iface dans l'interface (iface = interface de QGIS)
         self.iface = iface
         
         # DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("localhost") 
-        self.db.setDatabaseName("bdtravaux")
+        self.db.setHostName("192.168.0.103") 
+        self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
-        self.db.setPassword("essai")
+        self.db.setPassword("postgres")
         ok = self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
         
-        # Remplir la combobox "sortie" avec les champs date_sortie+site+redacteur de la tablme "sortie" 
+        # Remplir la combobox "sortie" avec les champs date_sortie+site+redacteur de la table "sortie" 
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        if query.exec_('select id, date_sortie, site, redacteur from sortie order by date_sortie DESC LIMIT 30'):
+        if query.exec_('select id, date_sortie, codesite, redacteur from sortie order by date_sortie DESC LIMIT 30'):
             while query.next():
                 self.ui.sortie.addItem(query.value(1).toString() + " " + query.value(2).toString() + " "+ query.value(3).toString(), query.value(0).toInt()[0])
-            # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
+            # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche, 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
             # .toInt renvoie deux paramètres. Le [0] précise qu'on ne veut récupérer que le premier, qui est l'entier 
             # (le 2ème para = boolean pour savoir si la conversion a marché)
@@ -82,7 +82,7 @@ class OperationDialog(QtGui.QDialog):
     def sauverOpe(self):
         geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],QGis.Polygon) #compréhension de liste
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into operation_poly (sortie, plangestion, code_gh, ope_typ, libelle, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()).toInt()[0],\
+        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()).toInt()[0],\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\

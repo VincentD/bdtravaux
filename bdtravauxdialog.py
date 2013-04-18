@@ -37,10 +37,10 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("localhost") 
-        self.db.setDatabaseName("bdtravaux")
+        self.db.setHostName("192.168.0.103") 
+        self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
-        self.db.setPassword("essai")
+        self.db.setPassword("postgres")
         ok = self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
@@ -48,7 +48,7 @@ class BdTravauxDialog(QtGui.QDialog):
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        if query.exec_('select id, codesite, nomsite from site order by codesite'):
+        if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
             while query.next():
                 self.ui.site.addItem(query.value(1).toString() + " " + query.value(2).toString(), query.value(0).toInt()[0])
             # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
@@ -65,7 +65,7 @@ class BdTravauxDialog(QtGui.QDialog):
         query_save = QtSql.QSqlQuery(self.db)
         # query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_fini, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantfini.isChecked()).lower(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())
         # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs liges, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de . format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et à simplifier la lecture.
-        query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_fini, chantier_vol, sort_com) values ('{zr_date_sortie}'::date, '{zr_redacteur}', '{zr_site}', '{zr_jours_chantier}', {zr_chantier_fini}, {zr_chantier_vol}, '{zr_sort_com}')""".format (zr_date_sortie=self.ui.date.selectedDate().toString('yyyy-MM-dd'),\
+        query = """insert into bdtravaux.sortie (date_sortie, redacteur, codesite, jours_chan, chantfini, chantvol, sortcom) values ('{zr_date_sortie}'::date, '{zr_redacteur}', '{zr_site}', '{zr_jours_chantier}', {zr_chantier_fini}, {zr_chantier_vol}, '{zr_sort_com}')""".format (zr_date_sortie=self.ui.date.selectedDate().toString('yyyy-MM-dd'),\
          zr_redacteur=self.ui.obsv.currentText(),\
          zr_site=self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0],\
          zr_jours_chantier=self.ui.jours_chan.toPlainText(),\
@@ -76,7 +76,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
         print query
-                
+        QtGui.QDialog.close()        
                 
         # contrôle "date" : on utilise la méthode SelectedDate des calendriers : self.ui.date.selectedDate().toString(), 
         # contrôle "obsv" : on utilise la méthode CurrentText d'une combobox

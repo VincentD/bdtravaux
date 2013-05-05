@@ -76,6 +76,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
         print query
+        self.close()
                 
                 
         # contrôle "date" : on utilise la méthode SelectedDate des calendriers : self.ui.date.selectedDate().toString(), 

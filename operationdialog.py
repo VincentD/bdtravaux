@@ -65,6 +65,12 @@ class OperationDialog(QtGui.QDialog):
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
 
     def actu_lblgeom(self):
+        #si aucune entité sélectionnée, il faut en sélectionner une. Fermer la fenêtre.
+        # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le maessage d'erreur et fermer la fenêtre.
+        layer=self.iface.activeLayer()
+        if not layer:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Sélectionner une couche et une entité')
+            self.close
         #indiquer le nombre d'entités sélectionnes dans le contrôle lbl_geo et le type de géométrie.
         # En premier lieu, on compare la constante renvoyée par geometrytype() à celle renvoyée par les constante de QGis pour obtenir
         # une chaîne de caractère : geometryType() ne renvoie que des constantes (0, 1 ou 2). Il faut donc ruser...
@@ -92,3 +98,4 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
         print query
+        self.close

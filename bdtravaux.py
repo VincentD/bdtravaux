@@ -56,23 +56,23 @@ class BdTravaux:
         self.dlg_ope= OperationDialog(iface)
 
     def initGui(self):
-        # Create action that will start plugin configuration  (interface "sortie")
+        # Création du bouton qui va démarrer le plugin (interface "sortie")
         self.action = QAction(
             QIcon(":/plugins/bdtravaux/icon.png"),
             u"Saisie sortie", self.iface.mainWindow())
-        # connect the actions to the run methods
+        # connecte le bouton à une méthode "run" (def à la ligne 90)
         QObject.connect(self.action, SIGNAL("triggered()"), self.run)
-        # Add toolbar button and menu item
+        # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.action)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.action)
         
-        # Create action that will start plugin configuration (interface "opérations")
+        # Création du bouton qui va démarrer le plugin (interface "opérations")
         self.operation = QAction(
             QIcon(":/plugins/bdtravaux/icon.png"),
             u"Saisie opérations", self.iface.mainWindow())
-        # connect the action to the run method
+        # connecte le bouton à une méthode "run" (def à la ligne 90)
         QObject.connect(self.operation, SIGNAL("triggered()"), self.run_ope)
-        # Add toolbar button and menu item
+        # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.operation)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.operation)
 
@@ -86,7 +86,7 @@ class BdTravaux:
         self.iface.removeToolBarIcon(self.operation)
 
 
-    # run method that performs all the real work  (interface "sortie")
+    # démarre la méthode qui va faire tout le travail (interface "sortie")
     def run(self):
         # show the dialog
         self.dlg.show()
@@ -97,10 +97,11 @@ class BdTravaux:
             # do something useful (delete the line containing pass and
             # substitute with your code)
             pass
-    # run method that performs all the real work  (interface "operation")
+    # démarre la méthode qui va faire tout le travail  (interface "operation")
     def run_ope(self):
         # show the dialog
         self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
+                                    # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
         self.dlg_ope.show()
         # Run the dialog event loop
         result = self.dlg_ope.exec_()

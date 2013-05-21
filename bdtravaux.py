@@ -21,7 +21,7 @@
 """
 # Import the PyQt and QGIS libraries
 from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4 import QtGui
 from qgis.core import *
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -57,8 +57,8 @@ class BdTravaux:
 
     def initGui(self):
         # Création du bouton qui va démarrer le plugin (interface "sortie")
-        self.action = QAction(
-            QIcon(":/plugins/bdtravaux/icon.png"),
+        self.action = QtGui.QAction(
+            QtGui.QIcon(":/plugins/bdtravaux/icon.png"),
             u"Saisie sortie", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" (def à la ligne 90)
         QObject.connect(self.action, SIGNAL("triggered()"), self.run)
@@ -67,8 +67,8 @@ class BdTravaux:
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.action)
         
         # Création du bouton qui va démarrer le plugin (interface "opérations")
-        self.operation = QAction(
-            QIcon(":/plugins/bdtravaux/icon.png"),
+        self.operation = QtGui.QAction(
+            QtGui.QIcon(":/plugins/bdtravaux/icon.png"),
             u"Saisie opérations", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" (def à la ligne 90)
         QObject.connect(self.operation, SIGNAL("triggered()"), self.run_ope)
@@ -100,6 +100,10 @@ class BdTravaux:
     # démarre la méthode qui va faire tout le travail  (interface "operation")
     def run_ope(self):
         # show the dialog
+        layer=self.dlg_ope.iface.activeLayer()
+        if not layer:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Sélectionner une couche')
+            return
         self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
                                     # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
         self.dlg_ope.show()

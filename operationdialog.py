@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -67,10 +67,10 @@ class OperationDialog(QtGui.QDialog):
 
     def actu_lblgeom(self):
         # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
-        layer=self.iface.activeLayer()
-        if not layer:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Sélectionner une couche')
-            return
+        #layer=self.iface.activeLayer()
+        #if not layer:
+        #    QtGui.QMessageBox.warning(self, 'Alerte', u'Sélectionner une couche')
+        #    return
             #return permet de quitter la fonction sans exécuter la suite. D'où, plus de message d'erreur parce que 
             #la méthode "geometrytype" d'un "active layer" vide n'existe pas.
             #mtnt, je voudrais aussi envoyer un signal à bdtravaux.py (méthode "run_ope") pour que l'interface ne s'affiche pas...

@@ -66,23 +66,9 @@ class OperationDialog(QtGui.QDialog):
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
 
     def actu_lblgeom(self):
-        # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
-        layer=self.iface.activeLayer()
-        if not layer:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Sélectionner une couche')
-            return
-            #return permet de quitter la fonction sans exécuter la suite. D'où, plus de message d'erreur parce que 
-            #la méthode "geometrytype" d'un "active layer" vide n'existe pas.
-            #mtnt, je voudrais aussi envoyer un signal à bdtravaux.py (méthode "run_ope") pour que l'interface ne s'affiche pas...
-            # rq : faire la même chose si active layer existe, mais qu'auxcune entité n'est sélectionnée...
-        selection=self.iface.activeLayer().selectedFeatures()
-        if not selection:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Sélectionner une entité')
-            return
-            
-        #indiquer le nombre d'entités sélectionnées dans le contrôle lbl_geo et le type de géométrie.
-        # En premier lieu, on compare la constante renvoyée par geometrytype() à celle renvoyée par les constante de QGis pour obtenir
-        # une chaîne de caractère : geometryType() ne renvoie que des constantes (0, 1 ou 2). Il faut donc ruser...
+        # Indiquer le nombre d'entités sélectionnées dans le contrôle lbl_geo et le type de géométrie.
+        # En premier lieu, on compare la constante renvoyée par geometrytype() à celle renvoyée par les constante de QGis pour 
+        # obtenir une chaîne de caractère : geometryType() ne renvoie que des constantes (0, 1 ou 2). Il faut donc ruser...
         geometrie=""
         if self.iface.activeLayer().geometryType() == QGis.Polygon:
             geometrie="polygone"

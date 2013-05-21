@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        if query.exec_('select id, date_sortie, codesite, redacteur from sortie order by date_sortie DESC LIMIT 30'):
+        if query.exec_('select sortie_id, date_sortie, codesite, redacteur from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
             while query.next():
                 self.ui.sortie.addItem(query.value(1).toString() + " " + query.value(2).toString() + " "+ query.value(3).toString(), query.value(0).toInt()[0])
             # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche, 

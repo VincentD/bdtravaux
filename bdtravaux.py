@@ -20,8 +20,7 @@
  ***************************************************************************/
 """
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from qgis.core import *
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -36,15 +35,15 @@ class BdTravaux:
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
-        self.plugin_dir = QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bdtravaux"
+        self.plugin_dir = QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bdtravaux"
         # initialize locale
         localePath = ""
-        locale = QSettings().value("locale/userLocale").toString()[0:2]
+        locale = QtCore.QSettings().value("locale/userLocale").toString()[0:2]
 
-        if QFileInfo(self.plugin_dir).exists():
+        if QtCore.QFileInfo(self.plugin_dir).exists():
             localePath = self.plugin_dir + "/i18n/bdtravaux_" + locale + ".qm"
 
-        if QFileInfo(localePath).exists():
+        if QtCore.QFileInfo(localePath).exists():
             self.translator = QTranslator()
             self.translator.load(localePath)
 
@@ -61,7 +60,7 @@ class BdTravaux:
             QtGui.QIcon(":/plugins/bdtravaux/icon.png"),
             u"Saisie sortie", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" (def à la ligne 90)
-        QObject.connect(self.action, SIGNAL("triggered()"), self.run)
+        QtCore.QObject.connect(self.action, QtCore.SIGNAL("triggered()"), self.run)
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.action)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.action)
@@ -71,7 +70,7 @@ class BdTravaux:
             QtGui.QIcon(":/plugins/bdtravaux/icon.png"),
             u"Saisie opérations", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" (def à la ligne 90)
-        QObject.connect(self.operation, SIGNAL("triggered()"), self.run_ope)
+        QtCore.QObject.connect(self.operation, QtCore.SIGNAL("triggered()"), self.run_ope)
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.operation)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.operation)
@@ -99,13 +98,28 @@ class BdTravaux:
             pass
     # démarre la méthode qui va faire tout le travail  (interface "operation")
     def run_ope(self):
-        # show the dialog
-        layer=self.dlg_ope.iface.activeLayer()
+        # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
+        layer=self.iface.activeLayer()
         if not layer:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Sélectionner une couche')
+            QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Sélectionner une couche')
             return
+        # Attention : au contraire de ce qu'on a fait dans operationdialog.py, ne pas utiliser "self" en premier paramètre de
+        # QMessageBox (il faut le widget parent), car ici self désigne une classe qui n'est pas un QWidget. 
+        # Avec self.dlg_ope, la fenêtre "operation" devient parent => plus d'erreur "parameter 1 : unexpected 'instance'".
+
+        #return permet de quitter la fonction sans exécuter la suite. D'où, plus de message d'erreur parce que 
+        #la méthode "geometrytype" d'un "active layer" vide n'existe pas.
+        
+        #même code pour l'absence d'entité sélectionnée dans la couche active        
+        selection=self.iface.activeLayer().selectedFeatures()
+        if not selection:
+            QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Sélectionner une entité')
+            return
+
+        # show the dialog
         self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
                                     # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
+        #self.connect(self.dlg_ope.actu_lblgeom(), QtCore.SIGNAL(), self, SLOT(close()))        
         self.dlg_ope.show()
         # Run the dialog event loop
         result = self.dlg_ope.exec_()

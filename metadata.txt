@@ -10,8 +10,8 @@
 
 [general]
 name=Saisie_travaux
-qgisMinimumVersion=1.9
-description=Plugin d'aide à la saisie à destination des gerdes-techniciens
+qgisMinimumVersion=2.0
+description=Plugin d'aide à la saisie à destination des gardes-techniciens
 version=0.1
 author=CEN NPdC
 email=vincent.damoy@espaces-naturels.fr

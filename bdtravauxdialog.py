@@ -50,11 +50,12 @@ class BdTravauxDialog(QtGui.QDialog):
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
             while query.next():
-                self.ui.site.addItem(query.value(1).toString() + " " + query.value(2).toString(), query.value(0).toInt()[0])
-            # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
+                self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(0))
+            # *Voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
-            # .toInt renvoie deux paramètres. Le [0] précise qu'on ne veut récupérer que le premier, qui est l'entier 
+            # l'Int renvoie deux paramètres. Le [0] précise qu'on ne veut récupérer que le premier, qui est l'entier 
             # (le 2ème para = boolean pour savoir si la conversion a marché)
+            
             
         # On connecte les signaux des boutons a nos methodes definies ci dessous
         # connexion du signal du bouton OK
@@ -66,13 +67,15 @@ class BdTravauxDialog(QtGui.QDialog):
         query_save = QtSql.QSqlQuery(self.db)
         # query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_fini, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantfini.isChecked()).lower(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())
         # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs liges, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de . format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et à simplifier la lecture.
-        query = """insert into bdtravaux.sortie (date_sortie, redacteur, codesite, jours_chan, chantfini, chantvol, sortcom) values ('{zr_date_sortie}'::date, '{zr_redacteur}', '{zr_site}', '{zr_jours_chantier}', {zr_chantier_fini}, {zr_chantier_vol}, '{zr_sort_com}')""".format (zr_date_sortie=self.ui.date.selectedDate().toString('yyyy-MM-dd'),\
-         zr_redacteur=self.ui.obsv.currentText(),\
-         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0],\
-         zr_jours_chantier=self.ui.jours_chan.toPlainText(),\
-         zr_chantier_fini=str(self.ui.chantfini.isChecked()).lower(),\
-         zr_chantier_vol=str(self.ui.chantvol.isChecked()).lower(),\
-         zr_sort_com=self.ui.comm.toPlainText())
+        query = """insert into bdtravaux.sortie (date_sortie, redacteur, codesite, jours_chan, chantfini, chantvol, sortcom) values ('{zr_date_sortie}'::date, '{zr_redacteur}', '{zr_site}', '{zr_jours_chantier}', {zr_chantier_fini}, {zr_chantier_vol}, '{zr_sort_com}')""".format (zr_date_sortie=(self.ui.date.selectedDate()).toPyDate().strftime("%Y-%m-%d"),\
+        zr_redacteur=self.ui.obsv.currentText(),\
+        zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
+        #zr_jours_chantier=self.ui.jours_chan.toPlainText().encode('UTF-8'),\
+        zr_jours_chantier=self.ui.jours_chan.toUnicode().encode('UTF-8'),\
+        zr_chantier_fini=str(self.ui.chantfini.isChecked()).lower(),\
+        zr_chantier_vol=str(self.ui.chantvol.isChecked()).lower(),\
+        #zr_sort_com=self.ui.comm.toPlainText().encode('UTF-8'))
+        zr_sort_com=self.ui.comm.toUnicode().encode('UTF-8'))
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
@@ -80,7 +83,8 @@ class BdTravauxDialog(QtGui.QDialog):
         self.close()
                 
                 
-        # contrôle "date" : on utilise la méthode SelectedDate des calendriers : self.ui.date.selectedDate().toString(), 
+        # contrôle "date" : on utilise la méthode SelectedDate des calendriers : self.ui.date.selectedDate(), toPyDate() pour
+        # transformer l'objet QDate en objet "date " de Python, et la méthode Python strftime pour définir le format de sortie.
         # contrôle "obsv" : on utilise la méthode CurrentText d'une combobox
         # contrôle "site" : c'est aussi une combobox, mais on ne neut pas de texte, on veut la data définie quand on a rempli la combobox (cf. l54)
         # contrôles checkboxes : méthode isChecked renvoie un booléen. on transforme en chaîne (str), ce qui donne True ou False.

@@ -55,15 +55,14 @@ class OperationDialog(QtGui.QDialog):
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         if query.exec_('select sortie_id, date_sortie, codesite, redacteur from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
             while query.next():
-                self.ui.sortie.addItem(query.value(1).toString() + " " + query.value(2).toString() + " "+ query.value(3).toString(), query.value(0).toInt()[0])
+                self.ui.sortie.addItem(str(query.value(1)) + " " + str(query.value(2)) + " "+ query.value(3), int(query.value(0)))
             # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche, 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
-            # .toInt renvoie deux paramètres. Le [0] précise qu'on ne veut récupérer que le premier, qui est l'entier 
-            # (le 2ème para = boolean pour savoir si la conversion a marché)
         
         #connexions aux boutons OK et Annuler
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpe)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
+        self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
 
     def actu_lblgeom(self):
         # Indiquer le nombre d'entités sélectionnées dans le contrôle lbl_geo et le type de géométrie.
@@ -83,7 +82,7 @@ class OperationDialog(QtGui.QDialog):
     def sauverOpe(self):
         geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],QGis.Polygon) #compréhension de liste
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()).toInt()[0],\
+        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
@@ -94,3 +93,77 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
         print query
         self.close
+
+    def composeur(self):
+
+        #Essai venant de http://lists.osgeo.org/pipermail/qgis-user/2010-July/009177.html
+        
+        #self.iface.actionPrintComposer().trigger() ***attention : si on décommente, le bloc crée un nouveau composeur vide
+        composerList = self.iface.activeComposers()
+        #composerView = composerList[composerList.index(max(composerList))] *** dernier composeur de la liste
+        composerView = composerList[1]
+        composition = composerView.composition()
+        composer = composerView.composerWindow()
+        #composition.setPaperSize(float(width),  float(height))
+        composer.show()
+
+        ##############################
+        # variable compos contient tous les composeurs actuellement actifs.        
+        #compos = self.iface.activeComposers()        
+        #for composerView in compos:                        *** va ouvrir tous les composeurs créés dans le projet
+         #   self.composer = composerView.composerWindow()
+          #  self.composer.show()
+           # self.composer.activate()
+                
+        # ouverture d'un composeur                   *** fonctionne, mais va ouvrir tous les composeurs créés dans le projet
+        #for composerView in compos:
+        #    composer = composerView.composerWindow()
+        #    composer.setVisible(True)
+        
+        ################################"
+            # essai de création decomposeur venant de http://www.qgis.org/pyqgis-cookbook/composer.html
+            # apparemment, n'affiche rien.
+        #mapRenderer = self.iface.mapCanvas().mapRenderer()
+        #c = QgsComposition(mapRenderer)
+        #c.setPlotStyle(QgsComposition.Print)
+            
+            #essai création label dans le composeur
+        #composerLabel = QgsComposerLabel(c)
+        #composerLabel.setText("Hello world")
+        #composerLabel.adjustSizeToText()
+        #composerLabel.setItemPosition(20,10,100,100)
+        #c.addItem(composerLabel)
+
+        # essai création légende
+        #legend = QgsComposerLegend(c)
+        #legend.model().setLayerSet(mapRenderer.layerSet())
+        #c.addItem(legend)
+        #legend.setItemPosition(20, 10, 100, 100)
+
+        ########################
+        # pas encore essayé mais porteur d'espoir
+        #http://cataisrepository.googlecode.com/svn-history/r83/trunk/qgis/plugins/soverify/dm01avbe11d/complexchecks/lfp3_pro_ts_mit_karte.py
+        # ComposerMap erzeugen.
+        # beforeList = self.iface.activeComposers()
+        # self.iface.actionPrintComposer().trigger()  
+        # afterList = self.iface.activeComposers()
+        
+        #diffList = []
+        #for item in afterList:
+        #    if not item in  beforeList:
+        #        diffList.append(item)
+
+        #paperwidth = 297
+        #paperheight = 210
+        #margin = 8
+        
+        #composerView = diffList[0]
+        #composition = composerView.composition()
+        #composition.setPaperSize(float(paperwidth),  float(paperheight))
+
+        #mapWidth = float(paperwidth) - 2*margin
+        #mapHeight = float(paperheight) - 2*margin
+        #composerMap = QgsComposerMap( composition, margin, margin, mapWidth,  mapHeight )
+        #composerMap.setNewScale(self.canvas.scale()) 
+        #composerView.addComposerMap(composerMap)
+            

@@ -3,7 +3,7 @@
 /***************************************************************************
  BdTravaux
                                  A QGIS plugin
- Plugin d'aide à la saisie à destination des gerdes-techniciens
+ Plugin d'aide à la saisie à destination des gardes-techniciens
                               -------------------
         begin                : 2013-03-27
         copyright            : (C) 2013 by CEN NPdC
@@ -38,7 +38,10 @@ class BdTravaux:
         self.plugin_dir = QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bdtravaux"
         # initialize locale
         localePath = ""
-        locale = QtCore.QSettings().value("locale/userLocale").toString()[0:2]
+        # locale = QtCore.QSettings().value("locale/userLocale").toString()[0:2] (ancienne phrase)
+        #pb : 'unicode' object has no attribute 'toString'. Pb de compatibilité entre 1.8 et 2.0 : le type QVariant (qui utilise ".toString" n'existe plus. Simplement enlever ".toString" (si on voulait transformer en un autre format, inclure type=str ou TYPE=INT... dans la parenthèse => .value("locale/userLocale", type=int) par exemple
+        locale = QtCore.QSettings().value("locale/userLocale")[0:2]
+             
 
         if QtCore.QFileInfo(self.plugin_dir).exists():
             localePath = self.plugin_dir + "/i18n/bdtravaux_" + locale + ".qm"

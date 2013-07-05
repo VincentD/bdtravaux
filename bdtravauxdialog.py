@@ -70,12 +70,10 @@ class BdTravauxDialog(QtGui.QDialog):
         query = """insert into bdtravaux.sortie (date_sortie, redacteur, codesite, jours_chan, chantfini, chantvol, sortcom) values ('{zr_date_sortie}'::date, '{zr_redacteur}', '{zr_site}', '{zr_jours_chantier}', {zr_chantier_fini}, {zr_chantier_vol}, '{zr_sort_com}')""".format (zr_date_sortie=(self.ui.date.selectedDate()).toPyDate().strftime("%Y-%m-%d"),\
         zr_redacteur=self.ui.obsv.currentText(),\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
-        #zr_jours_chantier=self.ui.jours_chan.toPlainText().encode('UTF-8'),\
-        zr_jours_chantier=self.ui.jours_chan.toUnicode().encode('UTF-8'),\
+        zr_jours_chantier=self.ui.jours_chan.toPlainText().encode('UTF-8'),\
         zr_chantier_fini=str(self.ui.chantfini.isChecked()).lower(),\
         zr_chantier_vol=str(self.ui.chantvol.isChecked()).lower(),\
-        #zr_sort_com=self.ui.comm.toPlainText().encode('UTF-8'))
-        zr_sort_com=self.ui.comm.toUnicode().encode('UTF-8'))
+        zr_sort_com=self.ui.comm.toPlainText().encode('UTF-8'))
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')

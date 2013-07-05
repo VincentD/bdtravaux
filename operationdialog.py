@@ -19,7 +19,7 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore, QtGui, QtSql
+from PyQt4 import QtCore, QtGui, QtSql, QtXml
 from qgis.core import *
 from ui_operation import Ui_operation
 from convert_geoms import convert_geometries
@@ -36,6 +36,7 @@ class OperationDialog(QtGui.QDialog):
         self.ui.setupUi(self)
         # référencement de iface dans l'interface (iface = interface de QGIS)
         self.iface = iface
+        self.canvas = self.iface.mapCanvas()
         
         # DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
@@ -95,75 +96,41 @@ class OperationDialog(QtGui.QDialog):
         self.close
 
     def composeur(self):
-
-        #Essai venant de http://lists.osgeo.org/pipermail/qgis-user/2010-July/009177.html
+        #Production d'une carte de composeur
+        #On récupère la liste des composeurs avant d'en créer un
+        beforeList = self.iface.activeComposers()
+        #On crée un nouveau composeur
+        self.iface.actionPrintComposer().trigger()  
+        #On récupère la liste des composeurs après création du nouveau
+        afterList = self.iface.activeComposers()
         
-        #self.iface.actionPrintComposer().trigger() ***attention : si on décommente, le bloc crée un nouveau composeur vide
-        composerList = self.iface.activeComposers()
-        #composerView = composerList[composerList.index(max(composerList))] *** dernier composeur de la liste
-        composerView = composerList[1]
-        composition = composerView.composition()
-        composer = composerView.composerWindow()
-        #composition.setPaperSize(float(width),  float(height))
-        composer.show()
+        #On récupère dans diffList le composeur créé entre la récupération des deux listes.
+        diffList = []
+        for item in afterList:
+            if not item in  beforeList:
+                diffList.append(item)
 
-        ##############################
-        # variable compos contient tous les composeurs actuellement actifs.        
-        #compos = self.iface.activeComposers()        
-        #for composerView in compos:                        *** va ouvrir tous les composeurs créés dans le projet
-         #   self.composer = composerView.composerWindow()
-          #  self.composer.show()
-           # self.composer.activate()
-                
-        # ouverture d'un composeur                   *** fonctionne, mais va ouvrir tous les composeurs créés dans le projet
-        #for composerView in compos:
-        #    composer = composerView.composerWindow()
-        #    composer.setVisible(True)
-        
-        ################################"
-            # essai de création decomposeur venant de http://www.qgis.org/pyqgis-cookbook/composer.html
-            # apparemment, n'affiche rien.
-        #mapRenderer = self.iface.mapCanvas().mapRenderer()
-        #c = QgsComposition(mapRenderer)
-        #c.setPlotStyle(QgsComposition.Print)
-            
-            #essai création label dans le composeur
-        #composerLabel = QgsComposerLabel(c)
-        #composerLabel.setText("Hello world")
-        #composerLabel.adjustSizeToText()
-        #composerLabel.setItemPosition(20,10,100,100)
-        #c.addItem(composerLabel)
-
-        # essai création légende
-        #legend = QgsComposerLegend(c)
-        #legend.model().setLayerSet(mapRenderer.layerSet())
-        #c.addItem(legend)
-        #legend.setItemPosition(20, 10, 100, 100)
-
-        ########################
-        # pas encore essayé mais porteur d'espoir
-        #http://cataisrepository.googlecode.com/svn-history/r83/trunk/qgis/plugins/soverify/dm01avbe11d/complexchecks/lfp3_pro_ts_mit_karte.py
-        # ComposerMap erzeugen.
-        # beforeList = self.iface.activeComposers()
-        # self.iface.actionPrintComposer().trigger()  
-        # afterList = self.iface.activeComposers()
-        
-        #diffList = []
-        #for item in afterList:
-        #    if not item in  beforeList:
-        #        diffList.append(item)
-
-        #paperwidth = 297
-        #paperheight = 210
+        #réglage du papier
+        #paperwidth = 420
+        #paperheight = 297
         #margin = 8
         
-        #composerView = diffList[0]
-        #composition = composerView.composition()
+        #Intégration du composeur dans le QgsComposeurView et création du QgsComposition
+        composerView = diffList[0]
+        composition = composerView.composition()
+        #Taille de la page
         #composition.setPaperSize(float(paperwidth),  float(paperheight))
-
+        #Taille de la carte
         #mapWidth = float(paperwidth) - 2*margin
         #mapHeight = float(paperheight) - 2*margin
         #composerMap = QgsComposerMap( composition, margin, margin, mapWidth,  mapHeight )
-        #composerMap.setNewScale(self.canvas.scale()) 
-        #composerView.addComposerMap(composerMap)
-            
+        #Récupération du template. Intégration des ses éléments dans la carte.
+        file1=QtCore.QFile('/home/vincent/form_pyqgis2013/xxx_20130705_CART_ComposerTemplate.qpt')
+        doc=QtXml.QDomDocument()
+        doc.setContent(file1, False)
+        composition.loadFromTemplate(doc)
+        #Ajout de la carte au composeur
+        #composition.addComposerMap(composerMap)
+        #L'étendue de la carte = étendue de la vue dans le canvas
+        #composerMap.setNewScale(self.canvas.scale())
+        

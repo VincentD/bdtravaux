@@ -3,7 +3,7 @@
 /***************************************************************************
  BdTravaux
                                  A QGIS plugin
- Plugin d'aide à la saisie à destination des gerdes-techniciens
+ Plugin d'aide à la saisie à destination des gardes-techniciens
                              -------------------
         begin                : 2013-03-27
         copyright            : (C) 2013 by CEN NPdC
@@ -27,7 +27,7 @@ def name():
 
 
 def description():
-    return "Plugin d'aide à la saisie à destination des gerdes-techniciens"
+    return "Plugin d'aide à la saisie à destination des gardes-techniciens"
 
 
 def version():
@@ -39,7 +39,7 @@ def icon():
 
 
 def qgisMinimumVersion():
-    return "1.9"
+    return "2.0"
 
 def author():
     return "CEN NPdC"

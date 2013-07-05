@@ -19,7 +19,7 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore, QtGui, QtSql
+from PyQt4 import QtCore, QtGui, QtSql, QtXml
 from qgis.core import *
 from ui_operation import Ui_operation
 from convert_geoms import convert_geometries
@@ -36,6 +36,7 @@ class OperationDialog(QtGui.QDialog):
         self.ui.setupUi(self)
         # référencement de iface dans l'interface (iface = interface de QGIS)
         self.iface = iface
+        self.canvas = self.iface.mapCanvas()
         
         # DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
@@ -55,15 +56,14 @@ class OperationDialog(QtGui.QDialog):
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         if query.exec_('select sortie_id, date_sortie, codesite, redacteur from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
             while query.next():
-                self.ui.sortie.addItem(query.value(1).toString() + " " + query.value(2).toString() + " "+ query.value(3).toString(), query.value(0).toInt()[0])
+                self.ui.sortie.addItem(str(query.value(1)) + " " + str(query.value(2)) + " "+ query.value(3), int(query.value(0)))
             # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche, 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
-            # .toInt renvoie deux paramètres. Le [0] précise qu'on ne veut récupérer que le premier, qui est l'entier 
-            # (le 2ème para = boolean pour savoir si la conversion a marché)
         
         #connexions aux boutons OK et Annuler
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpe)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
+        self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
 
     def actu_lblgeom(self):
         # Indiquer le nombre d'entités sélectionnées dans le contrôle lbl_geo et le type de géométrie.
@@ -83,7 +83,7 @@ class OperationDialog(QtGui.QDialog):
     def sauverOpe(self):
         geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],QGis.Polygon) #compréhension de liste
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()).toInt()[0],\
+        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
@@ -94,3 +94,43 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
         print query
         self.close
+
+    def composeur(self):
+        #Production d'une carte de composeur
+        #On récupère la liste des composeurs avant d'en créer un
+        beforeList = self.iface.activeComposers()
+        #On crée un nouveau composeur
+        self.iface.actionPrintComposer().trigger()  
+        #On récupère la liste des composeurs après création du nouveau
+        afterList = self.iface.activeComposers()
+        
+        #On récupère dans diffList le composeur créé entre la récupération des deux listes.
+        diffList = []
+        for item in afterList:
+            if not item in  beforeList:
+                diffList.append(item)
+
+        #réglage du papier
+        #paperwidth = 420
+        #paperheight = 297
+        #margin = 8
+        
+        #Intégration du composeur dans le QgsComposeurView et création du QgsComposition
+        composerView = diffList[0]
+        composition = composerView.composition()
+        #Taille de la page
+        #composition.setPaperSize(float(paperwidth),  float(paperheight))
+        #Taille de la carte
+        #mapWidth = float(paperwidth) - 2*margin
+        #mapHeight = float(paperheight) - 2*margin
+        #composerMap = QgsComposerMap( composition, margin, margin, mapWidth,  mapHeight )
+        #Récupération du template. Intégration des ses éléments dans la carte.
+        file1=QtCore.QFile('/home/vincent/form_pyqgis2013/xxx_20130705_CART_ComposerTemplate.qpt')
+        doc=QtXml.QDomDocument()
+        doc.setContent(file1, False)
+        composition.loadFromTemplate(doc)
+        #Ajout de la carte au composeur
+        #composition.addComposerMap(composerMap)
+        #L'étendue de la carte = étendue de la vue dans le canvas
+        #composerMap.setNewScale(self.canvas.scale())
+        

@@ -56,9 +56,13 @@ class OperationDialog(QtGui.QDialog):
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         if query.exec_('select sortie_id, date_sortie, codesite, redacteur from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
             while query.next():
-                self.ui.sortie.addItem(str(query.value(1)) + " " + str(query.value(2)) + " "+ query.value(3), int(query.value(0)))
+                self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
+            
             # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche, 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
+            # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
+            # pour la date : plus de "toString()" dans l'API de QGIS 2.0 => QDate retransformé en PyQt pour utiliser "strftime"
+            # afin de le transformer en chaîne de caractères.
         
         #connexions aux boutons OK et Annuler
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpe)

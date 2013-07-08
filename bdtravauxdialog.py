@@ -50,7 +50,7 @@ class BdTravauxDialog(QtGui.QDialog):
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
             while query.next():
-                self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(0))
+                self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(1) )
             # *Voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
             # l'Int renvoie deux paramètres. Le [0] précise qu'on ne veut récupérer que le premier, qui est l'entier 
@@ -67,7 +67,7 @@ class BdTravauxDialog(QtGui.QDialog):
         query_save = QtSql.QSqlQuery(self.db)
         # query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_fini, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantfini.isChecked()).lower(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())
         # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs liges, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de . format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et à simplifier la lecture.
-        query = """insert into bdtravaux.sortie (date_sortie, redacteur, codesite, jours_chan, chantfini, chantvol, sortcom) values ('{zr_date_sortie}'::date, '{zr_redacteur}', '{zr_site}', '{zr_jours_chantier}', {zr_chantier_fini}, {zr_chantier_vol}, '{zr_sort_com}')""".format (zr_date_sortie=(self.ui.date.selectedDate()).toPyDate().strftime("%Y-%m-%d"),\
+        query = """insert into bdtravaux.sortie (date_sortie, redacteur, codesite, jours_chan, chantfini, chantvol, sortcom) values ('{zr_date_sortie}'::date, '{zr_redacteur}', '{zr_site}', '{zr_jours_chantier}', {zr_chantier_fini}, {zr_chantier_vol}, '{zr_sort_com}')""".format (zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
         zr_redacteur=self.ui.obsv.currentText(),\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_jours_chantier=self.ui.jours_chan.toPlainText().encode('UTF-8'),\

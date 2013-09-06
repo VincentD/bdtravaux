@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BDTravSynth</class>
+ <widget class="QDialog" name="BDTravSynth">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>713</width>
+    <height>569</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>520</y>
+     <width>341</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_codesite">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>40</y>
+     <width>101</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Code du site :</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_dat_debreal">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>90</y>
+     <width>141</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Début de l'opération :&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_dat_finbreal">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>90</y>
+     <width>131</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fin de l'opération :&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QCalendarWidget" name="cal_debope">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>130</y>
+     <width>281</width>
+     <height>211</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QCalendarWidget" name="cal_finope">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>130</y>
+     <width>281</width>
+     <height>211</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_codesite2">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>40</y>
+     <width>66</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>000</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_dat_jourschan">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>360</y>
+     <width>121</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Jours travaillés :&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="txt_dat_jourschan">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>390</y>
+     <width>401</width>
+     <height>81</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_anneereal">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>30</y>
+     <width>151</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Année de réalisation : &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_anneereal2">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>40</y>
+     <width>66</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>2013</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>BDTravSynth</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>BDTravSynth</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

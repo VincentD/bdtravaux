@@ -61,23 +61,26 @@ class BdTravauxDialog(QtGui.QDialog):
         # connexion du signal du bouton OK
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
-        self.connect(self.ui.impression, QtCore.SIGNAL('clicked()'), self.impression)
             
     def sauverInfos(self):
         query_save = QtSql.QSqlQuery(self.db)
         # query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_fini, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantfini.isChecked()).lower(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())
         # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs liges, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de . format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et à simplifier la lecture.
-        query = """insert into bdtravaux.sortie (date_sortie, redacteur, codesite, jours_chan, chantfini, chantvol, sortcom) values ('{zr_date_sortie}'::date, '{zr_redacteur}', '{zr_site}', '{zr_jours_chantier}', {zr_chantier_fini}, {zr_chantier_vol}, '{zr_sort_com}')""".format (zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
+        query = u'INSERT INTO bdtravaux.sortie (date_sortie, redacteur, codesite, jours_chan, chantfini, chantvol, sortcom) VALUES (\'{zr_date_sortie}\'::date, \'{zr_redacteur}\', \'{zr_site}\', \'{zr_jours_chantier}\', {zr_chantier_fini}, {zr_chantier_vol}, \'{zr_sort_com}\')'.format(\
+        zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
         zr_redacteur=self.ui.obsv.currentText(),\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
-        zr_jours_chantier=self.ui.jours_chan.toPlainText().encode('UTF-8'),\
+        zr_jours_chantier=self.ui.jours_chan.toPlainText(),\
         zr_chantier_fini=str(self.ui.chantfini.isChecked()).lower(),\
         zr_chantier_vol=str(self.ui.chantvol.isChecked()).lower(),\
-        zr_sort_com=self.ui.comm.toPlainText().encode('UTF-8'))
+        zr_sort_com=self.ui.comm.toPlainText())
+               
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-        print query
+        #print query
+        self.db.close()
+        self.db.removeDatabase("sitescsn")
         self.close()
                 
                 
@@ -89,19 +92,4 @@ class BdTravauxDialog(QtGui.QDialog):
         # Or, on veut true ou false pour que PostGreSQl puisse les interprêter. D'où laméthode Python .lower, qui change la casse des chaînes.
         # contrôles "jours_chan" et "comm" : ce qont des QTextEdit. Ils prennent donc le texte saisi au format HTML. 
         # La méthode toPleinText() renvoie du texte classique
-
-    def impression(self):
-        printer=QtGui.QPrinter() # crée une variable "printer" avec la classe Qprinter, qui "peind" sur une imprimante
-        query_imp=QtSql.QSqlQuery(self.db)
-        query="""select date_sortie, redacteur from bdtravaux.sortie order by sortie_id desc limit 1"""
-        query_imp_envoi = query_imp.exec_(query)
-        if not query_imp_envoi:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée, impression impossible')
-        doc=QtGui.QTextDocument(query.value(0)) # crée la variable qui contient le texte à imprimer
-        dialog = QtGui.QPrintDialog(printer) # lance la boite de dialogue de choix de l'imprimante et de ses options
-        dialog.setModal(True) # propriétés de la boite de dialogue
-        dialog.setWindowTitle("Imprimer le compte-rendu de sortie" )
-        # dialog.addEnabledOption(QAbstractPrintDialog.PrintSelection)
-        if dialog.exec_() == True: # si le résultat de la boite de dialogue est correct, alors on imprime.
-            doc.print_(printer)
-            QtGui.QMessageBox.information(self, 'Information', 'Ceci sera une impression') # test écran
+   

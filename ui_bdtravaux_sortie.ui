@@ -208,19 +208,6 @@
       <string>Chantier de volontaires</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="impression">
-     <property name="geometry">
-      <rect>
-       <x>670</x>
-       <y>540</y>
-       <width>91</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Imprimer</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QWidget" name="tab_comm">
     <attribute name="title">

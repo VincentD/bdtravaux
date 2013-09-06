@@ -99,6 +99,8 @@ class BdTravaux:
             # do something useful (delete the line containing pass and
             # substitute with your code)
             pass
+    
+    
     # démarre la méthode qui va faire tout le travail  (interface "operation")
     def run_ope(self):
         # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
@@ -120,9 +122,9 @@ class BdTravaux:
             return
 
         # show the dialog
+        self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
         self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
                                     # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
-        #self.connect(self.dlg_ope.actu_lblgeom(), QtCore.SIGNAL(), self, SLOT(close()))        
         self.dlg_ope.show()
         # Run the dialog event loop
         result = self.dlg_ope.exec_()

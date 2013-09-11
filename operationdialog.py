@@ -43,7 +43,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -106,6 +106,17 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
         print query
+        #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
+        uri = QgsDataSourceURI()
+        # set host name, port, database name, username and password
+        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        # set database schema, table name, geometry column and optionaly subset (WHERE clause)
+        uri.setDataSource("bdtravaux", "operation_poly", "the_geom")
+        #instanciation de la couche dans qgis 
+        gestrealsurf=QgsVectorLayer(uri.uri(), "gestrealsurf", "postgres")
+        #intégration de la couche importée dans le Map Layer Registru pour pouvoir l'utiliser
+        QgsMapLayerRegistry.instance().addMapLayer(gestrealsurf)
+        
         self.close
 
     def composeur(self):

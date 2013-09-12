@@ -25,6 +25,7 @@ from qgis.gui import *
 from ui_operation import Ui_operation
 from convert_geoms import convert_geometries
 import sys
+import inspect
 # create the dialog for zoom to point
 
 
@@ -111,7 +112,11 @@ class OperationDialog(QtGui.QDialog):
         # set host name, port, database name, username and password
         uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
-        uri.setDataSource("bdtravaux", "operation_poly", "the_geom")
+        reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        print reqwhere
+        uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
+        print uri.setDataSource
+        print self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         #instanciation de la couche dans qgis 
         gestrealsurf=QgsVectorLayer(uri.uri(), "gestrealsurf", "postgres")
         #intégration de la couche importée dans le Map Layer Registru pour pouvoir l'utiliser

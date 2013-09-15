@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab_general">
     <attribute name="title">
@@ -424,7 +424,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="ch_nb_jours"/>
+       <widget class="QLineEdit" name="ch_nb_jours">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="chlbl_heurchant">

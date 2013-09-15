@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -92,6 +92,22 @@ class OperationDialog(QtGui.QDialog):
         self.ui.lbl_geom.setText(u"{nb_geom} géométries, de type {typ_geom}".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
         typ_geom=geometrie))
         
+
+    def active_chantier_vol(self):
+        print 'coucou'
+        querychantvol = QtSql.QSqlQuery(self.db)
+        queryvol = u"""select sortie_id, chantvol from bdtravaux.sortie where sortie_id = '{zr_sortie_id}' and chantvol=FALSE""".format \
+        (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        ok = querychantvol.exec_(queryvol)
+        if not ok:
+            self.ui.ch_nb_jours.setEnabled(1)
+            print queryvol
+            print self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+        else:
+            print self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+            print 'ca passe'
+
+
     def sauverOpe(self):
         geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],QGis.Polygon) #compréhension de liste
         querysauvope = QtSql.QSqlQuery(self.db)
@@ -107,22 +123,24 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
         print query
+        self.affiche()
+        self.close
+
+    def affiche(self):
+        #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        print reqwhere
         uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
-        print uri.setDataSource
-        print self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+        #print reqwhere
         #instanciation de la couche dans qgis 
         gestrealsurf=QgsVectorLayer(uri.uri(), "gestrealsurf", "postgres")
         #intégration de la couche importée dans le Map Layer Registru pour pouvoir l'utiliser
         QgsMapLayerRegistry.instance().addMapLayer(gestrealsurf)
         
-        self.close
 
     def composeur(self):
         #Enregistrer le dernier polygone en base avec la fonction sauverOpe()

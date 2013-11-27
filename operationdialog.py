@@ -99,7 +99,8 @@ class OperationDialog(QtGui.QDialog):
         queryvol = u"""select sortie_id, chantvol from bdtravaux.sortie where sortie_id = '{zr_sortie_id}' and chantvol=FALSE""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok = querychantvol.exec_(queryvol)
-        if not ok:
+        print ok
+        if ok:
             self.ui.ch_nb_jours.setEnabled(1)
             print queryvol
             print self.ui.sortie.itemData(self.ui.sortie.currentIndex())
@@ -179,20 +180,17 @@ class OperationDialog(QtGui.QDialog):
         labels = [item for item in composition.items()\
                 if item.type() == QgsComposerItem.ComposerLabel]
         
-        #Pour chaque étiquette qui affiche "$NAME$", remplacer le texte par "Hello world"
+        #Pour chaque étiquette qui contient "$NAME$", remplacer le texte par "Hello world"
+        # La methode find() permet de chercher une chaîne dans une autre. 
+        # Elle renvoie le rang du début de la chaîne cherchée. Si = -1, c'est que la chaîne cherchée n'est pas trouvée
+        codesite=unicode(self.ui.sortie.currentText()).split("/")[1]
         for label in labels:
-            if label.displayText() == "$NAME$":
-                label.setText("Hello World")
+            if label.displayText().find("$codesite")>-1:
+                plac_codesite=label.displayText().find("$codesite")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_codesite]+codesite+texte[plac_codesite+9:])
+                #for python equivalent to VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
 
-        # find labels with $FIELD() string
-#        for label in labels:
-#            fields = set(re.findall('\$FIELD\((\w*)\)', label.text()))
-#            if fields:
-#                self.labelReplacementInfos.append(\
-#                        {'label':label,
-#                            'originalText':label.text(),
-#                            'fields':fields})
-        
         #réglage du papier
         #paperwidth = 420
         #paperheight = 297

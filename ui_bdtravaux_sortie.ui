@@ -81,7 +81,12 @@
        <widget class="QComboBox" name="obsv">
         <item>
          <property name="text">
-          <string>Sandrine Gougaud</string>
+          <string>Alexis Thery</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Anthony Vasseux</string>
          </property>
         </item>
         <item>
@@ -91,12 +96,17 @@
         </item>
         <item>
          <property name="text">
-          <string>Simon Bezille</string>
+          <string>Quentin Vanquelef</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Alexis Thery</string>
+          <string>Sandrine Gougaud</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Simon Bezille</string>
          </property>
         </item>
        </widget>

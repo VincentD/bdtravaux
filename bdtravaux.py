@@ -60,7 +60,7 @@ class BdTravaux:
     def initGui(self):
         # Création du bouton qui va démarrer le plugin (interface "sortie")
         self.action = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/icon.png"),
+            QtGui.QIcon(":/plugins/bdtravaux/icon2.png"),
             u"Saisie sortie", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" (def à la ligne 90)
         QtCore.QObject.connect(self.action, QtCore.SIGNAL("triggered()"), self.run)
@@ -70,7 +70,7 @@ class BdTravaux:
         
         # Création du bouton qui va démarrer le plugin (interface "opérations")
         self.operation = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/icon.png"),
+            QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
             u"Saisie opérations", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" (def à la ligne 90)
         QtCore.QObject.connect(self.operation, QtCore.SIGNAL("triggered()"), self.run_ope)

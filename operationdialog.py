@@ -23,7 +23,9 @@ from PyQt4 import QtCore, QtGui, QtSql, QtXml
 from qgis.core import *
 from qgis.gui import *
 from ui_operation import Ui_operation
+from bdtravauxdialog import BdTravauxDialog
 from convert_geoms import convert_geometries
+from re import *
 import sys
 import inspect
 # create the dialog for zoom to point
@@ -44,7 +46,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -131,14 +133,14 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
-        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
         #print reqwhere
         #instanciation de la couche dans qgis 
         gestrealsurf=QgsVectorLayer(uri.uri(), "gestrealsurf", "postgres")
-        #intégration de la couche importée dans le Map Layer Registru pour pouvoir l'utiliser
+        #intégration de la couche importée dans le Map Layer Registry pour pouvoir l'utiliser
         QgsMapLayerRegistry.instance().addMapLayer(gestrealsurf)
         
 
@@ -149,7 +151,7 @@ class OperationDialog(QtGui.QDialog):
         #On récupère la liste des composeurs avant d'en créer un
         beforeList = self.iface.activeComposers()
         #On crée un nouveau composeur
-        self.iface.actionPrintComposer().trigger()  
+        self.iface.actionPrintComposer().trigger()
         #On récupère la liste des composeurs après création du nouveau
         afterList = self.iface.activeComposers()
         
@@ -173,25 +175,79 @@ class OperationDialog(QtGui.QDialog):
         canvas = self.iface.mapCanvas()
         for item in composition.composerMapItems():
             item.setNewExtent(canvas.extent())
-                    
-        #Modifier les étiquettes du composeur.
-        # Trouver les étiquettes dans le composeur
-        labels = [item for item in composition.items()\
-                if item.type() == QgsComposerItem.ComposerLabel]
         
-        #Pour chaque étiquette qui affiche "$NAME$", remplacer le texte par "Hello world"
-        for label in labels:
-            if label.displayText() == "$NAME$":
-                label.setText("Hello World")
-
-        # find labels with $FIELD() string
+        #Trouve des étiquettes avec du texte à remplacer et crée une structure pour s'en occuper
+        #Initialise les données
+        self.labelReplacementInfos = []
+        #Crée une collection "labels", contenant les étiquettes du composeur
+        labels = [item for item in composition.items() if item.type() == QgsComposerItem.ComposerLabel]
+        
+#Pour chaque étiquette qui affiche "$NAME$", remplacer le texte par "Hello world"
 #        for label in labels:
-#            fields = set(re.findall('\$FIELD\((\w*)\)', label.text()))
-#            if fields:
-#                self.labelReplacementInfos.append(\
-#                        {'label':label,
-#                            'originalText':label.text(),
-#                            'fields':fields})
+#            if label.displayText() == "$codesite":
+#                label.setText(self.ui.sortie.currentText().split("/")[1])
+#                label.adjustSizeToText()
+
+        #Trouve les étiquettes possédant la chaîne de caractère "$codesite"
+        #Utilisation de la fronction findall du module re, permettant de manipuler des expressions régulières (REGEXP) => liste d'occurences.
+        for label in labels:
+            fields = set(findall('codesite', label.text()))
+#            print fields,label.text()
+            if fields:
+                self.labelReplacementInfos.append(\
+                        {'label':label,
+                            'originalText':label.text(),
+                            'fields':fields})
+        #Remplacement du texte dans les étiquettes
+        """Given replacement infos and field values, replace reference to fields by field values"""
+        for lri in self.labelReplacementInfos:
+            pos = 0
+            outText = ''
+            # get match groups
+            # utilisation de finditer du module Re (REGEXP) => itérateur d'occurences
+            for mg in finditer('codesite', unicode(lri['originalText'])):
+                # text from current pos to beginnig of the match
+                outText += lri['originalText'][pos:mg.start()]
+                outText += self.ui.sortie.currentText().split("/")[1]
+                pos = mg.end()
+            # add the end of the text
+            outText += lri['originalText'][pos:]
+            # finally sets the label text to the replaced value
+            lri['label'].setText(outText)
+#            lri['label'].adjustSizeToText()
+
+        for label in labels:
+            fields = set(findall('nomsite', label.text()))
+#            print fields,label.text()
+            if fields:
+                self.labelReplacementInfos.append(\
+                        {'label':label,
+                            'originalText':label.text(),
+                            'fields':fields})
+        #Récupération du nom de site à partir du code
+        querynomsite=QtSql.QSqlQuery(self.db)
+        querysite=u"""select nomsite from sites_cen.t_sitescen where codesite='{zr_codesite}'""".format\
+        (zr_codesite= self.ui.sortie.currentText().split("/")[1])
+        siteok = querynomsite.exec_(querysite)
+        print querynomsite.value(0)
+        #Remplacement du texte dans les étiquettes
+        for lri in self.labelReplacementInfos:
+            pos = 0
+            outText = ''
+            # get match groups
+            # utilisation de finditer du module Re (REGEXP) => itérateur d'occurences
+            for mg in finditer('nomsite', unicode(lri['originalText'])):
+                # text from current pos to beginnig of the match
+                outText += lri['originalText'][pos:mg.start()]
+                outText += self.ui.sortie.currentText().split("/")[2]
+                pos = mg.end()
+            # add the end of the text
+            outText += lri['originalText'][pos:]
+            # finally sets the label text to the replaced value
+            lri['label'].setText(outText)
+#           lri['label'].adjustSizeToText()
+
+
         
         #réglage du papier
         #paperwidth = 420

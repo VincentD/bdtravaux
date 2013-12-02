@@ -180,16 +180,26 @@ class OperationDialog(QtGui.QDialog):
         labels = [item for item in composition.items()\
                 if item.type() == QgsComposerItem.ComposerLabel]
         
-        #Pour chaque étiquette qui contient "$NAME$", remplacer le texte par "Hello world"
+        #Pour chaque étiquette qui contient "$codesite", remplacer le texte par le code du site concerné
         # La methode find() permet de chercher une chaîne dans une autre. 
         # Elle renvoie le rang du début de la chaîne cherchée. Si = -1, c'est que la chaîne cherchée n'est pas trouvée
         codesite=unicode(self.ui.sortie.currentText()).split("/")[1]
+        querynomsite = QtSql.QSqlQuery(self.db)
+        qnomsite=u"""select nomsite from sites_cen.t_sitescen where codesite='{zr_codesite}'""".format (zr_codesite=codesite)
+        ok = querynomsite.exec_(qnomsite)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+        print qnomsite
+        print ok
+        print querynomsite
+
         for label in labels:
             if label.displayText().find("$codesite")>-1:
                 plac_codesite=label.displayText().find("$codesite")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_codesite]+codesite+texte[plac_codesite+9:])
                 #for python equivalent to VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
+        
 
         #réglage du papier
         #paperwidth = 420

@@ -180,16 +180,47 @@ class OperationDialog(QtGui.QDialog):
         labels = [item for item in composition.items()\
                 if item.type() == QgsComposerItem.ComposerLabel]
         
-        #Pour chaque étiquette qui contient "$NAME$", remplacer le texte par "Hello world"
+        #trouver codesite dans la combobox "sortie" du module "operation"
+        #codesite=unicode(self.ui.sortie.currentText()).split("/")[1]
+        #print "codesite ="+codesite
+
+        #trouver codesite dans la table postgresql, en fonction de l'id de la sortie sélectionnée dans le module "opération"
+        querycodesite = QtSql.QSqlQuery(self.db)
+        qcodesite = u"""select codesite from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+        (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        ok2 = querycodesite.exec_(qcodesite)
+        if not ok2:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête 2 ratée')
+        print qcodesite
+        querycodesite.next()
+        codedusite=querycodesite.value(0)
+        print codedusite
+
+        #trouver nomsite dans la table postgresql, en fonction de codesite
+        querynomsite = QtSql.QSqlQuery(self.db)
+        qnomsite=(u"""select nomsite from sites_cen.t_sitescen where codesite='{zr_codesite}'""".format (zr_codesite=codedusite))
+        ok = querynomsite.exec_(qnomsite)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+        print qnomsite
+        querynomsite.next()
+        nomdusite=querynomsite.value(0)
+        print nomdusite
+
+        #Pour chaque étiquette qui contient "$codesite", remplacer le texte par le code du site concerné
         # La methode find() permet de chercher une chaîne dans une autre. 
         # Elle renvoie le rang du début de la chaîne cherchée. Si = -1, c'est que la chaîne cherchée n'est pas trouvée
-        codesite=unicode(self.ui.sortie.currentText()).split("/")[1]
         for label in labels:
             if label.displayText().find("$codesite")>-1:
                 plac_codesite=label.displayText().find("$codesite")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_codesite]+codesite+texte[plac_codesite+9:])
+                label.setText(texte[0:plac_codesite]+codedusite+texte[plac_codesite+9:])
                 #for python equivalent to VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
+            if label.displayText().find("$nomsite")>-1:
+                plac_nomsite=label.displayText().find("$nomsite")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_nomsite]+nomdusite+texte[plac_nomsite+8:])
+        
 
         # find labels with $FIELD() string
 #        for label in labels:

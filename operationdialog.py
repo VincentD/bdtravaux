@@ -23,9 +23,7 @@ from PyQt4 import QtCore, QtGui, QtSql, QtXml
 from qgis.core import *
 from qgis.gui import *
 from ui_operation import Ui_operation
-from bdtravauxdialog import BdTravauxDialog
 from convert_geoms import convert_geometries
-from re import *
 import sys
 import inspect
 # create the dialog for zoom to point
@@ -101,7 +99,8 @@ class OperationDialog(QtGui.QDialog):
         queryvol = u"""select sortie_id, chantvol from bdtravaux.sortie where sortie_id = '{zr_sortie_id}' and chantvol=FALSE""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok = querychantvol.exec_(queryvol)
-        if not ok:
+        print ok
+        if ok:
             self.ui.ch_nb_jours.setEnabled(1)
             print queryvol
             print self.ui.sortie.itemData(self.ui.sortie.currentIndex())
@@ -151,7 +150,7 @@ class OperationDialog(QtGui.QDialog):
         #On récupère la liste des composeurs avant d'en créer un
         beforeList = self.iface.activeComposers()
         #On crée un nouveau composeur
-        self.iface.actionPrintComposer().trigger()
+        self.iface.actionPrintComposer().trigger()  
         #On récupère la liste des composeurs après création du nouveau
         afterList = self.iface.activeComposers()
         
@@ -175,79 +174,31 @@ class OperationDialog(QtGui.QDialog):
         canvas = self.iface.mapCanvas()
         for item in composition.composerMapItems():
             item.setNewExtent(canvas.extent())
+                    
+        #Modifier les étiquettes du composeur.
+        # Trouver les étiquettes dans le composeur
+        labels = [item for item in composition.items()\
+                if item.type() == QgsComposerItem.ComposerLabel]
         
-        #Trouve des étiquettes avec du texte à remplacer et crée une structure pour s'en occuper
-        #Initialise les données
-        self.labelReplacementInfos = []
-        #Crée une collection "labels", contenant les étiquettes du composeur
-        labels = [item for item in composition.items() if item.type() == QgsComposerItem.ComposerLabel]
-        
-#Pour chaque étiquette qui affiche "$NAME$", remplacer le texte par "Hello world"
+        #Pour chaque étiquette qui contient "$NAME$", remplacer le texte par "Hello world"
+        # La methode find() permet de chercher une chaîne dans une autre. 
+        # Elle renvoie le rang du début de la chaîne cherchée. Si = -1, c'est que la chaîne cherchée n'est pas trouvée
+        codesite=unicode(self.ui.sortie.currentText()).split("/")[1]
+        for label in labels:
+            if label.displayText().find("$codesite")>-1:
+                plac_codesite=label.displayText().find("$codesite")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_codesite]+codesite+texte[plac_codesite+9:])
+                #for python equivalent to VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
+
+        # find labels with $FIELD() string
 #        for label in labels:
-#            if label.displayText() == "$codesite":
-#                label.setText(self.ui.sortie.currentText().split("/")[1])
-#                label.adjustSizeToText()
-
-        #Trouve les étiquettes possédant la chaîne de caractère "$codesite"
-        #Utilisation de la fronction findall du module re, permettant de manipuler des expressions régulières (REGEXP) => liste d'occurences.
-        for label in labels:
-            fields = set(findall('codesite', label.text()))
-#            print fields,label.text()
-            if fields:
-                self.labelReplacementInfos.append(\
-                        {'label':label,
-                            'originalText':label.text(),
-                            'fields':fields})
-        #Remplacement du texte dans les étiquettes
-        """Given replacement infos and field values, replace reference to fields by field values"""
-        for lri in self.labelReplacementInfos:
-            pos = 0
-            outText = ''
-            # get match groups
-            # utilisation de finditer du module Re (REGEXP) => itérateur d'occurences
-            for mg in finditer('codesite', unicode(lri['originalText'])):
-                # text from current pos to beginnig of the match
-                outText += lri['originalText'][pos:mg.start()]
-                outText += self.ui.sortie.currentText().split("/")[1]
-                pos = mg.end()
-            # add the end of the text
-            outText += lri['originalText'][pos:]
-            # finally sets the label text to the replaced value
-            lri['label'].setText(outText)
-#            lri['label'].adjustSizeToText()
-
-        for label in labels:
-            fields = set(findall('nomsite', label.text()))
-#            print fields,label.text()
-            if fields:
-                self.labelReplacementInfos.append(\
-                        {'label':label,
-                            'originalText':label.text(),
-                            'fields':fields})
-        #Récupération du nom de site à partir du code
-        querynomsite=QtSql.QSqlQuery(self.db)
-        querysite=u"""select nomsite from sites_cen.t_sitescen where codesite='{zr_codesite}'""".format\
-        (zr_codesite= self.ui.sortie.currentText().split("/")[1])
-        siteok = querynomsite.exec_(querysite)
-        print querynomsite.value(0)
-        #Remplacement du texte dans les étiquettes
-        for lri in self.labelReplacementInfos:
-            pos = 0
-            outText = ''
-            # get match groups
-            # utilisation de finditer du module Re (REGEXP) => itérateur d'occurences
-            for mg in finditer('nomsite', unicode(lri['originalText'])):
-                # text from current pos to beginnig of the match
-                outText += lri['originalText'][pos:mg.start()]
-                outText += self.ui.sortie.currentText().split("/")[2]
-                pos = mg.end()
-            # add the end of the text
-            outText += lri['originalText'][pos:]
-            # finally sets the label text to the replaced value
-            lri['label'].setText(outText)
-#           lri['label'].adjustSizeToText()
-
-
+#            fields = set(re.findall('\$FIELD\((\w*)\)', label.text()))
+#            if fields:
+#                self.labelReplacementInfos.append(\
+#                        {'label':label,
+#                            'originalText':label.text(),
+#                            'fields':fields})
         
         #réglage du papier
         #paperwidth = 420

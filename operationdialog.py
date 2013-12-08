@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -132,7 +132,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
@@ -165,7 +165,7 @@ class OperationDialog(QtGui.QDialog):
         composition = composerView.composition()
        
         #Récupération du template. Intégration des ses éléments dans la carte.
-        file1=QtCore.QFile('/home/vincent/form_pyqgis2013/xxx_20130705_CART_ComposerTemplate.qpt')
+        file1=QtCore.QFile('/home/vincent/form_pyqgis2013/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         composition.loadFromTemplate(doc)
@@ -184,17 +184,18 @@ class OperationDialog(QtGui.QDialog):
         #codesite=unicode(self.ui.sortie.currentText()).split("/")[1]
         #print "codesite ="+codesite
 
-        #trouver codesite dans la table postgresql, en fonction de l'id de la sortie sélectionnée dans le module "opération"
+        #trouver codesite, redacteur, date_sortie et sortcom dans la table pg, selon l'id de la sortie sélectionnée dans le module "opération"
         querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête 2 ratée')
-        print qcodesite
         querycodesite.next()
         codedusite=querycodesite.value(0)
-        print codedusite
+        redacteur=querycodesite.value(1)
+        datesortie=querycodesite.value(2).toPyDate().strftime("%Y-%m-%d")
+        sortcom=querycodesite.value(3)
 
         #trouver nomsite dans la table postgresql, en fonction de codesite
         querynomsite = QtSql.QSqlQuery(self.db)
@@ -202,12 +203,25 @@ class OperationDialog(QtGui.QDialog):
         ok = querynomsite.exec_(qnomsite)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-        print qnomsite
         querynomsite.next()
-        nomdusite=querynomsite.value(0)
-        print nomdusite
+        nomdusite=unicode(querynomsite.value(0))
 
-        #Pour chaque étiquette qui contient "$codesite", remplacer le texte par le code du site concerné
+        #trouver les opérations effectuées lors de la sortie et leurs commentaires dans la table postgresql, selon l'id de la sortie sélectionnée dans le module "opération"
+        # une boucle permet de récupérer et afficher à la suite dans une seule zone de texte toutes les opérations et leurs descriptions
+        querycomope = QtSql.QSqlQuery(self.db)
+        qcomope=u"""select typ_operat, descriptio from bdtravaux.operation_poly where sortie={zr_sortie} order by sortie""". format \
+        (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        ok3 = querycomope.exec_(qcomope)
+        if not ok3:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête operations ratée')
+        querycomope.first()
+        texteope=""
+        while querycomope.next():
+            ope=unicode(querycomope.value(0))
+            descrope=unicode(querycomope.value(1))
+            texteope=unicode(texteope+'<br/>'+'<b>'+ope+'</b>'+'<br/>'+descrope+'<br/>')
+
+        #Pour chaque étiquette qui contient le mot-clé (comme "$codesite"), remplacer le texte par le code du site concerné
         # La methode find() permet de chercher une chaîne dans une autre. 
         # Elle renvoie le rang du début de la chaîne cherchée. Si = -1, c'est que la chaîne cherchée n'est pas trouvée
         for label in labels:
@@ -216,11 +230,24 @@ class OperationDialog(QtGui.QDialog):
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_codesite]+codedusite+texte[plac_codesite+9:])
                 #for python equivalent to VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
+            if label.displayText().find("$redac")>-1:
+                plac_redac=label.displayText().find("$redac")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_redac]+redacteur+texte[plac_redac+6:])
+            if label.displayText().find("$date")>-1:
+                plac_date=label.displayText().find("$date")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_date]+datesortie+texte[plac_date+5:])
+            if label.displayText().find("$commsortie")>-1:
+                plac_commsortie=label.displayText().find("$commsortie")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_commsortie]+sortcom+texte[plac_commsortie+11:])
             if label.displayText().find("$nomsite")>-1:
                 plac_nomsite=label.displayText().find("$nomsite")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_nomsite]+nomdusite+texte[plac_nomsite+8:])
-        
+            if label.displayText().find("$commope")>-1:
+                label.setText(texteope)
 
         # find labels with $FIELD() string
 #        for label in labels:

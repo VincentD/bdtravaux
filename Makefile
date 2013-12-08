@@ -33,7 +33,7 @@ PLUGINNAME = bdtravaux
 
 PY_FILES = bdtravaux.py bdtravauxdialog.py __init__.py operationdialog.py convert_geoms.py
  
-EXTRAS = icon2.png icon3.png metadata.txt
+EXTRAS = icon2.png icon3.png metadata.txt BDT_20130705_T_CART_ComposerTemplate.qpt
 
 UI_FILES = ui_bdtravaux_sortie.py ui_operation.py
 

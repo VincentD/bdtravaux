@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -103,10 +103,10 @@ class OperationDialog(QtGui.QDialog):
         valchantvol=querychantvol.value(1)
         print valchantvol
         if valchantvol is True :
-            self.ui.ch_nb_jours.setEnabled(1)
+            self.ui.tab_chantvol.setEnabled(1)
             print 'Oui, chantier de volontaires'
         else:
-            self.ui.ch_nb_jours.setEnabled(0)
+            self.ui.tab_chantvol.setEnabled(0)
             print 'Non, pas chantier de volontaires'
 
 
@@ -133,7 +133,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)

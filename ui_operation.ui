@@ -25,8 +25,20 @@
      <height>731</height>
     </rect>
    </property>
+   <property name="tabPosition">
+    <enum>QTabWidget::North</enum>
+   </property>
+   <property name="tabShape">
+    <enum>QTabWidget::Rounded</enum>
+   </property>
    <property name="currentIndex">
     <number>1</number>
+   </property>
+   <property name="documentMode">
+    <bool>false</bool>
+   </property>
+   <property name="tabsClosable">
+    <bool>false</bool>
    </property>
    <widget class="QWidget" name="tab_general">
     <attribute name="title">
@@ -426,7 +438,7 @@
       <item>
        <widget class="QLineEdit" name="ch_nb_jours">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>

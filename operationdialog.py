@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -89,7 +89,7 @@ class OperationDialog(QtGui.QDialog):
         elif self.iface.activeLayer().geometryType() == QGis.Point:
             geometrie="point"
             #puis, on écrit la phrase qui apparaîtra dans lbl_geom
-        self.ui.lbl_geom.setText(u"{nb_geom} géométries, de type {typ_geom}".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
+        self.ui.lbl_geom.setText(u"{nb_geom} entités sélectionnées, de type {typ_geom}".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
         typ_geom=geometrie))
         
 
@@ -113,12 +113,13 @@ class OperationDialog(QtGui.QDialog):
     def sauverOpe(self):
         geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],QGis.Polygon) #compréhension de liste
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
+        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
         zr_opera= self.ui.prestataire.currentItem().text(),\
         zr_libelle= self.ui.descriptio.toPlainText(),\
+        zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom= geom2.exportToWkt())
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) pour transformer la projection en enregistrant
         ok = querysauvope.exec_(query)
@@ -133,7 +134,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)

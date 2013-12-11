@@ -32,7 +32,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <property name="documentMode">
     <bool>false</bool>
@@ -106,12 +106,38 @@
          <item>
           <widget class="QLabel" name="lbl_geom">
            <property name="text">
-            <string>0 géométries, de type inconnu</string>
+            <string>0 entités sélectionnées, de type inconnu</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox"/>
+          <widget class="QComboBox" name="comboBox">
+           <item>
+            <property name="text">
+             <string>Points</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Lignes</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Surfaces</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Points vers surfaces</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Lignes vers surfaces</string>
+            </property>
+           </item>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -692,6 +718,19 @@
    </property>
    <property name="text">
     <string>Dernier - Editer CR</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="chantfini">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>760</y>
+     <width>131</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Fin de chantier</string>
    </property>
   </widget>
  </widget>

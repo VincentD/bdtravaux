@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>806</width>
-    <height>678</height>
+    <height>443</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox_2">
    <property name="geometry">
     <rect>
-     <x>620</x>
-     <y>630</y>
+     <x>600</x>
+     <y>400</y>
      <width>176</width>
      <height>27</height>
     </rect>
@@ -35,8 +35,11 @@
      <x>10</x>
      <y>0</y>
      <width>771</width>
-     <height>611</height>
+     <height>391</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
    </property>
    <property name="tabPosition">
     <enum>QTabWidget::North</enum>
@@ -170,46 +173,11 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_3">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>410</y>
-       <width>631</width>
-       <height>103</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QLabel" name="lbl_jourope">
-        <property name="text">
-         <string>Jours opération (remplir à la fin d'un chantier) </string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTextEdit" name="jours_chan"/>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QCheckBox" name="chantfini">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>530</y>
-       <width>131</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Fin de chantier</string>
-     </property>
-    </widget>
     <widget class="QCheckBox" name="chantvol">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>530</y>
+       <x>30</x>
+       <y>310</y>
        <width>191</width>
        <height>22</height>
       </rect>

@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -134,7 +134,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
-        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
@@ -211,17 +211,18 @@ class OperationDialog(QtGui.QDialog):
         #trouver les opérations effectuées lors de la sortie et leurs commentaires dans la table postgresql, selon l'id de la sortie sélectionnée dans le module "opération"
         # une boucle permet de récupérer et afficher à la suite dans une seule zone de texte toutes les opérations et leurs descriptions
         querycomope = QtSql.QSqlQuery(self.db)
-        qcomope=u"""select typ_operat, descriptio from bdtravaux.operation_poly where sortie={zr_sortie} order by sortie""".format \
+        qcomope=u"""select typ_operat, descriptio from bdtravaux.operation_poly where sortie={zr_sortie} order by typ_operat""".format \
         (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête operations ratée')
         querycomope.first()
         texteope=""
-        while querycomope.next():
+        for i in xrange(0 , querycomope.size()):
             ope=unicode(querycomope.value(0))
             descrope=unicode(querycomope.value(1))
             texteope=unicode(texteope+'<br/>'+'<b>'+ope+'</b>'+'<br/>'+descrope+'<br/>')
+            querycomope.next()
 
         #Pour chaque étiquette qui contient le mot-clé (comme "$codesite"), remplacer le texte par le code du site concerné
         # La methode find() permet de chercher une chaîne dans une autre. 

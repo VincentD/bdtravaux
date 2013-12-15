@@ -37,7 +37,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -65,19 +65,18 @@ class BdTravauxDialog(QtGui.QDialog):
     def sauverInfos(self):
         query_save = QtSql.QSqlQuery(self.db)
         # syntaxe utilisant des templates de chaînes (obsolète) : query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())
-        # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs liges, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de . format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et à simplifier la lecture.
+        # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs lignes, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de .format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et simplifient la lecture.
         query = u'INSERT INTO bdtravaux.sortie (date_sortie, redacteur, codesite, chantvol, sortcom) VALUES (\'{zr_date_sortie}\'::date, \'{zr_redacteur}\', \'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\')'.format(\
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
         zr_redacteur=self.ui.obsv.currentText(),\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_chantier_vol=str(self.ui.chantvol.isChecked()).lower(),\
-        zr_sort_com=self.ui.comm.toPlainText())
+        zr_sort_com=self.ui.comm.toPlainText()).encode("latin1")
         print query
         # à rebalancer dans finchantier.py : jours_chan,  ... \'{zr_jours_chantier}\' ... zr_jours_chantier=self.ui.jours_chan.toPlainText(),\
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-        #print query
         self.db.close()
         self.db.removeDatabase("sitescsn")
         self.close()

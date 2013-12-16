@@ -39,26 +39,26 @@ class OperationDialog(QtGui.QDialog):
         # référencement de iface dans l'interface (iface = interface de QGIS)
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
-        
+
         # DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
         ok = self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
-                
+
          #connexions aux boutons OK et Annuler
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpe)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
         self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.active_chantier_vol)
-        
-        
+
+
     def actu_cbbx(self):
         self.ui.sortie.clear()
         # Remplir la combobox "sortie" avec les champs date_sortie+site+redacteur de la table "sortie" 
@@ -68,15 +68,13 @@ class OperationDialog(QtGui.QDialog):
         if query.exec_('select sortie_id, date_sortie, codesite, redacteur from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
             while query.next():
                 self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
-            
         # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche, 
         # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
         # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
         # pour la date : plus de "toString()" dans l'API de QGIS 2.0 => QDate retransformé en PyQt pour utiliser "strftime"
         # afin de le transformer en chaîne de caractères.
-    
-       
-        
+
+
     def actu_lblgeom(self):
         # Indiquer le nombre d'entités sélectionnées dans le contrôle lbl_geo et le type de géométrie.
         # En premier lieu, on compare la constante renvoyée par geometrytype() à celle renvoyée par les constante de QGis pour 
@@ -91,7 +89,7 @@ class OperationDialog(QtGui.QDialog):
             #puis, on écrit la phrase qui apparaîtra dans lbl_geom
         self.ui.lbl_geom.setText(u"{nb_geom} entités sélectionnées, de type {typ_geom}".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
         typ_geom=geometrie))
-        
+
 
     def active_chantier_vol(self):
         print 'coucou'
@@ -129,12 +127,13 @@ class OperationDialog(QtGui.QDialog):
         self.affiche()
         self.close
 
+
     def affiche(self):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
-        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
@@ -143,7 +142,7 @@ class OperationDialog(QtGui.QDialog):
         gestrealsurf=QgsVectorLayer(uri.uri(), "gestrealsurf", "postgres")
         #intégration de la couche importée dans le Map Layer Registry pour pouvoir l'utiliser
         QgsMapLayerRegistry.instance().addMapLayer(gestrealsurf)
-        
+
 
     def composeur(self):
         #Enregistrer le dernier polygone en base avec la fonction sauverOpe()
@@ -155,36 +154,31 @@ class OperationDialog(QtGui.QDialog):
         self.iface.actionPrintComposer().trigger()  
         #On récupère la liste des composeurs après création du nouveau
         afterList = self.iface.activeComposers()
-        
         #On récupère dans diffList le composeur créé entre la récupération des deux listes.
         diffList = []
         for item in afterList:
             if not item in  beforeList:
                 diffList.append(item)
-
-        #Intégration du composeur dans le QgsComposeurView et création du QgsComposition
-        composerView = diffList[0]
-        composition = composerView.composition()
+        #Intégration du composeur dans le QgsComposerView et création du QgsComposition
+        self.composerView = diffList[0]
+        self.composition = self.composerView.composition()
        
+        self.composerView.composerViewHide.connect(self.operationOnTop)
         #Récupération du template. Intégration des ses éléments dans la carte.
         file1=QtCore.QFile('/home/vincent/form_pyqgis2013/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
-        composition.loadFromTemplate(doc)
+        self.composition.loadFromTemplate(doc)
         
         #L'étendue de la carte = étendue de la vue dans le canvas
         canvas = self.iface.mapCanvas()
-        for item in composition.composerMapItems():
+        for item in self.composition.composerMapItems():
             item.setNewExtent(canvas.extent())
-                    
+
         #Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur
-        labels = [item for item in composition.items()\
+        labels = [item for item in self.composition.items()\
                 if item.type() == QgsComposerItem.ComposerLabel]
-        
-        #trouver codesite dans la combobox "sortie" du module "operation"
-        #codesite=unicode(self.ui.sortie.currentText()).split("/")[1]
-        #print "codesite ="+codesite
 
         #trouver codesite, redacteur, date_sortie et sortcom dans la table pg, selon l'id de la sortie sélectionnée dans le module "opération"
         querycodesite = QtSql.QSqlQuery(self.db)
@@ -252,14 +246,11 @@ class OperationDialog(QtGui.QDialog):
             if label.displayText().find("$commope")>-1:
                 label.setText(texteope)
 
-        # find labels with $FIELD() string
-#        for label in labels:
-#            fields = set(re.findall('\$FIELD\((\w*)\)', label.text()))
-#            if fields:
-#                self.labelReplacementInfos.append(\
-#                        {'label':label,
-#                            'originalText':label.text(),
-#                            'fields':fields})
+    def operationOnTop(self):
+    # Afficher le formulaire "operationdialog.py" (Qdialog) devant iface (QmainWindow) lorsque l'on ferme le composeur (QgsComposerView)
+            self.raise_()
+            self.activateWindow()
+            print 'operationOnTop'
         
         #réglage du papier
         #paperwidth = 420
@@ -271,7 +262,3 @@ class OperationDialog(QtGui.QDialog):
         #mapWidth = float(paperwidth) - 2*margin
         #mapHeight = float(paperheight) - 2*margin
         #composerMap = QgsComposerMap( composition, margin, margin, mapWidth,  mapHeight )
-        
-        #Ajout de la carte au composeur
-        #composition.addComposerMap(composerMap)
-        

@@ -139,9 +139,9 @@ class OperationDialog(QtGui.QDialog):
         uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
         #print reqwhere
         #instanciation de la couche dans qgis 
-        gestrealsurf=QgsVectorLayer(uri.uri(), "gestrealsurf", "postgres")
+        self.gestrealsurf=QgsVectorLayer(uri.uri(), "gestrealsurf", "postgres")
         #intégration de la couche importée dans le Map Layer Registry pour pouvoir l'utiliser
-        QgsMapLayerRegistry.instance().addMapLayer(gestrealsurf)
+        QgsMapLayerRegistry.instance().addMapLayer(self.gestrealsurf)
 
 
     def composeur(self):
@@ -176,11 +176,12 @@ class OperationDialog(QtGui.QDialog):
         for item in self.composition.composerMapItems():
             maplist.append(item)
         self.composerMap=maplist[0]
-        self.composerMap.setNewExtent(canvas.extent())
+        #self.composerMap.setNewExtent(canvas.extent())
         x, y, w, h = 5, 28, 408, 240
         self.composerMap.setItemPosition(x, y, w, h)
         # crée la bbox pour la carte en cours (fonction mapItemSetBBox l 256)
-        self.composerMapSetBBox(feature.geometry(), self.margin)
+        self.margin=10
+        self.composerMapSetBBox(self.gestrealsurf, self.margin)
 
         #Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur
@@ -255,17 +256,17 @@ class OperationDialog(QtGui.QDialog):
 
     def composerMapSetBBox(self, geom, margin = None):
     # crée la bbox pour la carte en cours. fonction l.261
-        """Set new extent with optional margin (in %) for map item"""-+
-        self.composerMap.setNewExtent(self.getNewExtent(gestrealsurf, margin))
+        #"""Set new extent with optional margin (in %) for map item"""-+
+        self.composerMap.setNewExtent(self.getNewExtent(geom, margin))
 
     def getNewExtent(self, geom, margin = None):
-        """Compute an extent of geometry, with given margin (in %)
-        to be able to show it in the selected map item
-        Deal with non-square geometries to keep same ratio"""
+        #"""Compute an extent of geometry, with given margin (in %)
+        #to be able to show it in the selected map item
+        #Deal with non-square geometries to keep same ratio"""
         # compute coordinates and ratio
         new_extent = None
         x1, y1, x2, y2 = (0, 0, 0, 0)
-        geom_rect = gestrealsurf.boundingBox()
+        geom_rect = geom.extent()
         geom_ratio = geom_rect.width() / geom_rect.height()
         xa1 = geom_rect.xMinimum()
         xa2 = geom_rect.xMaximum()
@@ -279,14 +280,14 @@ class OperationDialog(QtGui.QDialog):
             y2 = ya2
             x1 = (xa1 + xa2 + map_ratio * (ya1 - ya2)) / 2.0
             x2 = x1 + map_ratio * (ya2 - ya1)
-            new_extent = core.QgsRectangle(x1, y1, x2, y2)
+            new_extent = QgsRectangle(x1, y1, x2, y2)
         # geometry width is too big
         elif geom_ratio > map_ratio:
             x1 = xa1
             x2 = xa2
             y1 = (ya1 + ya2 + (xa1 - xa2) / map_ratio) / 2.0
             y2 = y1 + (xa2 - xa1) / map_ratio
-            new_extent = core.QgsRectangle(x1, y1, x2, y2)
+            new_extent = QgsRectangle(x1, y1, x2, y2)
         # same ratio: send geom bounding box
         else:
             new_extent = geom_rect
@@ -300,14 +301,4 @@ class OperationDialog(QtGui.QDialog):
             self.raise_()
             self.activateWindow()
             print 'operationOnTop'
-        
-        #réglage du papier
-        #paperwidth = 420
-        #paperheight = 297
-        #margin = 8
-        #Taille de la page
-        #composition.setPaperSize(float(paperwidth),  float(paperheight))
-        #Taille de la carte
-        #mapWidth = float(paperwidth) - 2*margin
-        #mapHeight = float(paperheight) - 2*margin
-        #composerMap = QgsComposerMap( composition, margin, margin, mapWidth,  mapHeight )
+

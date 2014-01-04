@@ -19,8 +19,14 @@ def convert_geometries(geomlist, geomtype):
     if len(set([geom.type() for geom in geomlist])) <> 1:
         ret = None
     else:
-        if geomlist[0].type() == geomtype:
-            ret = None
+        #if geomlist[0].type() == geomtype:
+            #ret =  None #QgsGeometry([feature.asGeometryCollection() for feature in geomlist])
+        if geomlist[0].type() == QGis.Line and geomtype == QGis.Line:
+            ret = lines_line(geomlist)
+        elif geomlist[0].type() == QGis.Polygon and geomtype == QGis.Polygon:
+            ret = polygons_polygon(geomlist)
+        elif geomlist[0].type() == QGis.Point and geomtype == QGis.Point:
+            ret = points_point(geomlist)
         elif geomlist[0].type() == QGis.Polygon and geomtype == QGis.Point:
             ret = polygons_point(geomlist)
         elif geomlist[0].type() == QGis.Polygon and geomtype == QGis.Line:
@@ -30,10 +36,19 @@ def convert_geometries(geomlist, geomtype):
         elif geomlist[0].type() == QGis.Line and geomtype == QGis.Polygon:
             ret = linestrings_polygon(geomlist)
         elif geomlist[0].type() == QGis.Point and geomtype == QGis.Line:
-            ret = points_line(geomlist)
+            ret = points_linestring(geomlist)
         elif geomlist[0].type() == QGis.Point and geomtype == QGis.Polygon:
             ret = points_polygon(geomlist)
     return ret
+
+def lines_line(linegeoms):
+    return QgsGeometry.fromMultiPolyline([line.asPolyline() for line in linegeoms])
+
+def points_point(pointgeoms):
+    return QgsGeometry.fromMultiPoint([point.asPoint() for point in pointgeoms])
+
+def polygons_polygon(polygeoms):
+    return QgsGeometry.fromMultiPolygon([poly.asPolygon() for poly in polygeoms])
 
 def linestrings_polygon(linegeoms):
     polygons = []

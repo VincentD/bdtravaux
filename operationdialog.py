@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -87,7 +87,7 @@ class OperationDialog(QtGui.QDialog):
         elif self.iface.activeLayer().geometryType() == QGis.Point:
             geometrie="point"
             #puis, on écrit la phrase qui apparaîtra dans lbl_geom
-        self.ui.lbl_geom.setText(u"{nb_geom} entités sélectionnées, de type {typ_geom}".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
+        self.ui.lbl_geom.setText(u"{nb_geom} objets sélectionnés, de type {typ_geom}".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
         typ_geom=geometrie))
 
 
@@ -109,9 +109,24 @@ class OperationDialog(QtGui.QDialog):
 
 
     def sauverOpe(self):
-        geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],QGis.Polygon) #compréhension de liste
+        geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
+        if geom_cbbx == 'Points' :
+            geom_output=QGis.Point
+            nom_table='operation_pts'
+        elif geom_cbbx == 'Lignes':
+            geom_output=QGis.Line
+            nom_table='operation_lgn'
+        elif geom_cbbx == 'Surfaces':
+            geom_output=QGis.Polygon
+            nom_table='operation_poly'
+        #print geom_output
+        geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
+        #print geom2
+        #compréhension de liste
+
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
+        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_nomtable=nom_table,\
+        zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
@@ -123,7 +138,7 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-        #print query
+        print query
         self.affiche()
         self.close
 
@@ -133,15 +148,25 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
         # set database schema, table name, geometry column and optionaly subset (WHERE clause)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
-        #print reqwhere
-        #instanciation de la couche dans qgis 
-        self.gestrealsurf=QgsVectorLayer(uri.uri(), "gestrealsurf", "postgres")
-        #intégration de la couche importée dans le Map Layer Registry pour pouvoir l'utiliser
-        QgsMapLayerRegistry.instance().addMapLayer(self.gestrealsurf)
+        okLgn=uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
+        if okLgn:
+            #print reqwhere
+            #instanciation de la couche dans qgis 
+            self.gestreallgn=QgsVectorLayer(uri.uri(), "gestreallgn", "postgres")
+            #intégration de la couche importée dans le Map Layer Registry pour pouvoir l'utiliser
+            QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn)
+        print okLgn
+        okPts=uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
+        if okPts:
+            self.gestrealpts=QgsVectorLayer(uri.uri(), "gestrealpts", "postgres")
+            QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts)
+        okPoly=uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
+        if okPoly:
+            self.gestrealpolys=QgsVectorLayer(uri.uri(), "gestrealpolys", "postgres")
+            QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys)
 
 
     def composeur(self):
@@ -170,18 +195,19 @@ class OperationDialog(QtGui.QDialog):
         doc.setContent(file1, False)
         self.composition.loadFromTemplate(doc)
         
-        #L'étendue de la carte = étendue de la vue dans le canvas
-        canvas = self.iface.mapCanvas()
+        #Récupération de la carte
         maplist=[]
         for item in self.composition.composerMapItems():
             maplist.append(item)
         self.composerMap=maplist[0]
-        #self.composerMap.setNewExtent(canvas.extent())
+        #Taille définie pour la carte
         x, y, w, h = 5, 28, 408, 240
         self.composerMap.setItemPosition(x, y, w, h)
-        # crée la bbox pour la carte en cours (fonction mapItemSetBBox l 256)
+        #Crée la bbox pour la carte en cours (fonction mapItemSetBBox l 256)
         self.margin=10
         self.composerMapSetBBox(self.gestrealsurf, self.margin)
+        #(Dé)zoome sur l'ensemble des deux pages du composeur
+        self.composition.mActionZoomFullExtent().trigger()
 
         #Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur

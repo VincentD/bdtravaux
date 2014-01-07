@@ -26,25 +26,24 @@ from ui_operation import Ui_operation
 from convert_geoms import convert_geometries
 import sys
 import inspect
-# create the dialog for zoom to point
 
 
 class OperationDialog(QtGui.QDialog):
     def __init__(self, iface):
         
         QtGui.QDialog.__init__(self)
-        # Set up the user interface from QTDesigner.
+        # Configure l'interface utilisateur issue de QTDesigner.
         self.ui = Ui_operation()
         self.ui.setupUi(self)
-        # référencement de iface dans l'interface (iface = interface de QGIS)
+        # Référencement de iface dans l'interface (iface = interface de QGIS)
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
 
-        # DB type, host, user, password...
+        # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
+        #Ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -52,7 +51,7 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
 
-         #connexions aux boutons OK et Annuler
+         # Connexions aux boutons
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpe)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
@@ -87,25 +86,21 @@ class OperationDialog(QtGui.QDialog):
         elif self.iface.activeLayer().geometryType() == QGis.Point:
             geometrie="point"
             #puis, on écrit la phrase qui apparaîtra dans lbl_geom
-        self.ui.lbl_geom.setText(u"{nb_geom} objets sélectionnés, de type {typ_geom}".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
+        self.ui.lbl_geom.setText(u"{nb_geom} {typ_geom}(s) sélectionné(s)".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
         typ_geom=geometrie))
 
 
     def active_chantier_vol(self):
-        print 'coucou'
         querychantvol = QtSql.QSqlQuery(self.db)
         queryvol = u"""select sortie_id, chantvol from bdtravaux.sortie where sortie_id = '{zr_sortie_id}'""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok = querychantvol.exec_(queryvol)
         querychantvol.next()
         valchantvol=querychantvol.value(1)
-        print valchantvol
         if valchantvol is True :
             self.ui.tab_chantvol.setEnabled(1)
-            print 'Oui, chantier de volontaires'
         else:
             self.ui.tab_chantvol.setEnabled(0)
-            print 'Non, pas chantier de volontaires'
 
 
     def sauverOpe(self):
@@ -119,9 +114,10 @@ class OperationDialog(QtGui.QDialog):
         elif geom_cbbx == 'Surfaces':
             geom_output=QGis.Polygon
             nom_table='operation_poly'
-        #print geom_output
+        liste=[feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()]
+        print liste
         geom2=convert_geometries([feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
-        #print geom2
+        print "liste des types dans operation : ", [feature.geometry().type() for feature in self.iface.activeLayer().selectedFeatures()]
         #compréhension de liste
 
         querysauvope = QtSql.QSqlQuery(self.db)
@@ -148,7 +144,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))

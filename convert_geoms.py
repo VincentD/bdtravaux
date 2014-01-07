@@ -17,6 +17,7 @@ def convert_geometries(geomlist, geomtype):
     """
     ret = None
     if len(set([geom.type() for geom in geomlist])) <> 1:
+        print [geom.type() for geom in geomlist]
         ret = None
     else:
         #if geomlist[0].type() == geomtype:

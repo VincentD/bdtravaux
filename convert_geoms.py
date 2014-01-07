@@ -73,9 +73,14 @@ def points_polygon(pointgeoms):
 def polygons_linestring(polygeoms):
     lines = []
     for polygeom in polygeoms:
-        for ring in polygeom.asMultiPolygon():
+        print "polygeom="
+        print polygeom.asPolygon()
+        for ring in polygeom.asPolygon():
             lines.append(ring)
+            print "ring="
+            print ring
     return QgsGeometry.fromMultiPolyline(lines)
+
 
     
 if __name__ == "__main__":

@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -147,26 +147,29 @@ class OperationDialog(QtGui.QDialog):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
-        # set host name, port, database name, username and password
-        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
-        # set database schema, table name, geometry column and optionaly subset (WHERE clause)
+        # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
+        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+
+        #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        okLgn=uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
-        if okLgn:
-            #print reqwhere
-            #instanciation de la couche dans qgis 
-            self.gestreallgn=QgsVectorLayer(uri.uri(), "gestreallgn", "postgres")
-            #intégration de la couche importée dans le Map Layer Registry pour pouvoir l'utiliser
-            QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn)
-        print okLgn
-        okPts=uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
-        if okPts:
-            self.gestrealpts=QgsVectorLayer(uri.uri(), "gestrealpts", "postgres")
-            QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts)
-        okPoly=uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
-        if okPoly:
-            self.gestrealpolys=QgsVectorLayer(uri.uri(), "gestrealpolys", "postgres")
+
+        # configure le shéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
+        uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
+        #instanciation de la couche dans qgis 
+        self.gestrealpolys=QgsVectorLayer(uri.uri(), "gestrealpolys", "postgres")
+        if self.gestrealpolys.featureCount()>0:
+        #si la couche importée n'est pas vide, intégration dans le Map Layer Registry pour pouvoir l'utiliser
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys)
+
+        uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
+        self.gestreallgn=QgsVectorLayer(uri.uri(), "gestreallgn", "postgres")
+        if self.gestreallgn.featureCount()>0:
+            QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn)
+
+        uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
+        self.gestrealpts=QgsVectorLayer(uri.uri(), "gestrealpts", "postgres")
+        if self.gestrealpts.featureCount()>0:
+            QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts)
 
 
     def composeur(self):

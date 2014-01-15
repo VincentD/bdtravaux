@@ -20,8 +20,8 @@ def convert_geometries(geomlist, geomtype):
         print [geom.type() for geom in geomlist]
         ret = None
     else:
-        #if geomlist[0].type() == geomtype:
-            #ret =  None #QgsGeometry([feature.asGeometryCollection() for feature in geomlist])
+    #if geomlist[0].type() == geomtype:
+        #ret =  None #QgsGeometry([feature.asGeometryCollection() for feature in geomlist])
         if geomlist[0].type() == QGis.Line and geomtype == QGis.Line:
             ret = lines_line(geomlist)
         elif geomlist[0].type() == QGis.Polygon and geomtype == QGis.Polygon:

@@ -43,7 +43,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #Ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -115,6 +115,8 @@ class OperationDialog(QtGui.QDialog):
             geom_output=QGis.Polygon
             nom_table='operation_poly'
         liste=[feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()]
+        coucheactive=self.iface.activeLayer()
+        print coucheactive
         print liste
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
         #compréhension de liste
@@ -133,8 +135,7 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-        print query
-        self.affiche()
+        self.iface.setActiveLayer(coucheactive)
         self.close
 
 
@@ -143,7 +144,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
@@ -170,6 +171,7 @@ class OperationDialog(QtGui.QDialog):
     def composeur(self):
         #Enregistrer le dernier polygone en base avec la fonction sauverOpe()
         self.sauverOpe()
+        self.affiche()
         #Production d'une carte de composeur
         #On récupère la liste des composeurs avant d'en créer un
         beforeList = self.iface.activeComposers()

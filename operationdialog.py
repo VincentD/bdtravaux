@@ -43,7 +43,7 @@ class OperationDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #Ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -138,13 +138,28 @@ class OperationDialog(QtGui.QDialog):
         self.iface.setActiveLayer(coucheactive)
         self.close
 
-
+    def recupDonnSortie(self):
+        #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche() et les txts des étiqu dans composeur()
+        querycodesite = QtSql.QSqlQuery(self.db)
+        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+        (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        ok2 = querycodesite.exec_(qcodesite)
+        if not ok2:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête 2 ratée')
+        querycodesite.next()
+        self.codedusite=querycodesite.value(0)
+        self.redacteur=querycodesite.value(1)
+        self.datesortie=querycodesite.value(2).toPyDate().strftime("%Y-%m-%d")
+        self.sortcom=querycodesite.value(3)
+        
+        
+        
     def affiche(self):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
 
         #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
@@ -166,6 +181,15 @@ class OperationDialog(QtGui.QDialog):
         self.gestrealpts=QgsVectorLayer(uri.uri(), "gestrealpts", "postgres")
         if self.gestrealpts.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts)
+
+        self.recupDonnSortie()
+        reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
+        print reqwheresit
+        uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
+        self.contours_site=QgsVectorLayer(uri.uri(), "contours_site", "postgres")
+        if self.contours_site.featureCount()>0:
+            QgsMapLayerRegistry.instance().addMapLayer(self.contours_site)
+        print self.contours_site.featureCount()
 
 
     def composeur(self):
@@ -205,31 +229,20 @@ class OperationDialog(QtGui.QDialog):
         self.composerMap.setItemPosition(x, y, w, h)
         #Crée la bbox pour la carte en cours (fonction mapItemSetBBox l 256)
         self.margin=10
-        self.composerMapSetBBox(self.gestrealsurf, self.margin)
+        self.composerMapSetBBox(self.gestrealpolys, self.margin)
         #(Dé)zoome sur l'ensemble des deux pages du composeur
-        self.composition.mActionZoomFullExtent().trigger()
+        #self.composition.mActionZoomFullExtent().trigger()
 
         #Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur
         labels = [item for item in self.composition.items()\
                 if item.type() == QgsComposerItem.ComposerLabel]
 
-        #trouver codesite, redacteur, date_sortie et sortcom dans la table pg, selon l'id de la sortie sélectionnée dans le module "opération"
-        querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
-        (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        ok2 = querycodesite.exec_(qcodesite)
-        if not ok2:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête 2 ratée')
-        querycodesite.next()
-        codedusite=querycodesite.value(0)
-        redacteur=querycodesite.value(1)
-        datesortie=querycodesite.value(2).toPyDate().strftime("%Y-%m-%d")
-        sortcom=querycodesite.value(3)
-
+        # récupération des objets self.codedusite, self.redacteur, self.datesortie et self.sortcom
+        self.recupDonnSortie()
         #trouver nomsite dans la table postgresql, en fonction de codesite
         querynomsite = QtSql.QSqlQuery(self.db)
-        qnomsite=(u"""select nomsite from sites_cen.t_sitescen where codesite='{zr_codesite}'""".format (zr_codesite=codedusite))
+        qnomsite=(u"""select nomsite from sites_cen.t_sitescen where codesite='{zr_codesite}'""".format (zr_codesite=self.codedusite))
         ok = querynomsite.exec_(qnomsite)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
@@ -259,20 +272,20 @@ class OperationDialog(QtGui.QDialog):
             if label.displayText().find("$codesite")>-1:
                 plac_codesite=label.displayText().find("$codesite")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_codesite]+codedusite+texte[plac_codesite+9:])
-                #for python equivalent to VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
+                label.setText(texte[0:plac_codesite]+self.codedusite+texte[plac_codesite+9:])
+                #for python equiv to VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
             if label.displayText().find("$redac")>-1:
                 plac_redac=label.displayText().find("$redac")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_redac]+redacteur+texte[plac_redac+6:])
+                label.setText(texte[0:plac_redac]+self.redacteur+texte[plac_redac+6:])
             if label.displayText().find("$date")>-1:
                 plac_date=label.displayText().find("$date")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_date]+datesortie+texte[plac_date+5:])
+                label.setText(texte[0:plac_date]+self.datesortie+texte[plac_date+5:])
             if label.displayText().find("$commsortie")>-1:
                 plac_commsortie=label.displayText().find("$commsortie")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_commsortie]+sortcom+texte[plac_commsortie+11:])
+                label.setText(texte[0:plac_commsortie]+self.sortcom+texte[plac_commsortie+11:])
             if label.displayText().find("$nomsite")>-1:
                 plac_nomsite=label.displayText().find("$nomsite")
                 texte=unicode(label.displayText())

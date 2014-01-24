@@ -713,14 +713,14 @@
   <widget class="QCheckBox" name="chantfini">
    <property name="geometry">
     <rect>
-     <x>440</x>
+     <x>400</x>
      <y>760</y>
-     <width>131</width>
+     <width>171</width>
      <height>22</height>
     </rect>
    </property>
    <property name="text">
-    <string>Fin de chantier</string>
+    <string>Chantier réceptionné</string>
    </property>
   </widget>
  </widget>

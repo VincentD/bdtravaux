@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>806</width>
-    <height>443</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>600</x>
-     <y>400</y>
+     <y>420</y>
      <width>176</width>
      <height>27</height>
     </rect>
@@ -35,7 +35,7 @@
      <x>10</x>
      <y>0</y>
      <width>771</width>
-     <height>391</height>
+     <height>411</height>
     </rect>
    </property>
    <property name="focusPolicy">
@@ -130,7 +130,7 @@
      <property name="geometry">
       <rect>
        <x>370</x>
-       <y>20</y>
+       <y>10</y>
        <width>391</width>
        <height>321</height>
       </rect>
@@ -173,18 +173,86 @@
       </item>
      </layout>
     </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>200</y>
+       <width>227</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Objet de la visite</string>
+     </property>
+    </widget>
     <widget class="QCheckBox" name="chantvol">
      <property name="geometry">
       <rect>
-       <x>30</x>
-       <y>310</y>
-       <width>191</width>
+       <x>370</x>
+       <y>340</y>
+       <width>389</width>
        <height>22</height>
       </rect>
      </property>
      <property name="text">
       <string>Chantier de volontaires</string>
      </property>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>230</y>
+       <width>229</width>
+       <height>131</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="obj_layout">
+      <item>
+       <widget class="QRadioButton" name="obj_travaux">
+        <property name="text">
+         <string>Travaux sur site</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">objetvisite</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="obj_surv">
+        <property name="text">
+         <string>Surveillance</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">objetvisite</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="obj_sortie">
+        <property name="text">
+         <string>Sortie ou animation encadrée</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">objetvisite</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="obj_suivi">
+        <property name="text">
+         <string>Suivi scientifique</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">objetvisite</string>
+        </attribute>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_comm">
@@ -219,4 +287,7 @@
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="objetvisite"/>
+ </buttongroups>
 </ui>

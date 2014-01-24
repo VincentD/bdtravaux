@@ -37,7 +37,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -55,13 +55,28 @@ class BdTravauxDialog(QtGui.QDialog):
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
             # l'Int renvoie deux paramètres. Le [0] précise qu'on ne veut récupérer que le premier, qui est l'entier 
             # (le 2ème para = boolean pour savoir si la conversion a marché)
-            
-            
+
+        #Init de l'objet objetVisiText, qui va récup la valeur de "l'objectif de la visite" (QRadioButtons dans un GroupBox)
+        self.objetVisiText=str(self.ui.obj_travaux.text())
+        print self.objetVisiText
+
         # On connecte les signaux des boutons a nos methodes definies ci dessous
         # connexion du signal du bouton OK
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
-            
+        self.connect(self.ui.objetvisite, QtCore.SIGNAL('buttonClicked(QAbstractButton*)'), self.objetVisiClicked)
+        #http://www.qtcentre.org/archive/index.php/t-15687.html pour l'emploi de QAbstractButton
+
+    def objetVisiClicked(self):
+        #cette fonction gère les boutons radio indiquant l'objectif de la visite
+        #création d'un générateur
+        childs = (self.ui.obj_layout.itemAt(i) for i in range(self.ui.obj_layout.count())) 
+        for radio in childs:
+            if radio.widget().isChecked()==True:
+                self.objetVisiText=unicode(radio.widget().text())
+                print self.objetVisiText
+
+
     def sauverInfos(self):
         query_save = QtSql.QSqlQuery(self.db)
         # syntaxe utilisant des templates de chaînes (obsolète) : query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())

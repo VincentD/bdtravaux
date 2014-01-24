@@ -131,6 +131,7 @@ class OperationDialog(QtGui.QDialog):
         zr_libelle= self.ui.descriptio.toPlainText(),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom= geom2.exportToWkt())
+        print query
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) pour transformer la projection en enregistrant
         ok = querysauvope.exec_(query)
         if not ok:
@@ -141,7 +142,7 @@ class OperationDialog(QtGui.QDialog):
     def recupDonnSortie(self):
         #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche() et les txts des étiqu dans composeur()
         querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom, objvisite from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
@@ -151,9 +152,9 @@ class OperationDialog(QtGui.QDialog):
         self.redacteur=querycodesite.value(1)
         self.datesortie=querycodesite.value(2).toPyDate().strftime("%Y-%m-%d")
         self.sortcom=querycodesite.value(3)
-        
-        
-        
+        self.objvisite=querycodesite.value(4)
+
+
     def affiche(self):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
@@ -292,6 +293,11 @@ class OperationDialog(QtGui.QDialog):
                 label.setText(texte[0:plac_nomsite]+nomdusite+texte[plac_nomsite+8:])
             if label.displayText().find("$commope")>-1:
                 label.setText(texteope)
+            if label.displayText().find("$objet")>-1:
+                print "objet trouve"
+                plac_objet=label.displayText().find("$objet")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_objet]+self.objvisite+texte[plac_objet+6:])
 
     def composerMapSetBBox(self, geom, margin = None):
     # crée la bbox pour la carte en cours. fonction l.261

@@ -66,7 +66,7 @@ def polygons_point(polygeoms):
     return QgsGeometry.fromMultiPolygon([poly.asPolygon() for poly in polygeoms]).centroid()
 
 def points_linestring(pointgeoms):
-    return QgsGeometry.fromPolyline(pointgeoms)
+    return QgsGeometry.fromPolyline([point.asPoint() for point in pointgeoms])
 
 def points_polygon(pointgeoms):
     return linestrings_polygon([points_linestring(pointgeoms)])

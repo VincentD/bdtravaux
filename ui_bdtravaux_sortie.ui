@@ -69,7 +69,7 @@
        <x>10</x>
        <y>20</y>
        <width>311</width>
-       <height>151</height>
+       <height>131</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -177,7 +177,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>180</y>
+       <y>170</y>
        <width>227</width>
        <height>17</height>
       </rect>
@@ -205,7 +205,7 @@
        <x>10</x>
        <y>200</y>
        <width>229</width>
-       <height>131</height>
+       <height>136</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="obj_layout">
@@ -252,29 +252,27 @@
         </attribute>
        </widget>
       </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>340</y>
-       <width>351</width>
-       <height>29</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="lbl_obj_autre">
+       <widget class="QRadioButton" name="obj_autre">
         <property name="text">
          <string>Autre...</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">objetvisite</string>
+        </attribute>
        </widget>
       </item>
-      <item>
-       <widget class="QLineEdit" name="obj_autre"/>
-      </item>
      </layout>
+    </widget>
+    <widget class="QLineEdit" name="obj_autre_text">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>340</y>
+       <width>301</width>
+       <height>27</height>
+      </rect>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_comm">

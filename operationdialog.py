@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -93,8 +93,8 @@ class OperationDialog(QtGui.QDialog):
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok = querychantvol.exec_(queryvol)
         querychantvol.next()
-        valchantvol=querychantvol.value(1)
-        if valchantvol is True :
+        self.valchantvol=querychantvol.value(1)
+        if self.valchantvol is True :
             self.ui.tab_chantvol.setEnabled(1)
         else:
             self.ui.tab_chantvol.setEnabled(0)
@@ -127,36 +127,38 @@ class OperationDialog(QtGui.QDialog):
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom= geom2.exportToWkt())
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
+        print query
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
 
-        querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm})""".format (\
-        zr_nb_jours = self.ui.ch_nb_jours.text(),\
-        zr_nb_heur_ch = self.ui.ch_nb_heur_ch.text(),\
-        zr_nb_heur_de = self.ui.ch_nb_heur_dec.text(),\
-        zr_partenaire = self.ui.ch_partenaire.currentItem().text(),\
-        zr_heberg = self.ui.ch_heberg.text(),\
-        zr_j1_enc_am = self.ui.chtab_nbpers_jr1.item(0,0).text(),\
-        zr_j1_enc_pm = self.ui.chtab_nbpers_jr1.item(0,1).text(),\
-        zr_j1_tot_am = self.ui.chtab_nbpers_jr1.item(1,0).text(),\
-        zr_j1_tot_pm = self.ui.chtab_nbpers_jr1.item(1,1).text(),\
-        zr_j1adcen_am = self.ui.chtab_nbpers_jr1.item(2,0).text(),\
-        zr_j1adcen_pm = self.ui.chtab_nbpers_jr1.item(2,1).text(),\
-        zr_j1_blon_am = self.ui.chtab_nbpers_jr1.item(3,0).text(),\
-        zr_j1_blon_pm = self.ui.chtab_nbpers_jr1.item(3,1).text(),\
-        zr_j2_enc_am = self.ui.chtab_nbpers_jr2.item(0,0).text(),\
-        zr_j2_enc_pm = self.ui.chtab_nbpers_jr2.item(0,1).text(),\
-        zr_j2_tot_am = self.ui.chtab_nbpers_jr2.item(1,0).text(),\
-        zr_j2_tot_pm = self.ui.chtab_nbpers_jr2.item(1,1).text(),\
-        zr_j2adcen_am = self.ui.chtab_nbpers_jr2.item(2,0).text(),\
-        zr_j2adcen_pm = self.ui.chtab_nbpers_jr2.item(2,1).text(),\
-        zr_j2_blon_am = self.ui.chtab_nbpers_jr2.item(3,0).text(),\
-        zr_j2_blon_pm = self.ui.chtab_nbpers_jr2.item(3,1).text())
-        ok_chvol = querysauvope.exec_(querych)
-        if not ok_chvol:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
-        print querych
+        if self.valchantvol is True :
+            querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm})""".format (\
+            zr_nb_jours = self.ui.ch_nb_jours.text(),\
+            zr_nb_heur_ch = self.ui.ch_nb_heur_ch.text(),\
+            zr_nb_heur_de = self.ui.ch_nb_heur_dec.text(),\
+            zr_partenaire = self.ui.ch_partenaire.currentItem().text(),\
+            zr_heberg = self.ui.ch_heberg.text(),\
+            zr_j1_enc_am = self.ui.chtab_nbpers_jr1.item(0,0).text(),\
+            zr_j1_enc_pm = self.ui.chtab_nbpers_jr1.item(0,1).text(),\
+            zr_j1_tot_am = self.ui.chtab_nbpers_jr1.item(1,0).text(),\
+            zr_j1_tot_pm = self.ui.chtab_nbpers_jr1.item(1,1).text(),\
+            zr_j1adcen_am = self.ui.chtab_nbpers_jr1.item(2,0).text(),\
+            zr_j1adcen_pm = self.ui.chtab_nbpers_jr1.item(2,1).text(),\
+            zr_j1_blon_am = self.ui.chtab_nbpers_jr1.item(3,0).text(),\
+            zr_j1_blon_pm = self.ui.chtab_nbpers_jr1.item(3,1).text(),\
+            zr_j2_enc_am = self.ui.chtab_nbpers_jr2.item(0,0).text(),\
+            zr_j2_enc_pm = self.ui.chtab_nbpers_jr2.item(0,1).text(),\
+            zr_j2_tot_am = self.ui.chtab_nbpers_jr2.item(1,0).text(),\
+            zr_j2_tot_pm = self.ui.chtab_nbpers_jr2.item(1,1).text(),\
+            zr_j2adcen_am = self.ui.chtab_nbpers_jr2.item(2,0).text(),\
+            zr_j2adcen_pm = self.ui.chtab_nbpers_jr2.item(2,1).text(),\
+            zr_j2_blon_am = self.ui.chtab_nbpers_jr2.item(3,0).text(),\
+            zr_j2_blon_pm = self.ui.chtab_nbpers_jr2.item(3,1).text())
+            ok_chvol = querysauvope.exec_(querych)
+            if not ok_chvol:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
+            print querych
 
         self.iface.setActiveLayer(coucheactive)
         self.close
@@ -165,7 +167,7 @@ class OperationDialog(QtGui.QDialog):
     def recupDonnSortie(self):
         #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche() et les txts des étiqu dans composeur()
         querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom, objvisite from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom, objvisite, objvi_autr from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
@@ -176,6 +178,7 @@ class OperationDialog(QtGui.QDialog):
         self.datesortie=querycodesite.value(2).toPyDate().strftime("%Y-%m-%d")
         self.sortcom=querycodesite.value(3)
         self.objvisite=querycodesite.value(4)
+        self.objautre=querycodesite.value(5)
 
 
     def affiche(self):
@@ -183,7 +186,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
@@ -255,7 +258,7 @@ class OperationDialog(QtGui.QDialog):
                     #self.composition.mActionZoomFullExtent().trigger()
 
 
-        #ETIQUETTES : Modifier les étiquettes du composeur.
+        #ETIQUETTES :       Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur
         labels = [item for item in self.composition.items()\
                 if item.type() == QgsComposerItem.ComposerLabel]
@@ -275,7 +278,7 @@ class OperationDialog(QtGui.QDialog):
         #trouver les opérations effectuées lors de la sortie et leurs commentaires dans la table postgresql, selon l'id de la sortie sélectionnée dans le module "opération"
         # une boucle permet de récupérer et afficher à la suite dans une seule zone de texte toutes les opérations et leurs descriptions
         querycomope = QtSql.QSqlQuery(self.db)
-        qcomope=u"""select typ_operat, descriptio from bdtravaux.operation_poly where sortie={zr_sortie} order by typ_operat""".format \
+        qcomope=u"""select typ_operat, descriptio from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
         (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
@@ -320,6 +323,10 @@ class OperationDialog(QtGui.QDialog):
                 plac_objet=label.displayText().find("$objet")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_objet]+self.objvisite+texte[plac_objet+6:])
+            if label.displayText().find("$objvi_autre")>-1:
+                plac_objautre=label.displayText().find("$objvi_autre")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_objautre]+self.objautre+texte[plac_objautre+12:])
 
 
     def composerMapSetBBox(self, geom, margin = None):

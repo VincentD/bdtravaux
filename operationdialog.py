@@ -41,9 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        #Ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
-        # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -60,14 +58,13 @@ class OperationDialog(QtGui.QDialog):
 
     def actu_cbbx(self):
         self.ui.sortie.clear()
-        # Remplir la combobox "sortie" avec les champs date_sortie+site+redacteur de la table "sortie" 
-        # issus de la table "sites"
+        # Remplir la combobox "sortie" avec les champs date_sortie+site+redacteur de la table "sortie" issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         if query.exec_('select sortie_id, date_sortie, codesite, redacteur from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
             while query.next():
                 self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
-        # voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche, 
+        # 1er paramètre = ce qu'on affiche, 
         # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
         # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
         # pour la date : plus de "toString()" dans l'API de QGIS 2.0 => QDate retransformé en PyQt pour utiliser "strftime"
@@ -76,7 +73,7 @@ class OperationDialog(QtGui.QDialog):
 
     def actu_lblgeom(self):
         # Indiquer le nombre d'entités sélectionnées dans le contrôle lbl_geo et le type de géométrie.
-        # En premier lieu, on compare la constante renvoyée par geometrytype() à celle renvoyée par les constante de QGis pour 
+        # En premier lieu, on compare la constante renvoyée par geometrytype() à celle renvoyée par les constantes de QGis pour 
         # obtenir une chaîne de caractère : geometryType() ne renvoie que des constantes (0, 1 ou 2). Il faut donc ruser...
         geometrie=""
         if self.iface.activeLayer().geometryType() == QGis.Polygon:
@@ -116,10 +113,8 @@ class OperationDialog(QtGui.QDialog):
             nom_table='operation_poly'
         liste=[feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()]
         coucheactive=self.iface.activeLayer()
-        print coucheactive
-        print liste
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
-        #compréhension de liste
+        #compréhension de liste : [fonction for x in liste]
 
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_nomtable=nom_table,\
@@ -131,13 +126,41 @@ class OperationDialog(QtGui.QDialog):
         zr_libelle= self.ui.descriptio.toPlainText(),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom= geom2.exportToWkt())
-        print query
-        #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) pour transformer la projection en enregistrant
+        #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+
+        querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm})""".format (\
+        zr_nb_jours = self.ui.ch_nb_jours.text(),\
+        zr_nb_heur_ch = self.ui.ch_nb_heur_ch.text(),\
+        zr_nb_heur_de = self.ui.ch_nb_heur_dec.text(),\
+        zr_partenaire = self.ui.ch_partenaire.currentItem().text(),\
+        zr_heberg = self.ui.ch_heberg.text(),\
+        zr_j1_enc_am = self.ui.chtab_nbpers_jr1.item(0,0).text(),\
+        zr_j1_enc_pm = self.ui.chtab_nbpers_jr1.item(0,1).text(),\
+        zr_j1_tot_am = self.ui.chtab_nbpers_jr1.item(1,0).text(),\
+        zr_j1_tot_pm = self.ui.chtab_nbpers_jr1.item(1,1).text(),\
+        zr_j1adcen_am = self.ui.chtab_nbpers_jr1.item(2,0).text(),\
+        zr_j1adcen_pm = self.ui.chtab_nbpers_jr1.item(2,1).text(),\
+        zr_j1_blon_am = self.ui.chtab_nbpers_jr1.item(3,0).text(),\
+        zr_j1_blon_pm = self.ui.chtab_nbpers_jr1.item(3,1).text(),\
+        zr_j2_enc_am = self.ui.chtab_nbpers_jr2.item(0,0).text(),\
+        zr_j2_enc_pm = self.ui.chtab_nbpers_jr2.item(0,1).text(),\
+        zr_j2_tot_am = self.ui.chtab_nbpers_jr2.item(1,0).text(),\
+        zr_j2_tot_pm = self.ui.chtab_nbpers_jr2.item(1,1).text(),\
+        zr_j2adcen_am = self.ui.chtab_nbpers_jr2.item(2,0).text(),\
+        zr_j2adcen_pm = self.ui.chtab_nbpers_jr2.item(2,1).text(),\
+        zr_j2_blon_am = self.ui.chtab_nbpers_jr2.item(3,0).text(),\
+        zr_j2_blon_pm = self.ui.chtab_nbpers_jr2.item(3,1).text())
+        ok_chvol = querysauvope.exec_(querych)
+        if not ok_chvol:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
+        print querych
+
         self.iface.setActiveLayer(coucheactive)
         self.close
+
 
     def recupDonnSortie(self):
         #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche() et les txts des étiqu dans composeur()
@@ -160,7 +183,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
 
         #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
@@ -185,26 +208,21 @@ class OperationDialog(QtGui.QDialog):
 
         self.recupDonnSortie()
         reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
-        print reqwheresit
         uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
         self.contours_site=QgsVectorLayer(uri.uri(), "contours_site", "postgres")
         if self.contours_site.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.contours_site)
-        print self.contours_site.featureCount()
 
 
     def composeur(self):
-        #Enregistrer le dernier polygone en base avec la fonction sauverOpe()
         self.sauverOpe()
         self.affiche()
-        #Production d'une carte de composeur
-        #On récupère la liste des composeurs avant d'en créer un
+
+
+        #COMPOSEUR : Production d'un composeur
         beforeList = self.iface.activeComposers()
-        #On crée un nouveau composeur
         self.iface.actionPrintComposer().trigger()  
-        #On récupère la liste des composeurs après création du nouveau
         afterList = self.iface.activeComposers()
-        #On récupère dans diffList le composeur créé entre la récupération des deux listes.
         diffList = []
         for item in afterList:
             if not item in  beforeList:
@@ -212,15 +230,16 @@ class OperationDialog(QtGui.QDialog):
         #Intégration du composeur dans le QgsComposerView et création du QgsComposition
         self.composerView = diffList[0]
         self.composition = self.composerView.composition()
-       
+        #operationOnTop() : afficher le form "operation.py" devant QGIS qd le composeur est fermé
         self.composerView.composerViewHide.connect(self.operationOnTop)
         #Récupération du template. Intégration des ses éléments dans la carte.
         file1=QtCore.QFile('/home/vincent/form_pyqgis2013/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         self.composition.loadFromTemplate(doc)
-        
-        #Récupération de la carte
+
+
+        #CARTE : Récupération de la carte
         maplist=[]
         for item in self.composition.composerMapItems():
             maplist.append(item)
@@ -228,19 +247,22 @@ class OperationDialog(QtGui.QDialog):
         #Taille définie pour la carte
         x, y, w, h = 5, 28, 408, 240
         self.composerMap.setItemPosition(x, y, w, h)
-        #Crée la bbox pour la carte en cours (fonction mapItemSetBBox l 256)
+        #Crée la bbox autour du site pour la carte en cours (fonction mapItemSetBBox l 293)
+        #self.contours_sites est défini dans la fonction affiche()
         self.margin=10
         self.composerMapSetBBox(self.contours_site, self.margin)
-        #(Dé)zoome sur l'ensemble des deux pages du composeur
-        #self.composition.mActionZoomFullExtent().trigger()
+                    #(Dé)zoome sur l'ensemble des deux pages du composeur
+                    #self.composition.mActionZoomFullExtent().trigger()
 
-        #Modifier les étiquettes du composeur.
+
+        #ETIQUETTES : Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur
         labels = [item for item in self.composition.items()\
                 if item.type() == QgsComposerItem.ComposerLabel]
 
         # récupération des objets self.codedusite, self.redacteur, self.datesortie et self.sortcom
         self.recupDonnSortie()
+
         #trouver nomsite dans la table postgresql, en fonction de codesite
         querynomsite = QtSql.QSqlQuery(self.db)
         qnomsite=(u"""select nomsite from sites_cen.t_sitescen where codesite='{zr_codesite}'""".format (zr_codesite=self.codedusite))
@@ -266,7 +288,7 @@ class OperationDialog(QtGui.QDialog):
             texteope=unicode(texteope+'<br/>'+'<b>'+ope+'</b>'+'<br/>'+descrope+'<br/>')
             querycomope.next()
 
-        #Pour chaque étiquette qui contient le mot-clé (comme "$codesite"), remplacer le texte par le code du site concerné
+        # Pour chaque étiquette qui contient le mot-clé (comme "$codesite"), remplacer le texte par le code du site concerné
         # La methode find() permet de chercher une chaîne dans une autre. 
         # Elle renvoie le rang du début de la chaîne cherchée. Si = -1, c'est que la chaîne cherchée n'est pas trouvée
         for label in labels:
@@ -274,7 +296,7 @@ class OperationDialog(QtGui.QDialog):
                 plac_codesite=label.displayText().find("$codesite")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_codesite]+self.codedusite+texte[plac_codesite+9:])
-                #for python equiv to VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
+                #pr python equiv à VB6 left, mid and right : https://mail.python.org/pipermail/tutor/2004-November/033445.html
             if label.displayText().find("$redac")>-1:
                 plac_redac=label.displayText().find("$redac")
                 texte=unicode(label.displayText())
@@ -299,16 +321,18 @@ class OperationDialog(QtGui.QDialog):
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_objet]+self.objvisite+texte[plac_objet+6:])
 
+
     def composerMapSetBBox(self, geom, margin = None):
-    # crée la bbox pour la carte en cours. fonction l.261
-        #"""Set new extent with optional margin (in %) for map item"""-+
+    # crée la bbox pour la carte en cours.
+        #Configure une nouvelle étendue avec un marge optionnelle (en %) pour la carte
         self.composerMap.setNewExtent(self.getNewExtent(geom, margin))
 
+
     def getNewExtent(self, geom, margin = None):
-        #"""Compute an extent of geometry, with given margin (in %)
-        #to be able to show it in the selected map item
-        #Deal with non-square geometries to keep same ratio"""
-        # compute coordinates and ratio
+        #Calcule une étendue de la géometrie, avec une marge donnée (en %)
+        #afin de pouvoir l'afficher dans la carte sélectionnée
+        #Gère les géomlétries non carrées pour garder le même ratio
+        # Calcule les coordonnées etle ratio
         new_extent = None
         x1, y1, x2, y2 = (0, 0, 0, 0)
         geom_rect = geom.extent()
@@ -319,27 +343,28 @@ class OperationDialog(QtGui.QDialog):
         ya2 = geom_rect.yMaximum()
         map_rect = self.composerMap.boundingRect()
         map_ratio = map_rect.width() / map_rect.height()
-        # geometry height is too big
+        # la hauteur de la géométrie est trop grande
         if geom_ratio < map_ratio:
             y1 = ya1
             y2 = ya2
             x1 = (xa1 + xa2 + map_ratio * (ya1 - ya2)) / 2.0
             x2 = x1 + map_ratio * (ya2 - ya1)
             new_extent = QgsRectangle(x1, y1, x2, y2)
-        # geometry width is too big
+        # la largeur de la géométrie est trop grande
         elif geom_ratio > map_ratio:
             x1 = xa1
             x2 = xa2
             y1 = (ya1 + ya2 + (xa1 - xa2) / map_ratio) / 2.0
             y2 = y1 + (xa2 - xa1) / map_ratio
             new_extent = QgsRectangle(x1, y1, x2, y2)
-        # same ratio: send geom bounding box
+        # même ratio: renvoyer la bounding box de la géométrie
         else:
             new_extent = geom_rect
-        # add margin to computed extent
+        # ajouter la marge à l'étendue calculée
         if margin:
             new_extent.scale(1 + margin / 100.0)
         return new_extent
+
 
     def operationOnTop(self):
     # Afficher le formulaire "operationdialog.py" (Qdialog) devant iface (QmainWindow) lorsque l'on ferme le composeur (QgsComposerView)

@@ -180,6 +180,37 @@ class OperationDialog(QtGui.QDialog):
         self.objvisite=querycodesite.value(4)
         self.objautre=querycodesite.value(5)
 
+    def recupDonnChVolont(self):
+        # recup des données d'un chantier de volontaires en fction de l'Id de la sortie (et de l'opé). Pour afficher les textes ds composeur().
+        querycodevolont = QtSql.QSqlQuery(self.db)
+        qchvolont = u"""select nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm from bdtravaux.ch_volont order by id_chvol desc limit 1"""
+        ok = querycodevolont.exec_(qchvolont)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête Chvolotaires ratée')
+        querycodevolont.next()
+        self.cv_nb_jours = querycodevolont.value(0)
+        self.cv_nb_heur_ch = querycodevolont.value(1)
+        self.cv_nb_heur_de = querycodevolont.value(2)
+        self.cv_partenaire = querycodevolont.value(3)
+        self.cv_heberg = querycodevolont.value(4)
+        self.cv_j1_enc_am = querycodevolont.value(5)
+        self.cv_j1_enc_pm = querycodevolont.value(6)
+        self.cv_j1_tot_am = querycodevolont.value(7)
+        self.cv_j1_tot_pm = querycodevolont.value(8)
+        self.cv_j1adcen_am = querycodevolont.value(9)
+        self.cv_j1adcen_pm = querycodevolont.value(10)
+        self.cv_j1_blon_am = querycodevolont.value(11)
+        self.cv_j1_blon_pm = querycodevolont.value(12)
+        self.cv_j2_enc_am = querycodevolont.value(13)
+        self.cv_j2_enc_pm = querycodevolont.value(14)
+        self.cv_j2_tot_am = querycodevolont.value(15)
+        self.cv_j2_tot_pm = querycodevolont.value(16)
+        self.cv_j2adcen_am = querycodevolont.value(17)
+        self.cv_j2adcen_pm = querycodevolont.value(18)
+        self.cv_j2_blon_am = querycodevolont.value(19)
+        self.cv_j2_blon_pm = querycodevolont.value(20)
+
+
 
     def affiche(self):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
@@ -265,6 +296,8 @@ class OperationDialog(QtGui.QDialog):
 
         # récupération des objets self.codedusite, self.redacteur, self.datesortie et self.sortcom
         self.recupDonnSortie()
+        # récupération des données de chantiers de volontaires
+        self.recupDonnChVolont()
 
         #trouver nomsite dans la table postgresql, en fonction de codesite
         querynomsite = QtSql.QSqlQuery(self.db)
@@ -319,7 +352,6 @@ class OperationDialog(QtGui.QDialog):
             if label.displayText().find("$commope")>-1:
                 label.setText(texteope)
             if label.displayText().find("$objet")>-1:
-                print "objet trouve"
                 plac_objet=label.displayText().find("$objet")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_objet]+self.objvisite+texte[plac_objet+6:])
@@ -327,6 +359,58 @@ class OperationDialog(QtGui.QDialog):
                 plac_objautre=label.displayText().find("$objvi_autre")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_objautre]+self.objautre+texte[plac_objautre+12:])
+            if label.displayText().find("$nbjours")>-1:
+                plac_nbjours=label.displayText().find("$nbjours")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_nbjours]+self.cv_nb_jours+texte[plac_nbjours+8:])
+            if label.displayText().find("$nbheurch")>-1:
+                plac_nbheurch=label.displayText().find("$nbheurch")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_nbheurch]+self.cv_nb_heur_ch+texte[plac_nbheurch+9:])
+            if label.displayText().find("$nbheurdec")>-1:
+                plac_nbheurdec=label.displayText().find("$nbheurdec")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_nbheurdec]+self.cv_nb_heur_de+texte[plac_nbheurdec+10:])
+            if label.displayText().find("$partenair")>-1:
+                plac_partenair=label.displayText().find("$partenair")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_partenair]+self.cv_partenaire+texte[plac_partenair+10:])
+            if label.displayText().find("$heberg")>-1:
+                plac_heberg=label.displayText().find("$heberg")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_heberg]+self.cv_heberg+texte[plac_heberg+7:])
+            if label.displayText().find("$jr1enc_am")>-1:
+                label.setText(self.cv_j1_enc_am)
+            if label.displayText().find("$jr1enc_pm")>-1:
+                label.setText(self.cv_j1_enc_pm)
+            if label.displayText().find("$jr1tot_am")>-1:
+                label.setText(self.cv_j1_tot_am)
+            if label.displayText().find("$jr1tot_pm")>-1:
+                label.setText(self.cv_j1_tot_pm)
+            if label.displayText().find("$jr1cen_am")>-1:
+                label.setText(self.cv_j1adcen_am)
+            if label.displayText().find("$jr1cen_pm")>-1:
+                label.setText(self.cv_j1adcen_pm)
+            if label.displayText().find("$jr1blo_am")>-1:
+                label.setText(self.cv_j1_blon_am)
+            if label.displayText().find("$jr1blo_pm")>-1:
+                label.setText(self.cv_j1_blon_pm)
+            if label.displayText().find("$jr2enc_am")>-1:
+                label.setText(self.cv_j2_enc_am)
+            if label.displayText().find("$jr2enc_pm")>-1:
+                label.setText(self.cv_j2_enc_pm)
+            if label.displayText().find("$jr2tot_am")>-1:
+                label.setText(self.cv_j2_tot_am)
+            if label.displayText().find("$jr2tot_pm")>-1:
+                label.setText(self.cv_j2_tot_pm)
+            if label.displayText().find("$jr2cen_am")>-1:
+                label.setText(self.cv_j2adcen_am)
+            if label.displayText().find("$jr2cen_pm")>-1:
+                label.setText(self.cv_j2adcen_pm)
+            if label.displayText().find("$jr2blo_am")>-1:
+                label.setText(self.cv_j2_blon_am)
+            if label.displayText().find("$jr2blo_pm")>-1:
+                label.setText(self.cv_j2_blon_pm)
 
 
     def composerMapSetBBox(self, geom, margin = None):

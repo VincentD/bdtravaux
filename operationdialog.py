@@ -362,15 +362,15 @@ class OperationDialog(QtGui.QDialog):
             if label.displayText().find("$nbjours")>-1:
                 plac_nbjours=label.displayText().find("$nbjours")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_nbjours]+self.cv_nb_jours+texte[plac_nbjours+8:])
+                label.setText(texte[0:plac_nbjours]+str(self.cv_nb_jours)+texte[plac_nbjours+8:])
             if label.displayText().find("$nbheurch")>-1:
                 plac_nbheurch=label.displayText().find("$nbheurch")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_nbheurch]+self.cv_nb_heur_ch+texte[plac_nbheurch+9:])
+                label.setText(texte[0:plac_nbheurch]+str(self.cv_nb_heur_ch)+texte[plac_nbheurch+9:])
             if label.displayText().find("$nbheurdec")>-1:
                 plac_nbheurdec=label.displayText().find("$nbheurdec")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_nbheurdec]+self.cv_nb_heur_de+texte[plac_nbheurdec+10:])
+                label.setText(texte[0:plac_nbheurdec]+str(self.cv_nb_heur_de)+texte[plac_nbheurdec+10:])
             if label.displayText().find("$partenair")>-1:
                 plac_partenair=label.displayText().find("$partenair")
                 texte=unicode(label.displayText())
@@ -380,37 +380,37 @@ class OperationDialog(QtGui.QDialog):
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_heberg]+self.cv_heberg+texte[plac_heberg+7:])
             if label.displayText().find("$jr1enc_am")>-1:
-                label.setText(self.cv_j1_enc_am)
+                label.setText(str(self.cv_j1_enc_am))
             if label.displayText().find("$jr1enc_pm")>-1:
-                label.setText(self.cv_j1_enc_pm)
+                label.setText(str(self.cv_j1_enc_pm))
             if label.displayText().find("$jr1tot_am")>-1:
-                label.setText(self.cv_j1_tot_am)
+                label.setText(str(self.cv_j1_tot_am))
             if label.displayText().find("$jr1tot_pm")>-1:
-                label.setText(self.cv_j1_tot_pm)
+                label.setText(str(self.cv_j1_tot_pm))
             if label.displayText().find("$jr1cen_am")>-1:
-                label.setText(self.cv_j1adcen_am)
+                label.setText(str(self.cv_j1adcen_am))
             if label.displayText().find("$jr1cen_pm")>-1:
-                label.setText(self.cv_j1adcen_pm)
+                label.setText(str(self.cv_j1adcen_pm))
             if label.displayText().find("$jr1blo_am")>-1:
-                label.setText(self.cv_j1_blon_am)
+                label.setText(str(self.cv_j1_blon_am))
             if label.displayText().find("$jr1blo_pm")>-1:
-                label.setText(self.cv_j1_blon_pm)
+                label.setText(str(self.cv_j1_blon_pm))
             if label.displayText().find("$jr2enc_am")>-1:
-                label.setText(self.cv_j2_enc_am)
+                label.setText(str(self.cv_j2_enc_am))
             if label.displayText().find("$jr2enc_pm")>-1:
-                label.setText(self.cv_j2_enc_pm)
+                label.setText(str(self.cv_j2_enc_pm))
             if label.displayText().find("$jr2tot_am")>-1:
-                label.setText(self.cv_j2_tot_am)
+                label.setText(str(self.cv_j2_tot_am))
             if label.displayText().find("$jr2tot_pm")>-1:
-                label.setText(self.cv_j2_tot_pm)
+                label.setText(str(self.cv_j2_tot_pm))
             if label.displayText().find("$jr2cen_am")>-1:
-                label.setText(self.cv_j2adcen_am)
+                label.setText(str(self.cv_j2adcen_am))
             if label.displayText().find("$jr2cen_pm")>-1:
-                label.setText(self.cv_j2adcen_pm)
+                label.setText(str(self.cv_j2adcen_pm))
             if label.displayText().find("$jr2blo_am")>-1:
-                label.setText(self.cv_j2_blon_am)
+                label.setText(str(self.cv_j2_blon_am))
             if label.displayText().find("$jr2blo_pm")>-1:
-                label.setText(self.cv_j2_blon_pm)
+                label.setText(str(self.cv_j2_blon_pm))
 
 
     def composerMapSetBBox(self, geom, margin = None):

@@ -74,6 +74,10 @@ class BdTravauxDialog(QtGui.QDialog):
         for radio in childs:
             if radio.widget().isChecked()==True:
                 self.objetVisiText=unicode(radio.widget().text())
+        if self.objetVisiText=='Chantier de volontaires':
+            self.chantvol=True
+        else: 
+            self.chantvol=False
 
 
     def sauverInfos(self):
@@ -85,7 +89,8 @@ class BdTravauxDialog(QtGui.QDialog):
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
         zr_redacteur=self.ui.obsv.currentText(),\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
-        zr_chantier_vol=str(self.ui.chantvol.isChecked()).lower(),\
+        zr_chantier_vol=self.chantvol,\
+        #str(self.ui.chantvol.isChecked()).lower(),\
         zr_sort_com=self.ui.comm.toPlainText(),\
         zr_objvisite=self.objetVisiText,\
         zr_objvi_autr=self.ui.obj_autre_text.text()).encode("latin1")

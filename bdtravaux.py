@@ -106,7 +106,18 @@ class BdTravaux:
         # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
         layer=self.iface.activeLayer()
         if not layer:
-            QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Sélectionner une couche')
+            #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
+            messlayer=QtGui.QMessageBox()
+            messlayer.setText(u'Aucune couche SIG sélectionnée')
+            messlayer.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
+            messlayer.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            messlayer.setDefaultButton(QtGui.QMessageBox.No)
+            messlayer.setIcon(QtGui.QMessageBox.Question)
+            ret = messlayer.exec_()
+            if ret == QtGui.QMessageBox.Yes:
+                print 'Yes'
+            if ret == QtGui.QMessageBox.No:
+                print 'No'
             return
         # Attention : au contraire de ce qu'on a fait dans operationdialog.py, ne pas utiliser "self" en premier paramètre de
         # QMessageBox (il faut le widget parent), car ici self désigne une classe qui n'est pas un QWidget. 
@@ -118,7 +129,18 @@ class BdTravaux:
         #même code pour l'absence d'entité sélectionnée dans la couche active        
         selection=self.iface.activeLayer().selectedFeatures()
         if not selection:
-            QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Sélectionner une entité')
+            #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
+            messfeat=QtGui.QMessageBox()
+            messfeat.setText(u'Aucune entité sélectionnée')
+            messfeat.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
+            messfeat.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            messfeat.setDefaultButton(QtGui.QMessageBox.No)
+            messfeat.setIcon(QtGui.QMessageBox.Question)
+            ret = messfeat.exec_()
+            if ret == QtGui.QMessageBox.Yes:
+                print 'Yes'
+            if ret == QtGui.QMessageBox.No:
+                print 'No'
             return
 
         # show the dialog

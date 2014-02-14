@@ -116,9 +116,10 @@ class BdTravaux:
             ret = messlayer.exec_()
             if ret == QtGui.QMessageBox.Yes:
                 print 'Yes'
-            if ret == QtGui.QMessageBox.No:
+                self.dlg_ope.sansgeom='True'
+            elif ret == QtGui.QMessageBox.No:
                 print 'No'
-            return
+                return
         # Attention : au contraire de ce qu'on a fait dans operationdialog.py, ne pas utiliser "self" en premier paramètre de
         # QMessageBox (il faut le widget parent), car ici self désigne une classe qui n'est pas un QWidget. 
         # Avec self.dlg_ope, la fenêtre "operation" devient parent => plus d'erreur "parameter 1 : unexpected 'instance'".
@@ -127,21 +128,24 @@ class BdTravaux:
         #la méthode "geometrytype" d'un "active layer" vide n'existe pas.
         
         #même code pour l'absence d'entité sélectionnée dans la couche active        
-        selection=self.iface.activeLayer().selectedFeatures()
-        if not selection:
-            #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
-            messfeat=QtGui.QMessageBox()
-            messfeat.setText(u'Aucune entité sélectionnée')
-            messfeat.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
-            messfeat.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            messfeat.setDefaultButton(QtGui.QMessageBox.No)
-            messfeat.setIcon(QtGui.QMessageBox.Question)
-            ret = messfeat.exec_()
-            if ret == QtGui.QMessageBox.Yes:
-                print 'Yes'
-            if ret == QtGui.QMessageBox.No:
-                print 'No'
-            return
+        if layer:
+            selection=self.iface.activeLayer().selectedFeatures()
+            self.dlg_ope.sansgeom='False'
+            if not selection:
+                #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
+                messfeat=QtGui.QMessageBox()
+                messfeat.setText(u'Aucune entité sélectionnée')
+                messfeat.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
+                messfeat.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                messfeat.setDefaultButton(QtGui.QMessageBox.No)
+                messfeat.setIcon(QtGui.QMessageBox.Question)
+                ret = messfeat.exec_()
+                if ret == QtGui.QMessageBox.Yes:
+                    print 'Yes'
+                    self.dlg_ope.sansgeom='True'
+                elif ret == QtGui.QMessageBox.No:
+                    print 'No'
+                    return
 
         # show the dialog
         self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"

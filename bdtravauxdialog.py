@@ -37,7 +37,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")

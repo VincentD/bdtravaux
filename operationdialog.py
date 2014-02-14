@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -50,7 +50,7 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
 
          # Connexions aux boutons
-        self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpe)
+        self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
         self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.active_chantier_vol)
@@ -75,16 +75,19 @@ class OperationDialog(QtGui.QDialog):
         # Indiquer le nombre d'entités sélectionnées dans le contrôle lbl_geo et le type de géométrie.
         # En premier lieu, on compare la constante renvoyée par geometrytype() à celle renvoyée par les constantes de QGis pour 
         # obtenir une chaîne de caractère : geometryType() ne renvoie que des constantes (0, 1 ou 2). Il faut donc ruser...
-        geometrie=""
-        if self.iface.activeLayer().geometryType() == QGis.Polygon:
-            geometrie="polygone"
-        elif self.iface.activeLayer().geometryType() == QGis.Line:
-            geometrie="ligne"
-        elif self.iface.activeLayer().geometryType() == QGis.Point:
-            geometrie="point"
-            #puis, on écrit la phrase qui apparaîtra dans lbl_geom
-        self.ui.lbl_geom.setText(u"{nb_geom} {typ_geom}(s) sélectionné(s)".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
-        typ_geom=geometrie))
+        if not self.iface.activeLayer():
+            self.ui.lbl_geom.setText(u"0 points, lignes ou polygones sélectionnés")
+        else:
+            geometrie=""
+            if self.iface.activeLayer().geometryType() == QGis.Polygon:
+                geometrie="polygone"
+            elif self.iface.activeLayer().geometryType() == QGis.Line:
+                geometrie="ligne"
+            elif self.iface.activeLayer().geometryType() == QGis.Point:
+                geometrie="point"
+                #puis, on écrit la phrase qui apparaîtra dans lbl_geom
+            self.ui.lbl_geom.setText(u"{nb_geom} {typ_geom}(s) sélectionné(s)".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
+            typ_geom=geometrie))
 
 
     def active_chantier_vol(self):
@@ -99,6 +102,29 @@ class OperationDialog(QtGui.QDialog):
         else:
             self.ui.tab_chantvol.setEnabled(0)
 
+    def sauverOpeChoi(self):
+        if self.sansgeom=='True':
+            print 'sansgeomtrue'
+            self.sauvOpeSansGeom()
+        else:
+            print 'avecgeomtrue'
+            self.sauverOpe()
+
+    def sauvOpeSansGeom(self):
+        querysauvope = QtSql.QSqlQuery(self.db)
+        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}')""".format (\
+        zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
+        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
+        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
+        zr_ope_typ= self.ui.opreal.currentItem().text(),\
+        zr_opera= self.ui.prestataire.currentItem().text(),\
+        zr_libelle= self.ui.descriptio.toPlainText(),\
+        zr_chantfini= str(self.ui.chantfini.isChecked()).lower())
+        print query
+        ok = querysauvope.exec_(query)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+        self.chantVol()
 
     def sauverOpe(self):
         geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
@@ -131,7 +157,10 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+        self.iface.setActiveLayer(coucheactive)
+        self.chantVol()
 
+    def chantVol(self):
         if self.valchantvol is True :
             querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm})""".format (\
             zr_nb_jours = self.ui.ch_nb_jours.text(),\
@@ -160,7 +189,6 @@ class OperationDialog(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
             print querych
 
-        self.iface.setActiveLayer(coucheactive)
         self.close
 
 
@@ -217,7 +245,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
@@ -249,7 +277,7 @@ class OperationDialog(QtGui.QDialog):
 
 
     def composeur(self):
-        self.sauverOpe()
+        self.sauverOpeChoi()
         self.affiche()
 
 

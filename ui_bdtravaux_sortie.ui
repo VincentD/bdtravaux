@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>806</width>
-    <height>490</height>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -291,7 +291,7 @@
        <x>10</x>
        <y>60</y>
        <width>741</width>
-       <height>491</height>
+       <height>341</height>
       </rect>
      </property>
     </widget>
@@ -307,6 +307,53 @@
      <property name="text">
       <string>Commentaires</string>
      </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Faune / Flore</string>
+    </attribute>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>751</width>
+       <height>391</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="lbl_natfaune">
+        <property name="text">
+         <string>Données faune : espèce / sexe / effectifs / comportement</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="natfaune"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbl_natflore">
+        <property name="text">
+         <string>Données flore : espèce / effectifs</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="natflore"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbl_natautre">
+        <property name="text">
+         <string>Données autres (mousse, fonge...)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="natautre"/>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>

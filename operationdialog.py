@@ -41,13 +41,15 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
         ok = self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
+
+        self.ui.ch_partenaire.setCurrentRow(0)
 
          # Connexions aux boutons
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
@@ -162,6 +164,7 @@ class OperationDialog(QtGui.QDialog):
 
     def chantVol(self):
         if self.valchantvol is True :
+            querychantvol = QtSql.QSqlQuery(self.db)
             querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm})""".format (\
             zr_nb_jours = self.ui.ch_nb_jours.text(),\
             zr_nb_heur_ch = self.ui.ch_nb_heur_ch.text(),\
@@ -184,7 +187,7 @@ class OperationDialog(QtGui.QDialog):
             zr_j2adcen_pm = self.ui.chtab_nbpers_jr2.item(2,1).text(),\
             zr_j2_blon_am = self.ui.chtab_nbpers_jr2.item(3,0).text(),\
             zr_j2_blon_pm = self.ui.chtab_nbpers_jr2.item(3,1).text())
-            ok_chvol = querysauvope.exec_(querych)
+            ok_chvol = querychantvol.exec_(querych)
             if not ok_chvol:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
             print querych
@@ -245,7 +248,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
 
         #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
@@ -384,9 +387,10 @@ class OperationDialog(QtGui.QDialog):
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_objet]+self.objvisite+texte[plac_objet+6:])
             if label.displayText().find("$objvi_autre")>-1:
-                plac_objautre=label.displayText().find("$objvi_autre")
-                texte=unicode(label.displayText())
-                label.setText(texte[0:plac_objautre]+self.objautre+texte[plac_objautre+12:])
+                if self.objautre:
+                    plac_objautre=label.displayText().find("$objvi_autre")
+                    texte=unicode(label.displayText())
+                    label.setText(texte[0:plac_objautre]+self.objautre+texte[plac_objautre+12:])
             if label.displayText().find("$nbjours")>-1:
                 plac_nbjours=label.displayText().find("$nbjours")
                 texte=unicode(label.displayText())

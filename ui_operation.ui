@@ -32,7 +32,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="documentMode">
     <bool>false</bool>
@@ -456,6 +456,9 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="text">
+         <string>0</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -466,7 +469,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="ch_nb_heur_ch"/>
+       <widget class="QLineEdit" name="ch_nb_heur_ch">
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="chlbl_heurdecouv">
@@ -476,7 +483,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="ch_nb_heur_dec"/>
+       <widget class="QLineEdit" name="ch_nb_heur_dec">
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -502,6 +513,11 @@
         <property name="selectionMode">
          <enum>QAbstractItemView::MultiSelection</enum>
         </property>
+        <item>
+         <property name="text">
+          <string>Non renseigné</string>
+         </property>
+        </item>
         <item>
          <property name="text">
           <string>Association des Naturalistes de la Gohelle (ANG)</string>
@@ -751,7 +767,7 @@
     <attribute name="title">
      <string>Faune / Flore</string>
     </attribute>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>

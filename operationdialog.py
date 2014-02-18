@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,6 +49,13 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
 
+        #Definition de URI pour extraire des couches des tables PG. Uri est utilisé dans les fonctions "afficher" et "composeur".
+        #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
+        self.uri = QgsDataSourceURI()
+        # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+
+        #Initialisations
         self.ui.ch_partenaire.setCurrentRow(0)
 
          # Connexions aux boutons
@@ -198,7 +205,7 @@ class OperationDialog(QtGui.QDialog):
     def recupDonnSortie(self):
         #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche() et les txts des étiqu dans composeur()
         querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom, objvisite, objvi_autr from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
@@ -210,6 +217,10 @@ class OperationDialog(QtGui.QDialog):
         self.sortcom=querycodesite.value(3)
         self.objvisite=querycodesite.value(4)
         self.objautre=querycodesite.value(5)
+        self.natfaune=querycodesite.value(6)
+        self.natflore=querycodesite.value(7)
+        self.natautre=querycodesite.value(8)
+
 
     def recupDonnChVolont(self):
         # recup des données d'un chantier de volontaires en fction de l'Id de la sortie (et de l'opé). Pour afficher les textes ds composeur().
@@ -242,46 +253,49 @@ class OperationDialog(QtGui.QDialog):
         self.cv_j2_blon_pm = querycodevolont.value(20)
 
 
-
     def affiche(self):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
-        uri = QgsDataSourceURI()
+        #uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        #uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        # les 4 lignes ci-dessus ont été intégrées au constructeur de la classe operationdialog pour être utilisées dans plusieurs fonctions (l.52)
 
         #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
 
         # configure le shéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
-        uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
+        self.uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
         #instanciation de la couche dans qgis 
-        self.gestrealpolys=QgsVectorLayer(uri.uri(), "gestrealpolys", "postgres")
+        self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
         if self.gestrealpolys.featureCount()>0:
         #si la couche importée n'est pas vide, intégration dans le Map Layer Registry pour pouvoir l'utiliser
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys)
 
-        uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
-        self.gestreallgn=QgsVectorLayer(uri.uri(), "gestreallgn", "postgres")
+        self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
+        self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
         if self.gestreallgn.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn)
 
-        uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
-        self.gestrealpts=QgsVectorLayer(uri.uri(), "gestrealpts", "postgres")
+        self.uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
+        self.gestrealpts=QgsVectorLayer(self.uri.uri(), "gestrealpts", "postgres")
         if self.gestrealpts.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts)
 
-        self.recupDonnSortie()
-        reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
-        uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
-        self.contours_site=QgsVectorLayer(uri.uri(), "contours_site", "postgres")
-        if self.contours_site.featureCount()>0:
-            QgsMapLayerRegistry.instance().addMapLayer(self.contours_site)
 
 
     def composeur(self):
         self.sauverOpeChoi()
-        self.affiche()
+        if self.sansgeom!='True':
+            self.affiche()
+
+        self.recupDonnSortie()
+        reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
+        self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
+        self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
+        if self.contours_site.featureCount()>0:
+            QgsMapLayerRegistry.instance().addMapLayer(self.contours_site)
+
 
 
         #COMPOSEUR : Production d'un composeur
@@ -391,6 +405,10 @@ class OperationDialog(QtGui.QDialog):
                     plac_objautre=label.displayText().find("$objvi_autre")
                     texte=unicode(label.displayText())
                     label.setText(texte[0:plac_objautre]+self.objautre+texte[plac_objautre+12:])
+            if label.displayText().find("$natfaune")>-1:
+                label.setText(str(self.natfaune))
+            if label.displayText().find("$natflore")>-1:
+                label.setText(str(self.natflore))
             if label.displayText().find("$nbjours")>-1:
                 plac_nbjours=label.displayText().find("$nbjours")
                 texte=unicode(label.displayText())

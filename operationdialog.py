@@ -281,8 +281,8 @@ class OperationDialog(QtGui.QDialog):
 
     def composeur(self):
         self.sauverOpeChoi()
-        self.affiche()
-
+        if self.sansgeom!='True':
+            self.affiche()
 
         #COMPOSEUR : Production d'un composeur
         beforeList = self.iface.activeComposers()

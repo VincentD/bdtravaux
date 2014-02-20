@@ -151,7 +151,6 @@ class BdTravaux:
         self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
         self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
                                     # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
-        self.dlg_ope.active_chantier_vol() # fonction qui active les contrôles de l'onglet "chantier de volontaire" SI vrai dans la table "sortie"
         self.dlg_ope.show()
         # Run the dialog event loop
         result = self.dlg_ope.exec_()

@@ -32,12 +32,15 @@ class BdTravauxDialog(QtGui.QDialog):
         # Set up the user interface from Designer.
         self.ui = Ui_BdTravaux()
         self.ui.setupUi(self)
+
+        #Quand la classe est fermée, elle est effacée. permet de réinitialiser toutes les valeurs si on réappuie sur le bouton.
+        #self.setAttribute(QtCore.Qt.WA_QuitOnClose, True)
         
         # DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,12 +56,15 @@ class BdTravauxDialog(QtGui.QDialog):
                 self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(1) )
             # *Voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
-            # l'Int renvoie deux paramètres. Le [0] précise qu'on ne veut récupérer que le premier, qui est l'entier 
-            # (le 2ème para = boolean pour savoir si la conversion a marché)
 
-        #Init de l'objet objetVisiText, qui va récup la valeur de "l'objectif de la visite" (QRadioButtons dans un GroupBox)
+        #Initialisations pour objetVisiText (récup "objectif de la visite") et l'onglet "Chantier de volontaire : self.chantvol
+        # et onglet désactivé
         self.objetVisiText=str(self.ui.obj_travaux.text())
         print self.objetVisiText
+        self.chantvol=False
+        self.ui.tab_chantvol.setEnabled(0)
+        self.ui.ch_partenaire.setCurrentRow(0)
+
 
         # On connecte les signaux des boutons a nos methodes definies ci dessous
         # connexion du signal du bouton OK
@@ -66,6 +72,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.objetvisite, QtCore.SIGNAL('buttonClicked(QAbstractButton*)'), self.objetVisiClicked)
         #http://www.qtcentre.org/archive/index.php/t-15687.html pour l'emploi de QAbstractButton
+
 
     def objetVisiClicked(self):
         #cette fonction gère les boutons radio indiquant l'objectif de la visite
@@ -76,8 +83,10 @@ class BdTravauxDialog(QtGui.QDialog):
                 self.objetVisiText=unicode(radio.widget().text())
         if self.objetVisiText=='Chantier de volontaires':
             self.chantvol=True
+            self.ui.tab_chantvol.setEnabled(1)
         else: 
             self.chantvol=False
+            self.ui.tab_chantvol.setEnabled(0)
         return
 
 
@@ -103,11 +112,12 @@ class BdTravauxDialog(QtGui.QDialog):
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+        self.chantVol()
         self.db.close()
         self.db.removeDatabase("sitescsn")
+        self.reinitialiser()
         self.close()
-                
-                
+
         # contrôle "date" : on utilise la méthode SelectedDate des calendriers : self.ui.date.selectedDate(), toPyDate() pour
         # transformer l'objet QDate en objet "date " de Python, et la méthode Python strftime pour définir le format de sortie.
         # contrôle "obsv" : on utilise la méthode CurrentText d'une combobox
@@ -116,4 +126,63 @@ class BdTravauxDialog(QtGui.QDialog):
         # Or, on veut true ou false pour que PostGreSQl puisse les interprêter. D'où laméthode Python .lower, qui change la casse des chaînes.
         # contrôles "jours_chan" et "comm" : ce qont des QTextEdit. Ils prennent donc le texte saisi au format HTML. 
         # La méthode toPleinText() renvoie du texte classique
-   
+
+
+
+
+    def chantVol(self):
+        if self.chantvol==True :
+            #récupération de l'ID de la sortie pour intégration dans la table ch_volont
+            queryidsortie = QtSql.QSqlQuery(self.db)
+            querysortie = u"""select sortie_id from bdtravaux.sortie order by sortie_id desc limit 1"""
+            ok = queryidsortie.exec_(querysortie)
+            if not ok:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête IdSoertie pour Chvolontaires ratée')
+            queryidsortie.next()
+            idsortie = queryidsortie.value(0)
+            print "sortie="+str(idsortie)
+            
+            querychantvol = QtSql.QSqlQuery(self.db)
+            querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm, sortie) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm}, {zr_sortie})""".format (\
+            zr_nb_jours = self.ui.ch_nb_jours.text(),\
+            zr_nb_heur_ch = self.ui.ch_nb_heur_ch.text(),\
+            zr_nb_heur_de = self.ui.ch_nb_heur_dec.text(),\
+            zr_partenaire = self.ui.ch_partenaire.currentItem().text(),\
+            zr_heberg = self.ui.ch_heberg.text(),\
+            zr_j1_enc_am = self.ui.chtab_nbpers_jr1.item(0,0).text(),\
+            zr_j1_enc_pm = self.ui.chtab_nbpers_jr1.item(0,1).text(),\
+            zr_j1_tot_am = self.ui.chtab_nbpers_jr1.item(1,0).text(),\
+            zr_j1_tot_pm = self.ui.chtab_nbpers_jr1.item(1,1).text(),\
+            zr_j1adcen_am = self.ui.chtab_nbpers_jr1.item(2,0).text(),\
+            zr_j1adcen_pm = self.ui.chtab_nbpers_jr1.item(2,1).text(),\
+            zr_j1_blon_am = self.ui.chtab_nbpers_jr1.item(3,0).text(),\
+            zr_j1_blon_pm = self.ui.chtab_nbpers_jr1.item(3,1).text(),\
+            zr_j2_enc_am = self.ui.chtab_nbpers_jr2.item(0,0).text(),\
+            zr_j2_enc_pm = self.ui.chtab_nbpers_jr2.item(0,1).text(),\
+            zr_j2_tot_am = self.ui.chtab_nbpers_jr2.item(1,0).text(),\
+            zr_j2_tot_pm = self.ui.chtab_nbpers_jr2.item(1,1).text(),\
+            zr_j2adcen_am = self.ui.chtab_nbpers_jr2.item(2,0).text(),\
+            zr_j2adcen_pm = self.ui.chtab_nbpers_jr2.item(2,1).text(),\
+            zr_j2_blon_am = self.ui.chtab_nbpers_jr2.item(3,0).text(),\
+            zr_j2_blon_pm = self.ui.chtab_nbpers_jr2.item(3,1).text(),\
+            zr_sortie = idsortie)
+            ok_chvol = querychantvol.exec_(querych)
+            if not ok_chvol:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
+            print querych
+
+
+
+    def reinitialiser(self):
+       for child in self.findChildren((QtGui.QLineEdit,QtGui.QTextEdit,QtGui.QTableWidget)):
+            child.clear()
+       for child in self.findChildren((QtGui.QRadioButton)):
+            print child.objectName()
+            child.setAutoExclusive(False)
+            child.setChecked(False)
+            child.setAutoExclusive(True)
+            if child.text()=='Travaux sur site (hors chantiers de volontaires)':
+                child.setChecked(True)
+       for child in self.findChildren((QtGui.QCalendarWidget)):
+            aujourdhui=QtCore.QDate.currentDate()
+            child.setSelectedDate(aujourdhui)

@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,16 +53,15 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
-        self.ui.ch_partenaire.setCurrentRow(0)
 
-         # Connexions aux boutons
+        # Connexions aux boutons
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
-        self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.active_chantier_vol)
+
 
 
     def actu_cbbx(self):
@@ -78,6 +77,7 @@ class OperationDialog(QtGui.QDialog):
         # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
         # pour la date : plus de "toString()" dans l'API de QGIS 2.0 => QDate retransformé en PyQt pour utiliser "strftime"
         # afin de le transformer en chaîne de caractères.
+
 
 
     def actu_lblgeom(self):
@@ -99,17 +99,20 @@ class OperationDialog(QtGui.QDialog):
             typ_geom=geometrie))
 
 
-    def active_chantier_vol(self):
-        querychantvol = QtSql.QSqlQuery(self.db)
-        queryvol = u"""select sortie_id, chantvol from bdtravaux.sortie where sortie_id = '{zr_sortie_id}'""".format \
-        (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        ok = querychantvol.exec_(queryvol)
-        querychantvol.next()
-        self.valchantvol=querychantvol.value(1)
-        if self.valchantvol is True :
-            self.ui.tab_chantvol.setEnabled(1)
-        else:
-            self.ui.tab_chantvol.setEnabled(0)
+
+    #def active_chantier_vol(self):
+    #    querychantvol = QtSql.QSqlQuery(self.db)
+    #    queryvol = u"""select sortie_id, chantvol from bdtravaux.sortie where sortie_id = '{zr_sortie_id}'""".format \
+    #    (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+    #    ok = querychantvol.exec_(queryvol)
+    #    querychantvol.next()
+    #    self.valchantvol=querychantvol.value(1)
+    #    if self.valchantvol is True :
+    #        self.ui.tab_chantvol.setEnabled(1)
+    #    else:
+    #        self.ui.tab_chantvol.setEnabled(0)
+
+
 
     def sauverOpeChoi(self):
         if self.sansgeom=='True':
@@ -118,6 +121,8 @@ class OperationDialog(QtGui.QDialog):
         else:
             print 'avecgeomtrue'
             self.sauverOpe()
+
+
 
     def sauvOpeSansGeom(self):
         querysauvope = QtSql.QSqlQuery(self.db)
@@ -133,7 +138,9 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-        self.chantVol()
+        self.close
+
+
 
     def sauverOpe(self):
         geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
@@ -167,39 +174,8 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
         self.iface.setActiveLayer(coucheactive)
-        self.chantVol()
-
-    def chantVol(self):
-        if self.valchantvol is True :
-            querychantvol = QtSql.QSqlQuery(self.db)
-            querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm})""".format (\
-            zr_nb_jours = self.ui.ch_nb_jours.text(),\
-            zr_nb_heur_ch = self.ui.ch_nb_heur_ch.text(),\
-            zr_nb_heur_de = self.ui.ch_nb_heur_dec.text(),\
-            zr_partenaire = self.ui.ch_partenaire.currentItem().text(),\
-            zr_heberg = self.ui.ch_heberg.text(),\
-            zr_j1_enc_am = self.ui.chtab_nbpers_jr1.item(0,0).text(),\
-            zr_j1_enc_pm = self.ui.chtab_nbpers_jr1.item(0,1).text(),\
-            zr_j1_tot_am = self.ui.chtab_nbpers_jr1.item(1,0).text(),\
-            zr_j1_tot_pm = self.ui.chtab_nbpers_jr1.item(1,1).text(),\
-            zr_j1adcen_am = self.ui.chtab_nbpers_jr1.item(2,0).text(),\
-            zr_j1adcen_pm = self.ui.chtab_nbpers_jr1.item(2,1).text(),\
-            zr_j1_blon_am = self.ui.chtab_nbpers_jr1.item(3,0).text(),\
-            zr_j1_blon_pm = self.ui.chtab_nbpers_jr1.item(3,1).text(),\
-            zr_j2_enc_am = self.ui.chtab_nbpers_jr2.item(0,0).text(),\
-            zr_j2_enc_pm = self.ui.chtab_nbpers_jr2.item(0,1).text(),\
-            zr_j2_tot_am = self.ui.chtab_nbpers_jr2.item(1,0).text(),\
-            zr_j2_tot_pm = self.ui.chtab_nbpers_jr2.item(1,1).text(),\
-            zr_j2adcen_am = self.ui.chtab_nbpers_jr2.item(2,0).text(),\
-            zr_j2adcen_pm = self.ui.chtab_nbpers_jr2.item(2,1).text(),\
-            zr_j2_blon_am = self.ui.chtab_nbpers_jr2.item(3,0).text(),\
-            zr_j2_blon_pm = self.ui.chtab_nbpers_jr2.item(3,1).text())
-            ok_chvol = querychantvol.exec_(querych)
-            if not ok_chvol:
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
-            print querych
-
         self.close
+
 
 
     def recupDonnSortie(self):
@@ -222,10 +198,12 @@ class OperationDialog(QtGui.QDialog):
         self.natautre=querycodesite.value(8)
 
 
+
     def recupDonnChVolont(self):
         # recup des données d'un chantier de volontaires en fction de l'Id de la sortie (et de l'opé). Pour afficher les textes ds composeur().
         querycodevolont = QtSql.QSqlQuery(self.db)
-        qchvolont = u"""select nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm from bdtravaux.ch_volont order by id_chvol desc limit 1"""
+        qchvolont = u"""select nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        print qchvolont
         ok = querycodevolont.exec_(qchvolont)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête Chvolotaires ratée')
@@ -253,11 +231,10 @@ class OperationDialog(QtGui.QDialog):
         self.cv_j2_blon_pm = querycodevolont.value(20)
 
 
+
     def affiche(self):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
-        #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         #uri = QgsDataSourceURI()
-        # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
         #uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
         # les 4 lignes ci-dessus ont été intégrées au constructeur de la classe operationdialog pour être utilisées dans plusieurs fonctions (l.52)
 
@@ -285,10 +262,13 @@ class OperationDialog(QtGui.QDialog):
 
 
     def composeur(self):
+        #Intégration en base de la dernière opération saisie
         self.sauverOpeChoi()
+        #S'il y a des entités géographiques dans la sortie, les afficher
         if self.sansgeom!='True':
             self.affiche()
 
+        #Récupération des données de la table "sortie" pour affichage du site et utilisation dans les étiquettes du composeur
         self.recupDonnSortie()
         reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
         self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
@@ -296,7 +276,8 @@ class OperationDialog(QtGui.QDialog):
         if self.contours_site.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.contours_site)
 
-
+        #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur
+        self.recupDonnChVolont()
 
         #COMPOSEUR : Production d'un composeur
         beforeList = self.iface.activeComposers()
@@ -338,11 +319,6 @@ class OperationDialog(QtGui.QDialog):
         # Trouver les étiquettes dans le composeur
         labels = [item for item in self.composition.items()\
                 if item.type() == QgsComposerItem.ComposerLabel]
-
-        # récupération des objets self.codedusite, self.redacteur, self.datesortie et self.sortcom
-        self.recupDonnSortie()
-        # récupération des données de chantiers de volontaires
-        self.recupDonnChVolont()
 
         #trouver nomsite dans la table postgresql, en fonction de codesite
         querynomsite = QtSql.QSqlQuery(self.db)

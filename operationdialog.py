@@ -56,11 +56,14 @@ class OperationDialog(QtGui.QDialog):
         self.uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
+        self.ui.chx_invisible.setVisible(False)
 
         # Connexions aux boutons
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
+        self.connect(self.ui.chx_openp, QtCore.SIGNAL('clicked()'), self.groupButtonVide)
+        self.connect(self.ui.chx_avtpg, QtCore.SIGNAL('clicked()'), self.groupButtonVide)
 
 
 
@@ -100,17 +103,29 @@ class OperationDialog(QtGui.QDialog):
 
 
 
-    #def active_chantier_vol(self):
-    #    querychantvol = QtSql.QSqlQuery(self.db)
-    #    queryvol = u"""select sortie_id, chantvol from bdtravaux.sortie where sortie_id = '{zr_sortie_id}'""".format \
-    #    (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-    #    ok = querychantvol.exec_(queryvol)
-    #    querychantvol.next()
-    #    self.valchantvol=querychantvol.value(1)
-    #    if self.valchantvol is True :
-    #        self.ui.tab_chantvol.setEnabled(1)
-    #    else:
-    #        self.ui.tab_chantvol.setEnabled(0)
+    def groupButtonVide(self):
+        boutonclique = self.ui.grp_np_avtpg.sender()
+        print boutonclique
+        if boutonclique.isChecked()==True:
+            print u"bouton cliqué est checké"
+            self.ui.grp_np_avtpg.setExclusive(False)
+            self.ui.chx_openp.setChecked(False)
+            self.ui.chx_avtpg.setChecked(False)
+            self.ui.grp_np_avtpg.setExclusive(True)
+
+
+
+    def opeNonPrevue(self):
+        #Valeurs par défaut si opération non prévue ou avant plan de gestion. Sinon, valeur = textes dans la QlistWidget "opprev"
+        if self.ui.chx_openp.isChecked() == True:
+            self.codegh = "NP"
+            self.plangestion = "NP"
+        elif self.ui.chx_avtpg.isChecked() == True:
+            self.codegh = "AvtPdG"
+            self.plangestion = "AvtPdG"
+        else:
+            self.codegh = self.ui.opprev.currentItem().text().split("/")[1]
+            self.plangestion = self.ui.opprev.currentItem().text().split("/")[-1]
 
 
 
@@ -123,12 +138,14 @@ class OperationDialog(QtGui.QDialog):
             self.sauverOpe()
 
 
+
     def sauvOpeSansGeom(self):
+        self.opeNonPrevue()
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}')""".format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
-        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
+        zr_plangestion = self.plangestion,\
+        zr_code_gh = self.codegh,\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
         zr_opera= self.ui.prestataire.currentItem().text(),\
         zr_libelle= self.ui.descriptio.toPlainText(),\
@@ -146,7 +163,8 @@ class OperationDialog(QtGui.QDialog):
         # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
         # Gère les erreurs "pas assez de points sélectionnés pour construire une ligne ou un polygone"
         # Gère également la transformation géométrique, via le module convert_geoms
-        
+
+        self.opeNonPrevue()
         # Récupération de la géométrie finale. On en déduit la table où sera stockée l'information, et on gère les erreurs 
         # "pas assez de points pour faire la transformation"
         geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
@@ -177,15 +195,17 @@ class OperationDialog(QtGui.QDialog):
                     mess3pts.setStandardButtons(QtGui.QMessageBox.Ok)
                     ret = mess3pts.exec_()
                     return
+        #lancement de convert_geoms.py pour transformer les entités sélectionnées dans le type d'entités choisi.
         liste=[feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()]
         coucheactive=self.iface.activeLayer()
         #compréhension de liste : [fonction for x in liste]
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
+        #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de deonnées.
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_nomtable=nom_table,\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
-        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
+        zr_plangestion = self.plangestion,\
+        zr_code_gh = self.codegh,\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
         zr_opera= self.ui.prestataire.currentItem().text(),\
         zr_libelle= self.ui.descriptio.toPlainText(),\

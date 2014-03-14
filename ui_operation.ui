@@ -6,431 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>776</width>
+    <width>766</width>
     <height>793</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QTabWidget" name="tabWidget">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>10</y>
-     <width>766</width>
-     <height>731</height>
-    </rect>
-   </property>
-   <property name="tabPosition">
-    <enum>QTabWidget::North</enum>
-   </property>
-   <property name="tabShape">
-    <enum>QTabWidget::Rounded</enum>
-   </property>
-   <property name="currentIndex">
-    <number>0</number>
-   </property>
-   <property name="documentMode">
-    <bool>false</bool>
-   </property>
-   <property name="tabsClosable">
-    <bool>false</bool>
-   </property>
-   <widget class="QWidget" name="tab_general">
-    <attribute name="title">
-     <string>Général</string>
-    </attribute>
-    <widget class="QTextEdit" name="descriptio">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>584</y>
-       <width>744</width>
-       <height>101</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>8</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="mouseTracking">
-      <bool>false</bool>
-     </property>
-     <property name="toolTip">
-      <string>description de l'opération</string>
-     </property>
-     <property name="tabStopWidth">
-      <number>255</number>
-     </property>
-    </widget>
-    <widget class="QGroupBox" name="groupBox_4">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>550</y>
-       <width>91</width>
-       <height>28</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Description</string>
-     </property>
-    </widget>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>9</x>
-       <y>9</y>
-       <width>744</width>
-       <height>221</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="cadre1">
-      <item>
-       <widget class="QComboBox" name="sortie"/>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="grp_geom">
-        <property name="title">
-         <string>Entités sélectionnées</string>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLabel" name="lbl_geom">
-           <property name="text">
-            <string>0 entités sélectionnées, de type inconnu</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="trsf_geom">
-           <item>
-            <property name="text">
-             <string>Points</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Lignes</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Surfaces</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="grp_opeprev">
-        <property name="title">
-         <string>Opération prévue</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QListWidget" name="opprev">
-        <item>
-         <property name="text">
-          <string>001 / GH02 / Fauche / Fauche annuelle de la cariçaie / 2010-2015</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>064 / GH10 / Pâturage / Pâturage bovin / 2012-2017</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>240</y>
-       <width>741</width>
-       <height>301</height>
-      </rect>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="0">
-       <widget class="QListWidget" name="opreal">
-        <item>
-         <property name="text">
-          <string>Fauche débroussaillage</string>
-         </property>
-         <property name="font">
-          <font>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="foreground">
-          <brush brushstyle="NoBrush">
-           <color alpha="255">
-            <red>255</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="flags">
-          <set>NoItemFlags</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Fauche</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Débroussaillage</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Faucardage</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Coupe des rejets</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Fréquentation site</string>
-         </property>
-         <property name="font">
-          <font>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="foreground">
-          <brush brushstyle="NoBrush">
-           <color alpha="255">
-            <red>255</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="flags">
-          <set>NoItemFlags</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Abattage d'arbres dangereux</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Entretien sentier</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Opérations pour une espèce</string>
-         </property>
-         <property name="font">
-          <font>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="foreground">
-          <brush brushstyle="NoBrush">
-           <color alpha="255">
-            <red>255</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="flags">
-          <set>NoItemFlags</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Entretien dispositif à batraciens</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Etrépage</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mise en place d'un mât à cigognes</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mise en tas de produits pour reptiles</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pâturage</string>
-         </property>
-         <property name="font">
-          <font>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="foreground">
-          <brush brushstyle="NoBrush">
-           <color alpha="255">
-            <red>255</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="flags">
-          <set>NoItemFlags</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pâturage bovin</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pâturage équin</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pâturage caprin</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pâturage ovin</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QListWidget" name="prestataire">
-        <property name="selectionMode">
-         <enum>QAbstractItemView::MultiSelection</enum>
-        </property>
-        <item>
-         <property name="text">
-          <string>CEN</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Prestataires</string>
-         </property>
-         <property name="font">
-          <font>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="foreground">
-          <brush brushstyle="NoBrush">
-           <color alpha="255">
-            <red>255</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="flags">
-          <set>NoItemFlags</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Ateliers verts</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Cipres</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Ecoflandres</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Euréka</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Agriculteurs</string>
-         </property>
-         <property name="font">
-          <font>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="foreground">
-          <brush brushstyle="NoBrush">
-           <color alpha="255">
-            <red>255</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="flags">
-          <set>NoItemFlags</set>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>M. Machen</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>M. Mahieu</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QGroupBox" name="groupBox_3">
-        <property name="title">
-         <string>Type d'opération réalisée</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QGroupBox" name="groupBox_5">
-        <property name="title">
-         <string>Opérateur</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </widget>
-  </widget>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
@@ -475,6 +57,516 @@
    <property name="text">
     <string>Chantier réceptionné</string>
    </property>
+  </widget>
+  <widget class="QTextEdit" name="descriptio">
+   <property name="geometry">
+    <rect>
+     <x>11</x>
+     <y>650</y>
+     <width>744</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>8</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="toolTip">
+    <string>description de l'opération</string>
+   </property>
+   <property name="tabStopWidth">
+    <number>255</number>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="lbl_descr">
+   <property name="geometry">
+    <rect>
+     <x>11</x>
+     <y>620</y>
+     <width>91</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Description</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>739</width>
+     <height>52</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="lyt_geom">
+    <item row="0" column="0">
+     <widget class="QLabel" name="lbl_select">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Points, lignes ou polygones sélectionnés</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Type de géométrie à sortir</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="lbl_geom">
+      <property name="text">
+       <string>0 entités sélectionnées, de type inconnu</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QComboBox" name="trsf_geom">
+      <item>
+       <property name="text">
+        <string>Points</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Lignes</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Surfaces</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="lbl_sortie">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>7</y>
+     <width>739</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Sortie</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="sortie">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>739</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>731</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_2">
+   <property name="geometry">
+    <rect>
+     <x>17</x>
+     <y>150</y>
+     <width>731</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>330</y>
+     <width>731</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_4">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>600</y>
+     <width>741</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>170</y>
+     <width>741</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QGroupBox" name="lbl_opeprev">
+      <property name="title">
+       <string>Opération prévue</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="opprev">
+      <item>
+       <property name="text">
+        <string>001 / GH02 / Fauche / Fauche annuelle de la cariçaie / 2010-2015</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>064 / GH10 / Pâturage / Pâturage bovin / 2012-2017</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="lyt_np_avtpdg">
+      <item>
+       <widget class="QCheckBox" name="chx_openp">
+        <property name="text">
+         <string>Opération non prévue</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chx_avtpg">
+        <property name="text">
+         <string>Opération réalisée avant le plan de gestion</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>350</y>
+     <width>741</width>
+     <height>251</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QGroupBox" name="lbl_opreal">
+      <property name="title">
+       <string>Type d'opération réalisée</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="lbl_prestataire">
+      <property name="title">
+       <string>Opérateur</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QListWidget" name="opreal">
+      <item>
+       <property name="text">
+        <string>Fauche débroussaillage</string>
+       </property>
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="flags">
+        <set>NoItemFlags</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Fauche</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Débroussaillage</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Faucardage</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Coupe des rejets</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Fréquentation site</string>
+       </property>
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="flags">
+        <set>NoItemFlags</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Abattage d'arbres dangereux</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Entretien sentier</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Opérations pour une espèce</string>
+       </property>
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="flags">
+        <set>NoItemFlags</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Entretien dispositif à batraciens</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Etrépage</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Mise en place d'un mât à cigognes</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Mise en tas de produits pour reptiles</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pâturage</string>
+       </property>
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="flags">
+        <set>NoItemFlags</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pâturage bovin</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pâturage équin</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pâturage caprin</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pâturage ovin</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QListWidget" name="prestataire">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::MultiSelection</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>CEN</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Prestataires</string>
+       </property>
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="flags">
+        <set>NoItemFlags</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Ateliers verts</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Cipres</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Ecoflandres</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Euréka</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Agriculteurs</string>
+       </property>
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="flags">
+        <set>NoItemFlags</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>M. Machen</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>M. Mahieu</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

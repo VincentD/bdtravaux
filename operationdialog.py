@@ -123,7 +123,6 @@ class OperationDialog(QtGui.QDialog):
             self.sauverOpe()
 
 
-
     def sauvOpeSansGeom(self):
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}')""".format (\
@@ -143,6 +142,13 @@ class OperationDialog(QtGui.QDialog):
 
 
     def sauverOpe(self):
+        # Fonction à lancer quans les boutons "OK" ou "Dernier - Editer CR" sont cliqué
+        # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
+        # Gère les erreurs "pas assez de points sélectionnés pour construire une ligne ou un polygone"
+        # Gère également la transformation géométrique, via le module convert_geoms
+        
+        # Récupération de la géométrie finale. On en déduit la table où sera stockée l'information, et on gère les erreurs 
+        # "pas assez de points pour faire la transformation"
         geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
         if geom_cbbx == 'Points' :
             geom_output=QGis.Point
@@ -150,14 +156,31 @@ class OperationDialog(QtGui.QDialog):
         elif geom_cbbx == 'Lignes':
             geom_output=QGis.Line
             nom_table='operation_lgn'
+            if self.iface.activeLayer().geometryType()==0:
+                if self.iface.activeLayer().selectedFeatureCount()<2:
+                    mess2pts=QtGui.QMessageBox()
+                    mess2pts.setText(u'Pas assez de points sélectionnés')
+                    mess2pts.setInformativeText(u'Il faut au moins 2 points pour faire une ligne. Merci d\'en sélectionner plus')
+                    mess2pts.setIcon(QtGui.QMessageBox.Warning)
+                    mess2pts.setStandardButtons(QtGui.QMessageBox.Ok)
+                    ret = mess2pts.exec_()
+                    return
         elif geom_cbbx == 'Surfaces':
             geom_output=QGis.Polygon
             nom_table='operation_poly'
+            if self.iface.activeLayer().geometryType()==0:
+                if self.iface.activeLayer().selectedFeatureCount()<3:
+                    mess3pts=QtGui.QMessageBox()
+                    mess3pts.setText(u'Pas assez de points sélectionnés')
+                    mess3pts.setInformativeText(u'Il faut au moins 3 points pour faire un polygone. Merci d\'en sélectionner plus')
+                    mess3pts.setIcon(QtGui.QMessageBox.Warning)
+                    mess3pts.setStandardButtons(QtGui.QMessageBox.Ok)
+                    ret = mess3pts.exec_()
+                    return
         liste=[feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()]
         coucheactive=self.iface.activeLayer()
-        geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
         #compréhension de liste : [fonction for x in liste]
-
+        geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_nomtable=nom_table,\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\

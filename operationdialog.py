@@ -101,31 +101,38 @@ class OperationDialog(QtGui.QDialog):
             self.ui.lbl_geom.setText(u"{nb_geom} {typ_geom}(s) sélectionné(s)".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
             typ_geom=geometrie))
 
-
-
-    def groupButtonVide(self):
-        boutonclique = self.ui.grp_np_avtpg.sender()
-        print boutonclique
-        if boutonclique.isChecked()==True:
-            print u"bouton cliqué est checké"
-            self.ui.grp_np_avtpg.setExclusive(False)
-            self.ui.chx_openp.setChecked(False)
-            self.ui.chx_avtpg.setChecked(False)
-            self.ui.grp_np_avtpg.setExclusive(True)
+    def actu_gestprev(self):
+        # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
+        query = QtSql.QSqlQuery(self.db)
+        if query.exec_(u"""select codesite, codeope, typeope, operation, pdg from bdtravaux.gestprev where codesite='{zr_codesite}' or codesite='000' order by codesite , pdg , codeope""").format (zr_codesite = self.self.ui.sortie.currentItem().text().split("/")[1]:
+            while query.next():
+                self.ui.opprev.addItem(str(query.value(0)) + " / " + str(query.value(1)) + " / "+ str(query.value(2)) + " / "+ str(query.value(3)) + " / "+ str(query.value(4)))
 
 
 
-    def opeNonPrevue(self):
-        #Valeurs par défaut si opération non prévue ou avant plan de gestion. Sinon, valeur = textes dans la QlistWidget "opprev"
-        if self.ui.chx_openp.isChecked() == True:
-            self.codegh = "NP"
-            self.plangestion = "NP"
-        elif self.ui.chx_avtpg.isChecked() == True:
-            self.codegh = "AvtPdG"
-            self.plangestion = "AvtPdG"
-        else:
-            self.codegh = self.ui.opprev.currentItem().text().split("/")[1]
-            self.plangestion = self.ui.opprev.currentItem().text().split("/")[-1]
+#    def groupButtonVide(self):
+#        boutonclique = self.ui.grp_np_avtpg.sender()
+#        print boutonclique
+#        if boutonclique.isChecked()==True:
+#            print u"bouton cliqué est checké"
+#            self.ui.grp_np_avtpg.setExclusive(False)
+#            self.ui.chx_openp.setChecked(False)
+#            self.ui.chx_avtpg.setChecked(False)
+#            self.ui.grp_np_avtpg.setExclusive(True)
+
+
+
+#    def opeNonPrevue(self):
+#        #Valeurs par défaut si opération non prévue ou avant plan de gestion. Sinon, valeur = textes dans la QlistWidget "opprev"
+#        if self.ui.chx_openp.isChecked() == True:
+#            self.codegh = "NP"
+#            self.plangestion = "NP"
+#        elif self.ui.chx_avtpg.isChecked() == True:
+#            self.codegh = "AvtPdG"
+#            self.plangestion = "AvtPdG"
+#        else:
+#            self.codegh = self.ui.opprev.currentItem().text().split("/")[1]
+#            self.plangestion = self.ui.opprev.currentItem().text().split("/")[-1]
 
 
 
@@ -140,12 +147,11 @@ class OperationDialog(QtGui.QDialog):
 
 
     def sauvOpeSansGeom(self):
-        self.opeNonPrevue()
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}')""".format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.plangestion,\
-        zr_code_gh = self.codegh,\
+        zr_plangestion = self.self.ui.opprev.currentItem().text().split("/")[-1],\
+        zr_code_gh = self.self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
         zr_opera= self.ui.prestataire.currentItem().text(),\
         zr_libelle= self.ui.descriptio.toPlainText(),\
@@ -163,8 +169,6 @@ class OperationDialog(QtGui.QDialog):
         # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
         # Gère les erreurs "pas assez de points sélectionnés pour construire une ligne ou un polygone"
         # Gère également la transformation géométrique, via le module convert_geoms
-
-        self.opeNonPrevue()
         # Récupération de la géométrie finale. On en déduit la table où sera stockée l'information, et on gère les erreurs 
         # "pas assez de points pour faire la transformation"
         geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
@@ -204,8 +208,8 @@ class OperationDialog(QtGui.QDialog):
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_nomtable=nom_table,\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.plangestion,\
-        zr_code_gh = self.codegh,\
+        zr_plangestion = self.self.ui.opprev.currentItem().text().split("/")[-1],\
+        zr_code_gh = self.self.self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
         zr_opera= self.ui.prestataire.currentItem().text(),\
         zr_libelle= self.ui.descriptio.toPlainText(),\

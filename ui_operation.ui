@@ -243,26 +243,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
   </widget>
-  <widget class="QCheckBox" name="chx_invisible">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>330</y>
-     <width>97</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>invisible</string>
-   </property>
-   <attribute name="buttonGroup">
-    <string notr="true">grp_np_avtpg</string>
-   </attribute>
-  </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -283,6 +264,16 @@
      <widget class="QListWidget" name="opprev">
       <item>
        <property name="text">
+        <string>000 / NP / Non prévu / Néant / NP </string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>000 / AvtPdG / Avant le plan de gestion / Néant / AvtPdG</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
         <string>001 / GH02 / Fauche / Fauche annuelle de la cariçaie / 2010-2015</string>
        </property>
       </item>
@@ -293,33 +284,9 @@
       </item>
      </widget>
     </item>
-    <item>
-     <layout class="QHBoxLayout" name="lyt_np_avtpdg">
-      <item>
-       <widget class="QCheckBox" name="chx_openp">
-        <property name="text">
-         <string>Opération non prévue</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">grp_np_avtpg</string>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chx_avtpg">
-        <property name="text">
-         <string>Opération réalisée avant le plan de gestion</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">grp_np_avtpg</string>
-        </attribute>
-       </widget>
-      </item>
-     </layout>
-    </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>

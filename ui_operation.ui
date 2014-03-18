@@ -264,22 +264,12 @@
      <widget class="QListWidget" name="opprev">
       <item>
        <property name="text">
-        <string>000 / NP / Non prévu / Néant / NP </string>
+        <string>000 / NP / Non prévu / Opération non prévue / NP </string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>000 / AvtPdG / Avant le plan de gestion / Néant / AvtPdG</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>001 / GH02 / Fauche / Fauche annuelle de la cariçaie / 2010-2015</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>064 / GH10 / Pâturage / Pâturage bovin / 2012-2017</string>
+        <string>000 / AvtPdG / Avant le plan de gestion / Opération antérieure au plan de gestion / AvtPdG</string>
        </property>
       </item>
      </widget>
@@ -596,7 +586,4 @@
    </hints>
   </connection>
  </connections>
- <buttongroups>
-  <buttongroup name="grp_np_avtpg"/>
- </buttongroups>
 </ui>

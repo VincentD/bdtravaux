@@ -56,14 +56,12 @@ class OperationDialog(QtGui.QDialog):
         self.uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
-        self.ui.chx_invisible.setVisible(False)
 
         # Connexions aux boutons
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
-        self.connect(self.ui.chx_openp, QtCore.SIGNAL('clicked()'), self.groupButtonVide)
-        self.connect(self.ui.chx_avtpg, QtCore.SIGNAL('clicked()'), self.groupButtonVide)
+        self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.actu_gestprev)
 
 
 
@@ -101,38 +99,17 @@ class OperationDialog(QtGui.QDialog):
             self.ui.lbl_geom.setText(u"{nb_geom} {typ_geom}(s) sélectionné(s)".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
             typ_geom=geometrie))
 
+
+
     def actu_gestprev(self):
+        self.ui.opprev.clear()
         # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
+        self.recupDonnSortie()
         query = QtSql.QSqlQuery(self.db)
-        if query.exec_(u"""select codesite, codeope, typeope, operation, pdg from bdtravaux.gestprev where codesite='{zr_codesite}' or codesite='000' order by codesite , pdg , codeope""").format (zr_codesite = self.self.ui.sortie.currentItem().text().split("/")[1]:
+        if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
+            print query
             while query.next():
-                self.ui.opprev.addItem(str(query.value(0)) + " / " + str(query.value(1)) + " / "+ str(query.value(2)) + " / "+ str(query.value(3)) + " / "+ str(query.value(4)))
-
-
-
-#    def groupButtonVide(self):
-#        boutonclique = self.ui.grp_np_avtpg.sender()
-#        print boutonclique
-#        if boutonclique.isChecked()==True:
-#            print u"bouton cliqué est checké"
-#            self.ui.grp_np_avtpg.setExclusive(False)
-#            self.ui.chx_openp.setChecked(False)
-#            self.ui.chx_avtpg.setChecked(False)
-#            self.ui.grp_np_avtpg.setExclusive(True)
-
-
-
-#    def opeNonPrevue(self):
-#        #Valeurs par défaut si opération non prévue ou avant plan de gestion. Sinon, valeur = textes dans la QlistWidget "opprev"
-#        if self.ui.chx_openp.isChecked() == True:
-#            self.codegh = "NP"
-#            self.plangestion = "NP"
-#        elif self.ui.chx_avtpg.isChecked() == True:
-#            self.codegh = "AvtPdG"
-#            self.plangestion = "AvtPdG"
-#        else:
-#            self.codegh = self.ui.opprev.currentItem().text().split("/")[1]
-#            self.plangestion = self.ui.opprev.currentItem().text().split("/")[-1]
+                self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
 
 
 
@@ -208,8 +185,8 @@ class OperationDialog(QtGui.QDialog):
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_nomtable=nom_table,\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.self.ui.opprev.currentItem().text().split("/")[-1],\
-        zr_code_gh = self.self.self.ui.opprev.currentItem().text().split("/")[1],\
+        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
+        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
         zr_opera= self.ui.prestataire.currentItem().text(),\
         zr_libelle= self.ui.descriptio.toPlainText(),\
@@ -232,7 +209,7 @@ class OperationDialog(QtGui.QDialog):
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête 2 ratée')
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupDonnSortie ratée')
         querycodesite.next()
         self.codedusite=querycodesite.value(0)
         self.redacteur=querycodesite.value(1)

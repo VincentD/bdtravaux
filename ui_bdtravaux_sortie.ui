@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>806</width>
-    <height>506</height>
+    <height>553</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox_2">
    <property name="geometry">
     <rect>
-     <x>610</x>
-     <y>470</y>
+     <x>615</x>
+     <y>517</y>
      <width>176</width>
      <height>27</height>
     </rect>
@@ -35,7 +35,7 @@
      <x>10</x>
      <y>0</y>
      <width>781</width>
-     <height>461</height>
+     <height>510</height>
     </rect>
    </property>
    <property name="focusPolicy">
@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -67,7 +67,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
+       <y>30</y>
        <width>311</width>
        <height>131</height>
       </rect>
@@ -130,7 +130,7 @@
      <property name="geometry">
       <rect>
        <x>370</x>
-       <y>10</y>
+       <y>20</y>
        <width>391</width>
        <height>321</height>
       </rect>
@@ -177,7 +177,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>170</y>
+       <y>200</y>
        <width>227</width>
        <height>17</height>
       </rect>
@@ -190,7 +190,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>200</y>
+       <y>230</y>
        <width>341</width>
        <height>141</height>
       </rect>
@@ -258,7 +258,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>380</y>
+       <y>410</y>
        <width>301</width>
        <height>27</height>
       </rect>
@@ -268,7 +268,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>350</y>
+       <y>380</y>
        <width>227</width>
        <height>22</height>
       </rect>
@@ -289,17 +289,17 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>60</y>
-       <width>741</width>
-       <height>341</height>
+       <y>46</y>
+       <width>750</width>
+       <height>399</height>
       </rect>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_com">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>30</y>
+       <x>11</x>
+       <y>12</y>
        <width>241</width>
        <height>17</height>
       </rect>
@@ -319,7 +319,7 @@
        <x>10</x>
        <y>10</y>
        <width>751</width>
-       <height>391</height>
+       <height>452</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -386,6 +386,9 @@
          <property name="text">
           <string>Non renseigné</string>
          </property>
+         <property name="checkState">
+          <enum>Checked</enum>
+         </property>
         </item>
         <item>
          <property name="text">
@@ -424,7 +427,7 @@
     <widget class="QWidget" name="layoutWidget_4">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>30</y>
        <width>157</width>
        <height>164</height>
@@ -478,13 +481,13 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>240</y>
-       <width>761</width>
-       <height>181</height>
+       <y>220</y>
+       <width>752</width>
+       <height>174</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -696,11 +699,76 @@
       </item>
      </layout>
     </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>107</x>
+       <y>411</y>
+       <width>141</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Chantier &quot;semaine&quot;</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="geometry">
+      <rect>
+       <x>256</x>
+       <y>408</y>
+       <width>267</width>
+       <height>56</height>
+      </rect>
+     </property>
+     <row>
+      <property name="text">
+       <string>Nombre</string>
+      </property>
+     </row>
+     <column>
+      <property name="text">
+       <string>Encadrants</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Bénévoles</string>
+      </property>
+     </column>
+     <item row="0" column="0">
+      <property name="text">
+       <string>0</string>
+      </property>
+     </item>
+     <item row="0" column="1">
+      <property name="text">
+       <string>0</string>
+      </property>
+     </item>
+    </widget>
    </widget>
   </widget>
  </widget>
  <resources/>
  <connections/>
+ <designerdata>
+  <property name="gridDeltaX">
+   <number>10</number>
+  </property>
+  <property name="gridDeltaY">
+   <number>10</number>
+  </property>
+  <property name="gridSnapX">
+   <bool>false</bool>
+  </property>
+  <property name="gridSnapY">
+   <bool>false</bool>
+  </property>
+  <property name="gridVisible">
+   <bool>true</bool>
+  </property>
+ </designerdata>
  <buttongroups>
   <buttongroup name="objetvisite"/>
  </buttongroups>

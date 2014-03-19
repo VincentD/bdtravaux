@@ -193,7 +193,6 @@ class OperationDialog(QtGui.QDialog):
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom= geom2.exportToWkt())
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
-        print query
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')

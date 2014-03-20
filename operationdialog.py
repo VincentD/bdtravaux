@@ -225,7 +225,7 @@ class OperationDialog(QtGui.QDialog):
     def recupDonnChVolont(self):
         # recup des données d'un chantier de volontaires en fction de l'Id de la sortie (et de l'opé). Pour afficher les textes ds composeur().
         querycodevolont = QtSql.QSqlQuery(self.db)
-        qchvolont = u"""select nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        qchvolont = u"""select nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm, sem_enc, sem_ben from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         print qchvolont
         ok = querycodevolont.exec_(qchvolont)
         if not ok:
@@ -252,6 +252,8 @@ class OperationDialog(QtGui.QDialog):
         self.cv_j2adcen_pm = querycodevolont.value(18)
         self.cv_j2_blon_am = querycodevolont.value(19)
         self.cv_j2_blon_pm = querycodevolont.value(20)
+        self.cv_sem_enc = querycodevolont.value(21)
+        self.cv_sem_ben = querycodevolont.value(22)
 
 
 
@@ -460,7 +462,10 @@ class OperationDialog(QtGui.QDialog):
                 label.setText(str(self.cv_j2_blon_am))
             if label.displayText().find("$jr2blo_pm")>-1:
                 label.setText(str(self.cv_j2_blon_pm))
-
+            if label.displayText().find("$sem_enc")>-1:
+                label.setText(str(self.cv_sem_enc))
+            if label.displayText().find("$sem_ben")>-1:
+                label.setText(str(self.cv_sem_ben))
 
     def composerMapSetBBox(self, geom, margin = None):
     # crée la bbox pour la carte en cours.

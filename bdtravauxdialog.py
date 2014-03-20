@@ -63,7 +63,10 @@ class BdTravauxDialog(QtGui.QDialog):
         print self.objetVisiText
         self.chantvol=False
         self.ui.tab_chantvol.setEnabled(0)
-        self.ui.ch_partenaire.setCurrentRow(0)
+#        self.ui.ch_partenaire.setCurrentRow(1)
+        aucunpart=self.ui.ch_partenaire.findItems('Aucun')
+        aucunpart.setSelected(True)
+        print aucunpart
 
 
         # On connecte les signaux des boutons a nos methodes definies ci dessous
@@ -143,7 +146,7 @@ class BdTravauxDialog(QtGui.QDialog):
             print "sortie="+str(idsortie)
             
             querychantvol = QtSql.QSqlQuery(self.db)
-            querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm, sortie) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm}, {zr_sortie})""".format (\
+            querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm, sortie, sem_enc, sem_ben) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm}, {zr_sortie}, {zr_sem_enc}, {zr_sem_ben})""".format (\
             zr_nb_jours = self.ui.ch_nb_jours.text(),\
             zr_nb_heur_ch = self.ui.ch_nb_heur_ch.text(),\
             zr_nb_heur_de = self.ui.ch_nb_heur_dec.text(),\
@@ -165,7 +168,9 @@ class BdTravauxDialog(QtGui.QDialog):
             zr_j2adcen_pm = self.ui.chtab_nbpers_jr2.item(2,1).text(),\
             zr_j2_blon_am = self.ui.chtab_nbpers_jr2.item(3,0).text(),\
             zr_j2_blon_pm = self.ui.chtab_nbpers_jr2.item(3,1).text(),\
-            zr_sortie = idsortie)
+            zr_sortie = idsortie,\
+            zr_sem_enc = self.ui.chtabsem.item(0,0).text(),\
+            zr_sem_ben = self.ui.chtabsem.item(0,1).text())
             ok_chvol = querychantvol.exec_(querych)
             if not ok_chvol:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')

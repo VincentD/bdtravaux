@@ -712,7 +712,7 @@
       <string>Chantier &quot;semaine&quot;</string>
      </property>
     </widget>
-    <widget class="QTableWidget" name="tableWidget">
+    <widget class="QTableWidget" name="chtabsem">
      <property name="geometry">
       <rect>
        <x>256</x>

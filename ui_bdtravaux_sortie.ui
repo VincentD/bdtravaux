@@ -384,10 +384,7 @@
         </property>
         <item>
          <property name="text">
-          <string>Non renseigné</string>
-         </property>
-         <property name="checkState">
-          <enum>Checked</enum>
+          <string>Aucun</string>
          </property>
         </item>
         <item>

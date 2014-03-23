@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -64,9 +64,11 @@ class BdTravauxDialog(QtGui.QDialog):
         self.chantvol=False
         self.ui.tab_chantvol.setEnabled(0)
 #        self.ui.ch_partenaire.setCurrentRow(1)
-        aucunpart=self.ui.ch_partenaire.findItems('Aucun')
-        aucunpart.setSelected(True)
-        print aucunpart
+        aucunpart=self.ui.ch_partenaire.findItems('Aucun',QtCore.Qt.MatchExactly)
+        # findItems nécessite 2 arguments : la chaine à trouver et un QT.matchFlags qui correspond à la façon de chercher (chaine exacte, regex...) cf. http://qt-project.org/doc/qt-4.8/qt.html#MatchFlag-enum
+        for item in aucunpart:
+            item.setSelected(True)
+            print item
 
 
         # On connecte les signaux des boutons a nos methodes definies ci dessous

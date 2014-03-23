@@ -56,7 +56,7 @@ class BdTravaux:
         # Create the dialog (after translation) and keep reference
         self.dlg = BdTravauxDialog()
         self.dlg_ope= OperationDialog(iface)
-
+        
     def initGui(self):
         # Création du bouton qui va démarrer le plugin (interface "sortie")
         self.action = QtGui.QAction(

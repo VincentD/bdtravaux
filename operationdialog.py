@@ -26,6 +26,7 @@ from ui_operation import Ui_operation
 from convert_geoms import convert_geometries
 import sys
 import inspect
+import re
 
 
 class OperationDialog(QtGui.QDialog):
@@ -41,7 +42,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.103") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +54,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
 
@@ -254,6 +255,8 @@ class OperationDialog(QtGui.QDialog):
         self.cv_j2_blon_pm = querycodevolont.value(20)
         self.cv_sem_enc = querycodevolont.value(21)
         self.cv_sem_ben = querycodevolont.value(22)
+        if self.cv_partenaire is None:
+            print 'pas de partenaire'
 
 
 
@@ -410,67 +413,82 @@ class OperationDialog(QtGui.QDialog):
                 label.setText(str(self.natfaune))
             if label.displayText().find("$natflore")>-1:
                 label.setText(str(self.natflore))
-            if label.displayText().find("$nbjours")>-1:
-                plac_nbjours=label.displayText().find("$nbjours")
-                texte=unicode(label.displayText())
-                label.setText(texte[0:plac_nbjours]+str(self.cv_nb_jours)+texte[plac_nbjours+8:])
-            if label.displayText().find("$nbheurch")>-1:
-                plac_nbheurch=label.displayText().find("$nbheurch")
-                texte=unicode(label.displayText())
-                label.setText(texte[0:plac_nbheurch]+str(self.cv_nb_heur_ch)+texte[plac_nbheurch+9:])
-            if label.displayText().find("$nbheurdec")>-1:
-                plac_nbheurdec=label.displayText().find("$nbheurdec")
-                texte=unicode(label.displayText())
-                label.setText(texte[0:plac_nbheurdec]+str(self.cv_nb_heur_de)+texte[plac_nbheurdec+10:])
-            if label.displayText().find("$partenair")>-1:
-                plac_partenair=label.displayText().find("$partenair")
-                texte=unicode(label.displayText())
-                label.setText(texte[0:plac_partenair]+self.cv_partenaire+texte[plac_partenair+10:])
-            if label.displayText().find("$heberg")>-1:
-                plac_heberg=label.displayText().find("$heberg")
-                texte=unicode(label.displayText())
-                label.setText(texte[0:plac_heberg]+self.cv_heberg+texte[plac_heberg+7:])
-            if label.displayText().find("$jr1enc_am")>-1:
-                label.setText(str(self.cv_j1_enc_am))
-            if label.displayText().find("$jr1enc_pm")>-1:
-                label.setText(str(self.cv_j1_enc_pm))
-            if label.displayText().find("$jr1tot_am")>-1:
-                label.setText(str(self.cv_j1_tot_am))
-            if label.displayText().find("$jr1tot_pm")>-1:
-                label.setText(str(self.cv_j1_tot_pm))
-            if label.displayText().find("$jr1cen_am")>-1:
-                label.setText(str(self.cv_j1adcen_am))
-            if label.displayText().find("$jr1cen_pm")>-1:
-                label.setText(str(self.cv_j1adcen_pm))
-            if label.displayText().find("$jr1blo_am")>-1:
-                label.setText(str(self.cv_j1_blon_am))
-            if label.displayText().find("$jr1blo_pm")>-1:
-                label.setText(str(self.cv_j1_blon_pm))
-            if label.displayText().find("$jr2enc_am")>-1:
-                label.setText(str(self.cv_j2_enc_am))
-            if label.displayText().find("$jr2enc_pm")>-1:
-                label.setText(str(self.cv_j2_enc_pm))
-            if label.displayText().find("$jr2tot_am")>-1:
-                label.setText(str(self.cv_j2_tot_am))
-            if label.displayText().find("$jr2tot_pm")>-1:
-                label.setText(str(self.cv_j2_tot_pm))
-            if label.displayText().find("$jr2cen_am")>-1:
-                label.setText(str(self.cv_j2adcen_am))
-            if label.displayText().find("$jr2cen_pm")>-1:
-                label.setText(str(self.cv_j2adcen_pm))
-            if label.displayText().find("$jr2blo_am")>-1:
-                label.setText(str(self.cv_j2_blon_am))
-            if label.displayText().find("$jr2blo_pm")>-1:
-                label.setText(str(self.cv_j2_blon_pm))
-            if label.displayText().find("$sem_enc")>-1:
-                label.setText(str(self.cv_sem_enc))
-            if label.displayText().find("$sem_ben")>-1:
-                label.setText(str(self.cv_sem_ben))
+            if self.cv_partenaire is not None:
+                if label.displayText().find("$nbjours")>-1:
+                    plac_nbjours=label.displayText().find("$nbjours")
+                    texte=unicode(label.displayText())
+                    label.setText(texte[0:plac_nbjours]+str(self.cv_nb_jours)+texte[plac_nbjours+8:])
+                if label.displayText().find("$nbheurch")>-1:
+                    plac_nbheurch=label.displayText().find("$nbheurch")
+                    texte=unicode(label.displayText())
+                    label.setText(texte[0:plac_nbheurch]+str(self.cv_nb_heur_ch)+texte[plac_nbheurch+9:])
+                if label.displayText().find("$nbheurdec")>-1:
+                    plac_nbheurdec=label.displayText().find("$nbheurdec")
+                    texte=unicode(label.displayText())
+                    label.setText(texte[0:plac_nbheurdec]+str(self.cv_nb_heur_de)+texte[plac_nbheurdec+10:])
+                if label.displayText().find("$partenair")>-1:
+                    plac_partenair=label.displayText().find("$partenair")
+                    texte=unicode(label.displayText())
+                    label.setText(texte[0:plac_partenair]+self.cv_partenaire+texte[plac_partenair+10:])
+                    print unicode(texte)
+                if label.displayText().find("$heberg")>-1:
+                    plac_heberg=label.displayText().find("$heberg")
+                    texte=unicode(label.displayText())
+                    label.setText(texte[0:plac_heberg]+self.cv_heberg+texte[plac_heberg+7:])
+                if label.displayText().find("$jr1enc_am")>-1:
+                    label.setText(str(self.cv_j1_enc_am))
+                if label.displayText().find("$jr1enc_pm")>-1:
+                    label.setText(str(self.cv_j1_enc_pm))
+                if label.displayText().find("$jr1tot_am")>-1:
+                    label.setText(str(self.cv_j1_tot_am))
+                if label.displayText().find("$jr1tot_pm")>-1:
+                    label.setText(str(self.cv_j1_tot_pm))
+                if label.displayText().find("$jr1cen_am")>-1:
+                    label.setText(str(self.cv_j1adcen_am))
+                if label.displayText().find("$jr1cen_pm")>-1:
+                    label.setText(str(self.cv_j1adcen_pm))
+                if label.displayText().find("$jr1blo_am")>-1:
+                    label.setText(str(self.cv_j1_blon_am))
+                if label.displayText().find("$jr1blo_pm")>-1:
+                    label.setText(str(self.cv_j1_blon_pm))
+                if label.displayText().find("$jr2enc_am")>-1:
+                    label.setText(str(self.cv_j2_enc_am))
+                if label.displayText().find("$jr2enc_pm")>-1:
+                    label.setText(str(self.cv_j2_enc_pm))
+                if label.displayText().find("$jr2tot_am")>-1:
+                    label.setText(str(self.cv_j2_tot_am))
+                if label.displayText().find("$jr2tot_pm")>-1:
+                    label.setText(str(self.cv_j2_tot_pm))
+                if label.displayText().find("$jr2cen_am")>-1:
+                    label.setText(str(self.cv_j2adcen_am))
+                if label.displayText().find("$jr2cen_pm")>-1:
+                    label.setText(str(self.cv_j2adcen_pm))
+                if label.displayText().find("$jr2blo_am")>-1:
+                    label.setText(str(self.cv_j2_blon_am))
+                if label.displayText().find("$jr2blo_pm")>-1:
+                    label.setText(str(self.cv_j2_blon_pm))
+                if label.displayText().find("$sem_enc")>-1:
+                    label.setText(str(self.cv_sem_enc))
+                if label.displayText().find("$sem_ben")>-1:
+                    label.setText(str(self.cv_sem_ben))
+            else:
+                if re.match("^\$jr",label.displayText()) or re.search("\$sem",label.displayText()) or re.search("\$nb",label.displayText()):
+                    print label.displayText()
+                    label.setText('0')
+                if re.search("\$partenair",label.displayText()) or re.search("\$heberg",label.displayText()):
+                    label.setText(' ')
+                # le module re permet de chercher des chaînes dans du texte avec des expression régulières
+                # match => le début du texte doit correspondre
+                #search : on cherche la chaîne quelque-part dans le texte.
+                #le \ permet d'échapper le $ (qui correspond normalement à une fin de ligne dans une regexp).
+
+
 
     def composerMapSetBBox(self, geom, margin = None):
     # crée la bbox pour la carte en cours.
         #Configure une nouvelle étendue avec un marge optionnelle (en %) pour la carte
         self.composerMap.setNewExtent(self.getNewExtent(geom, margin))
+
 
 
     def getNewExtent(self, geom, margin = None):

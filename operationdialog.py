@@ -57,12 +57,13 @@ class OperationDialog(QtGui.QDialog):
         self.uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
+        self.ui.chx_opechvol.setVisible(False)
 
         # Connexions aux boutons
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
-        self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.actu_gestprev)
+        self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.actu_gestprev_chxopechvol)
 
 
 
@@ -102,15 +103,20 @@ class OperationDialog(QtGui.QDialog):
 
 
 
-    def actu_gestprev(self):
-        self.ui.opprev.clear()
+    def actu_gestprev_chxopechvol(self):
         # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
+        self.ui.opprev.clear()
         self.recupDonnSortie()
         query = QtSql.QSqlQuery(self.db)
         if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
             print query
             while query.next():
                 self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
+        if self.chantvol == True:
+            self.ui.chx_opechvol.setVisible(True)
+            self.ui.chx_opechvol.setChecked(True)
+        else :
+            self.ui.chx_opechvol.setVisible(False)
 
 
 
@@ -182,30 +188,42 @@ class OperationDialog(QtGui.QDialog):
         coucheactive=self.iface.activeLayer()
         #compréhension de liste : [fonction for x in liste]
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
-        #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de deonnées.
+        #récupération de l'id du chantier du volontaire si l'opération en fait partie
+        if self.ui.chx_opechvol.isChecked():
+            queryopechvol = QtSql.QSqlQuery(self.db)
+            queryvol = u"""select id_chvol from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+            ok = queryopechvol.exec_(queryvol)
+            if not ok :
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé Id du chantier de volontaire')
+            queryopechvol.next()
+            id_opechvol = queryopechvol.value(0)
+            print id_opechvol
+        #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_nomtable=nom_table,\
-        zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
+        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), {zr_opechvol})""".format (zr_nomtable=nom_table,\
+        zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
-        zr_ope_typ= self.ui.opreal.currentItem().text(),\
-        zr_opera= self.ui.prestataire.currentItem().text(),\
-        zr_libelle= self.ui.descriptio.toPlainText(),\
-        zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
-        zr_the_geom= geom2.exportToWkt())
+        zr_ope_typ = self.ui.opreal.currentItem().text(),\
+        zr_opera = self.ui.prestataire.currentItem().text(),\
+        zr_libelle = self.ui.descriptio.toPlainText(),\
+        zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
+        zr_the_geom = geom2.exportToWkt(),\
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
+        zr_opechvol = id_opechvol)
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+            print query
         self.iface.setActiveLayer(coucheactive)
         self.close
 
 
 
     def recupDonnSortie(self):
-        #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche() et les txts des étiqu dans composeur()
+        #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche(), les txts des étiqu dans composeur() et mettre à jour "opprev" et "chx_opechvol" au lancement du module, et qd une nouvelle sortie est sélectionnée.
         querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite, redacteur, date_sortie, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+        qcodesite = u"""select codesite, redacteur, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
@@ -214,12 +232,13 @@ class OperationDialog(QtGui.QDialog):
         self.codedusite=querycodesite.value(0)
         self.redacteur=querycodesite.value(1)
         self.datesortie=querycodesite.value(2).toPyDate().strftime("%Y-%m-%d")
-        self.sortcom=querycodesite.value(3)
-        self.objvisite=querycodesite.value(4)
-        self.objautre=querycodesite.value(5)
-        self.natfaune=querycodesite.value(6)
-        self.natflore=querycodesite.value(7)
-        self.natautre=querycodesite.value(8)
+        self.chantvol=querycodesite.value(3)
+        self.sortcom=querycodesite.value(4)
+        self.objvisite=querycodesite.value(5)
+        self.objautre=querycodesite.value(6)
+        self.natfaune=querycodesite.value(7)
+        self.natflore=querycodesite.value(8)
+        self.natautre=querycodesite.value(9)
 
 
 
@@ -325,6 +344,8 @@ class OperationDialog(QtGui.QDialog):
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         self.composition.loadFromTemplate(doc)
+        
+        self.composerView.zoomFull()
 
 
         #CARTE : Récupération de la carte
@@ -473,7 +494,6 @@ class OperationDialog(QtGui.QDialog):
                     label.setText(str(self.cv_sem_ben))
             else:
                 if re.match("^\$jr",label.displayText()) or re.search("\$sem",label.displayText()) or re.search("\$nb",label.displayText()):
-                    print label.displayText()
                     label.setText('0')
                 if re.search("\$partenair",label.displayText()) or re.search("\$heberg",label.displayText()):
                     label.setText(' ')

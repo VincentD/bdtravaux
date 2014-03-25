@@ -151,7 +151,7 @@ class BdTravaux:
         self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
         self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
                                     # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
-        self.dlg_ope.actu_gestprev()#mise à jour de la QListWidget gestprev selon le site choisi dans la ccbox "sortie"
+        self.dlg_ope.actu_gestprev_chxopechvol()#mise à jour de la QListWidget gestprev selon le site choisi dans la ccbox "sortie"
         self.dlg_ope.show()
         # Run the dialog event loop
         result = self.dlg_ope.exec_()

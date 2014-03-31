@@ -304,39 +304,7 @@
      <widget class="QListWidget" name="opreal">
       <item>
        <property name="text">
-        <string>Fauche débroussaillage</string>
-       </property>
-       <property name="font">
-        <font>
-         <italic>true</italic>
-        </font>
-       </property>
-       <property name="foreground">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </property>
-       <property name="flags">
-        <set>NoItemFlags</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Fauche</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Débroussaillage</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Faucardage</string>
+        <string>Abattage d'arbres dangereux</string>
        </property>
       </item>
       <item>
@@ -346,56 +314,7 @@
       </item>
       <item>
        <property name="text">
-        <string>Fréquentation site</string>
-       </property>
-       <property name="font">
-        <font>
-         <italic>true</italic>
-        </font>
-       </property>
-       <property name="foreground">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </property>
-       <property name="flags">
-        <set>NoItemFlags</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Abattage d'arbres dangereux</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Entretien sentier</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Opérations pour une espèce</string>
-       </property>
-       <property name="font">
-        <font>
-         <italic>true</italic>
-        </font>
-       </property>
-       <property name="foreground">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </property>
-       <property name="flags">
-        <set>NoItemFlags</set>
+        <string>Débroussaillage</string>
        </property>
       </item>
       <item>
@@ -405,7 +324,22 @@
       </item>
       <item>
        <property name="text">
+        <string>Entretien sentier</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
         <string>Etrépage</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Faucardage</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Fauche</string>
        </property>
       </item>
       <item>
@@ -420,34 +354,7 @@
       </item>
       <item>
        <property name="text">
-        <string>Pâturage</string>
-       </property>
-       <property name="font">
-        <font>
-         <italic>true</italic>
-        </font>
-       </property>
-       <property name="foreground">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </property>
-       <property name="flags">
-        <set>NoItemFlags</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
         <string>Pâturage bovin</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pâturage équin</string>
        </property>
       </item>
       <item>
@@ -457,7 +364,27 @@
       </item>
       <item>
        <property name="text">
+        <string>Pâturage équin</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
         <string>Pâturage ovin</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pose de matériel assuré : sonde piézométrique</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pose de matériel assuré : sonde limnimétrique</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Pose de matériel assuré : écocompteur</string>
        </property>
       </item>
      </widget>

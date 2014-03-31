@@ -131,15 +131,17 @@ class OperationDialog(QtGui.QDialog):
 
 
     def sauvOpeSansGeom(self):
+        self.recupIdChantvol()
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}')""".format (\
+        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}',{zr_opechvol})""".format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.self.ui.opprev.currentItem().text().split("/")[-1],\
-        zr_code_gh = self.self.ui.opprev.currentItem().text().split("/")[1],\
+        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
+        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text(),\
         zr_opera= self.ui.prestataire.currentItem().text(),\
         zr_libelle= self.ui.descriptio.toPlainText(),\
-        zr_chantfini= str(self.ui.chantfini.isChecked()).lower())
+        zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
+        zr_opechvol = self.id_opechvol)
         print query
         ok = querysauvope.exec_(query)
         if not ok:
@@ -188,16 +190,8 @@ class OperationDialog(QtGui.QDialog):
         coucheactive=self.iface.activeLayer()
         #compréhension de liste : [fonction for x in liste]
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
-        #récupération de l'id du chantier du volontaire si l'opération en fait partie
-        if self.ui.chx_opechvol.isChecked():
-            queryopechvol = QtSql.QSqlQuery(self.db)
-            queryvol = u"""select id_chvol from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-            ok = queryopechvol.exec_(queryvol)
-            if not ok :
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé Id du chantier de volontaire')
-            queryopechvol.next()
-            id_opechvol = queryopechvol.value(0)
-            print id_opechvol
+        #lancement de la fonction qui vérifie si l'opératin fait partie d'un chantier de volontaires.
+        self.recupIdChantvol()
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), {zr_opechvol})""".format (zr_nomtable=nom_table,\
@@ -210,13 +204,27 @@ class OperationDialog(QtGui.QDialog):
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = geom2.exportToWkt(),\
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
-        zr_opechvol = id_opechvol)
+        zr_opechvol = self.id_opechvol)
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
             print query
         self.iface.setActiveLayer(coucheactive)
         self.close
+
+
+
+    def recupIdChantvol(self):
+        #récupération de l'id du chantier du volontaire si l'opération en fait partie
+        if self.ui.chx_opechvol.isChecked():
+            queryopechvol = QtSql.QSqlQuery(self.db)
+            queryvol = u"""select id_chvol from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+            ok = queryopechvol.exec_(queryvol)
+            if not ok :
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé Id du chantier de volontaire')
+            queryopechvol.next()
+            self.id_opechvol = queryopechvol.value(0)
+            print self.id_opechvol
 
 
 

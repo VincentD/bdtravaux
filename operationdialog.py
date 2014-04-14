@@ -190,11 +190,11 @@ class OperationDialog(QtGui.QDialog):
         coucheactive=self.iface.activeLayer()
         #compréhension de liste : [fonction for x in liste]
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
-        #lancement de la fonction qui vérifie si l'opératin fait partie d'un chantier de volontaires.
+        #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
         self.recupIdChantvol()
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), {zr_opechvol})""".format (zr_nomtable=nom_table,\
+        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), '{zr_opechvol}')""".format (zr_nomtable=nom_table,\
         zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
@@ -225,6 +225,8 @@ class OperationDialog(QtGui.QDialog):
             queryopechvol.next()
             self.id_opechvol = queryopechvol.value(0)
             print self.id_opechvol
+        else:
+            self.id_opechvol='0'
 
 
 

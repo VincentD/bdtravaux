@@ -42,7 +42,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -54,7 +54,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -226,6 +226,7 @@ class OperationDialog(QtGui.QDialog):
         qcodesite = u"""select codesite, redacteur, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
+        print qcodesite
         if not ok2:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupDonnSortie ratée')
         querycodesite.next()
@@ -345,7 +346,7 @@ class OperationDialog(QtGui.QDialog):
         doc.setContent(file1, False)
         self.composition.loadFromTemplate(doc)
         
-        self.composerView.zoomFull()
+        #self.composerView.zoomFull()
 
 
         #CARTE : Récupération de la carte

@@ -68,6 +68,7 @@ class OperationDialog(QtGui.QDialog):
 
 
     def actu_cbbx(self):
+        self.blocActuGestPrev='1'
         self.ui.sortie.clear()
         # Remplir la combobox "sortie" avec les champs date_sortie+site+redacteur de la table "sortie" issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
@@ -80,6 +81,7 @@ class OperationDialog(QtGui.QDialog):
         # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
         # pour la date : plus de "toString()" dans l'API de QGIS 2.0 => QDate retransformé en PyQt pour utiliser "strftime"
         # afin de le transformer en chaîne de caractères.
+        self.blocActuGestPrev='0'
 
 
 
@@ -104,19 +106,25 @@ class OperationDialog(QtGui.QDialog):
 
 
     def actu_gestprev_chxopechvol(self):
-        # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
-        self.ui.opprev.clear()
-        self.recupDonnSortie()
-        query = QtSql.QSqlQuery(self.db)
-        if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
-            print query
-            while query.next():
-                self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
-        if self.chantvol == True:
-            self.ui.chx_opechvol.setVisible(True)
-            self.ui.chx_opechvol.setChecked(True)
-        else :
-            self.ui.chx_opechvol.setVisible(False)
+        if self.blocActuGestPrev=='1':
+            print 'ActuGestPrev blocked'
+            return
+        else:
+            # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
+            self.ui.opprev.clear()
+            print "entree dans actu_gestprev"
+            print self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+            self.recupDonnSortie()
+            query = QtSql.QSqlQuery(self.db)
+            if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
+                print query
+                while query.next():
+                    self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
+            if self.chantvol == True:
+                self.ui.chx_opechvol.setVisible(True)
+                self.ui.chx_opechvol.setChecked(True)
+            else :
+                self.ui.chx_opechvol.setVisible(False)
 
 
 
@@ -209,6 +217,7 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
             print query
+#            print zr_sortie
         self.iface.setActiveLayer(coucheactive)
         self.close
 
@@ -235,6 +244,7 @@ class OperationDialog(QtGui.QDialog):
         querycodesite = QtSql.QSqlQuery(self.db)
         qcodesite = u"""select codesite, redacteur, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        print qcodesite
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupDonnSortie ratée')

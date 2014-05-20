@@ -117,7 +117,6 @@ class OperationDialog(QtGui.QDialog):
             self.recupDonnSortie()
             query = QtSql.QSqlQuery(self.db)
             if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
-                print query
                 while query.next():
                     self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
             if self.chantvol == True:
@@ -364,10 +363,6 @@ class OperationDialog(QtGui.QDialog):
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         self.composition.loadFromTemplate(doc)
-        
-        self.composerView.zoomFull()
-
-
         #CARTE : Récupération de la carte
         maplist=[]
         for item in self.composition.composerMapItems():

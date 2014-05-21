@@ -27,6 +27,7 @@ from convert_geoms import convert_geometries
 import sys
 import inspect
 import re
+import random
 
 
 class OperationDialog(QtGui.QDialog):
@@ -298,6 +299,15 @@ class OperationDialog(QtGui.QDialog):
 
 
 
+    def clr_hasard():
+        # renvoie une couleur au hasard, en hexadécimal. Utilisé pour attribuer une couleur aux polygones affichés en fonction de leur catégorie.
+        r=lambda: random.randint(0,255)
+        couleur='#%02X%02X%02X' % (r(),r(),r())
+        print couleur
+        return couleur
+        
+
+
     def affiche(self):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         #uri = QgsDataSourceURI()
@@ -314,6 +324,30 @@ class OperationDialog(QtGui.QDialog):
         if self.gestrealpolys.featureCount()>0:
         #si la couche importée n'est pas vide, intégration dans le Map Layer Registry pour pouvoir l'utiliser
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys)
+        # Attribution de couleurs différentes aux opérations
+        # Récupération des valeurs uniques du champ qui servira de base à la symbologie
+        layer=self.gestrealpolys
+        field_index = layer.dataProvider().fieldNameIndex('typ_operat')
+        unique_values = layer.uniqueValues(field_index)
+        print unique_values
+        # definit une correspondance: valeur -> (couleur) au moyen d'un dictionnaire et de la fonction clr_hasard
+        #création du dictionnaire au moyen d'une compréhension de dictionnaire
+        operations={valeurunique : self.clr_hasard for valeurunique in unique_values}
+        print operations
+        #pb : La création du dictionnaire plante s'il n'y a pas assez de valeurs dans la liste "unique_values". Or, je ne sais pas à l'avance combien il y aura de valeurs...
+        # crée une catégorie pour chaque item dans operations
+        categories = []
+        for nom_opera, couleur in operations.items():
+            symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
+            symbol.setColor(QtGui.QColor(couleur))
+            print symbol
+            category = QgsRendererCategoryV2(nom_opera, symbol,'')
+            categories.append(category)
+        # crée le renderer et l'assigne à la couche
+        expression = 'typ_operat' # field name
+        renderer = QgsCategorizedSymbolRendererV2(expression, categories)
+        layer.setRendererV2(renderer)
+        
 
         self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
         self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")

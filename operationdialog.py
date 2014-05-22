@@ -299,7 +299,7 @@ class OperationDialog(QtGui.QDialog):
 
 
 
-    def clr_hasard():
+    def clr_hasard(self):
         # renvoie une couleur au hasard, en hexadécimal. Utilisé pour attribuer une couleur aux polygones affichés en fonction de leur catégorie.
         r=lambda: random.randint(0,255)
         couleur='#%02X%02X%02X' % (r(),r(),r())
@@ -308,18 +308,20 @@ class OperationDialog(QtGui.QDialog):
         
 
 
+
     def affiche(self):
         #fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         #uri = QgsDataSourceURI()
         #uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
-        # les 4 lignes ci-dessus ont été intégrées au constructeur de la classe operationdialog pour être utilisées dans plusieurs fonctions (l.52)
+        # les 2 lignes ci-dessus ont été intégrées au constructeur de la classe operationdialog pour être utilisées dans plusieurs fonctions (l.52) : accès à la base de données postgresql/postigs
 
-        #requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
+        # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
 
-        # configure le shéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
+        # Affichage de la couche de lignes si des linéaires sont saisis pour cette sortie
+        # Configure le shéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
         self.uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
-        #instanciation de la couche dans qgis 
+        # Instanciation de la couche dans qgis 
         self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
         if self.gestrealpolys.featureCount()>0:
         #si la couche importée n'est pas vide, intégration dans le Map Layer Registry pour pouvoir l'utiliser
@@ -329,35 +331,59 @@ class OperationDialog(QtGui.QDialog):
         layer=self.gestrealpolys
         field_index = layer.dataProvider().fieldNameIndex('typ_operat')
         unique_values = layer.uniqueValues(field_index)
-        print unique_values
-        # definit une correspondance: valeur -> (couleur) au moyen d'un dictionnaire et de la fonction clr_hasard
-        #création du dictionnaire au moyen d'une compréhension de dictionnaire
-        operations={valeurunique : self.clr_hasard for valeurunique in unique_values}
-        print operations
-        #pb : La création du dictionnaire plante s'il n'y a pas assez de valeurs dans la liste "unique_values". Or, je ne sais pas à l'avance combien il y aura de valeurs...
-        # crée une catégorie pour chaque item dans operations
+        # Définit une correspondance: valeur -> (couleur) au moyen d'un dictionnaire et de la fonction clr_hasard
+        # Création du dictionnaire au moyen d'une compréhension de dictionnaire
+        operations={valeurunique : self.clr_hasard() for valeurunique in unique_values}
+        # Crée une catégorie pour chaque item dans operations, puis les groupe en une liste (operations)
         categories = []
         for nom_opera, couleur in operations.items():
             symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
             symbol.setColor(QtGui.QColor(couleur))
-            print symbol
-            category = QgsRendererCategoryV2(nom_opera, symbol,'')
+            category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
             categories.append(category)
-        # crée le renderer et l'assigne à la couche
+        # Crée le renderer et l'assigne à la couche
         expression = 'typ_operat' # field name
         renderer = QgsCategorizedSymbolRendererV2(expression, categories)
         layer.setRendererV2(renderer)
-        
 
+        # Affichage de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
         self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
         if self.gestreallgn.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn)
+        layer=self.gestreallgn
+        field_index = layer.dataProvider().fieldNameIndex('typ_operat')
+        unique_values = layer.uniqueValues(field_index)
+        operations={valeurunique : self.clr_hasard() for valeurunique in unique_values}
+        categories = []
+        for nom_opera, couleur in operations.items():
+            symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
+            symbol.setColor(QtGui.QColor(couleur))
+            #création de la catégorie 1er param : l'attribut / 2ème : le symbole à appliquer / 3ème : l'étiquet ds tble matières
+            category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
+            categories.append(category)
+        expression = 'typ_operat' # field name
+        renderer = QgsCategorizedSymbolRendererV2(expression, categories)
+        layer.setRendererV2(renderer)
 
+        # Affichage de la couche de points si des ponctuels sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
         self.gestrealpts=QgsVectorLayer(self.uri.uri(), "gestrealpts", "postgres")
         if self.gestrealpts.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts)
+        layer=self.gestrealpts
+        field_index = layer.dataProvider().fieldNameIndex('typ_operat')
+        unique_values = layer.uniqueValues(field_index)
+        operations={valeurunique : self.clr_hasard() for valeurunique in unique_values}
+        categories = []
+        for nom_opera, couleur in operations.items():
+            symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
+            symbol.setColor(QtGui.QColor(couleur))
+            category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
+            categories.append(category)
+        expression = 'typ_operat' # Nom du champ
+        renderer = QgsCategorizedSymbolRendererV2(expression, categories)
+        layer.setRendererV2(renderer)
 
 
 
@@ -373,8 +399,22 @@ class OperationDialog(QtGui.QDialog):
         reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
         self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
         self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
+        # Affichage du site
         if self.contours_site.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.contours_site)
+        # Symbologie du contour de site
+            # create a new single symbol renderer
+        symbol = QgsSymbolV2.defaultSymbol(self.contours_site.geometryType())
+        renderer = QgsSingleSymbolRendererV2(symbol)
+            # create a new simple marker symbol layer, a white circle with a black border
+        properties = {'color': 'green', 'color_border': 'red'}
+        symbol_layer = QgsSimpleMarkerSymbolLayerV2.create(properties)
+            # assign the symbol layer to the symbol renderer
+        renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
+            # assign the renderer to the layer
+        self.contours_site.setRendererV2(renderer)
+
+
 
         #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur
         self.recupDonnChVolont()
@@ -596,6 +636,7 @@ class OperationDialog(QtGui.QDialog):
         if margin:
             new_extent.scale(1 + margin / 100.0)
         return new_extent
+
 
 
     def operationOnTop(self):

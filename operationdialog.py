@@ -13,8 +13,7 @@
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  * 
- *   the Free Software Foundation; either version 2 of the License, or     *
+ *   it under the terms of the GNU General Public License as published by  * *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
@@ -44,7 +43,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.103") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -56,7 +55,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.103", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -410,6 +409,7 @@ class OperationDialog(QtGui.QDialog):
             # create a new simple marker symbol layer, a white circle with a black border
         properties = {'color': 'green', 'color_border': 'red'}
         symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
+        symbol_layer.setBrushStyle='None'
             # assign the symbol layer to the symbol renderer
         renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
             # assign the renderer to the layer
@@ -642,7 +642,16 @@ class OperationDialog(QtGui.QDialog):
 
     def operationOnTop(self):
     # Afficher le formulaire "operationdialog.py" (Qdialog) devant iface (QmainWindow) lorsque l'on ferme le composeur (QgsComposerView)
-            self.raise_()
-            self.activateWindow()
-            print 'operationOnTop'
+    # les couches de points, lignes et polygones créées pour le compte-rendu ainsi que le contour du site sont supprimées avec le composeur.
+        self.raise_()
+        self.activateWindow()
+        if self.gestrealpolys:
+            QgsMapLayerRegistry.instance().removeMapLayer( self.gestrealpolys.id() )
+        if self.gestreallgn:
+            QgsMapLayerRegistry.instance().removeMapLayer( self.gestreallgn.id() )
+        if self.gestrealpts:
+            QgsMapLayerRegistry.instance().removeMapLayer( self.gestrealpts.id() )
+        if self.contours_site:
+            QgsMapLayerRegistry.instance().removeMapLayer( self.contours_site.id() )
+
 

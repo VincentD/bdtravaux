@@ -13,7 +13,8 @@
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  * *   the Free Software Foundation; either version 2 of the License, or     *
+ *   it under the terms of the GNU General Public License as published by  * 
+ *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
@@ -408,7 +409,7 @@ class OperationDialog(QtGui.QDialog):
         renderer = QgsSingleSymbolRendererV2(symbol)
             # create a new simple marker symbol layer, a white circle with a black border
         properties = {'color': 'green', 'color_border': 'red'}
-        symbol_layer = QgsSimpleMarkerSymbolLayerV2.create(properties)
+        symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
             # assign the symbol layer to the symbol renderer
         renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
             # assign the renderer to the layer

@@ -19,7 +19,7 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore, QtGui, QtSql, QtXml
+from PyQt4 import QtCore, QtGui, QtSql, QtXml, Qt
 from qgis.core import *
 from qgis.gui import *
 from ui_operation import Ui_operation
@@ -409,7 +409,7 @@ class OperationDialog(QtGui.QDialog):
             # create a new simple marker symbol layer, a white circle with a black border
         properties = {'color': 'green', 'color_border': 'red'}
         symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
-        symbol_layer.setBrushStyle='None'
+#        symbol_layer.setBrushStyle=Qt.NoBrush
             # assign the symbol layer to the symbol renderer
         renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
             # assign the renderer to the layer
@@ -435,6 +435,8 @@ class OperationDialog(QtGui.QDialog):
         self.composerView.composerViewHide.connect(self.operationOnTop)
         #Récupération du template. Intégration des ses éléments dans la carte.
         file1=QtCore.QFile('/home/vincent/form_pyqgis2013/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
+        #file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
+        print file1
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         self.composition.loadFromTemplate(doc)
@@ -453,6 +455,11 @@ class OperationDialog(QtGui.QDialog):
                     #(Dé)zoome sur l'ensemble des deux pages du composeur
                     #self.composition.mActionZoomFullExtent().trigger()
 
+        #LEGENDE : mettre à jour la légende
+        for i in self.composition.items():
+            if isinstance(i,QgsComposerLegend):
+                    legend = i 
+        legend.updateLegend() 
 
         #ETIQUETTES :       Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur

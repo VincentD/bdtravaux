@@ -409,7 +409,7 @@ class OperationDialog(QtGui.QDialog):
             # create a new simple marker symbol layer, a white circle with a black border
         properties = {'color': 'green', 'color_border': 'red'}
         symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
-#        symbol_layer.setBrushStyle=Qt.NoBrush
+        symbol_layer.setBrushStyle(0) #0 = Qt.NoBrush. Cf doc de QBrush
             # assign the symbol layer to the symbol renderer
         renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
             # assign the renderer to the layer

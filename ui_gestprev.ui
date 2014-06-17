@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>GestPrev</class>
+ <widget class="QDialog" name="GestPrev">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -29,7 +29,7 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -97,7 +97,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>GestPrev</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -113,7 +113,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>GestPrev</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

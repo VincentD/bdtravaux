@@ -27,6 +27,7 @@ import resources_rc
 # Import the code for the dialog
 from bdtravauxdialog import BdTravauxDialog
 from operationdialog import OperationDialog
+from prevudialog import PrevuDialog
 
 
 class BdTravaux:
@@ -56,6 +57,7 @@ class BdTravaux:
         # Create the dialog (after translation) and keep reference
         self.dlg = BdTravauxDialog()
         self.dlg_ope= OperationDialog(iface)
+        self.dlg_prev= PrevuDialog(iface)
         
     def initGui(self):
         # Création du bouton qui va démarrer le plugin (interface "sortie")
@@ -77,6 +79,16 @@ class BdTravaux:
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.operation)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.operation)
+        
+        # Création du bouton qui va démarrer le plugin (interface "gestion et suivis prévus")
+        self.operation = QtGui.QAction(
+            QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
+            u"Saisie gestion prévue", self.iface.mainWindow())
+        # connecte le bouton à une méthode "run" (def à la ligne 90)
+        QtCore.QObject.connect(self.operation, QtCore.SIGNAL("triggered()"), self.run_prev)
+        # ajoute l'icône sur la barre d'outils et l'élément de menu.
+        self.iface.addToolBarIcon(self.prevu)
+        self.iface.addPluginToMenu(u"&Saisie_travaux", self.prevu)
 
 
     def unload(self):
@@ -86,7 +98,9 @@ class BdTravaux:
         # Remove the plugin menu item and icon (interface "opérations")
         self.iface.removePluginMenu(u"&Saisie_travaux", self.operation)
         self.iface.removeToolBarIcon(self.operation)
-
+        # Remove the plugin menu item and icon (interface "gestion et suivis prévus")
+        self.iface.removePluginMenu(u"&Saisie_gestion_prévue", self.prevu)
+        self.iface.removeToolBarIcon(self.prevu)
 
     # démarre la méthode qui va faire tout le travail (interface "sortie")
     def run(self):
@@ -161,3 +175,16 @@ class BdTravaux:
             # do something useful (delete the line containing pass and
             # substitute with your code)
             pass
+
+    # démarre la méthode qui va faire tout le travail (interface "gestion et suivis prévus")
+    def run_prev(self):
+        # show the dialog
+        self.dlg_prev.show()
+        # Run the dialog event loop
+        result = self.dlg_prev.exec_()
+        # See if OK was pressed
+        if result == 1:
+            # do something useful (delete the line containing pass and
+            # substitute with your code)
+            pass
+

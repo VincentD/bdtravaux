@@ -26,7 +26,7 @@ from ui_gestprev import Ui_GestPrev
 
 
 class PrevuDialog(QtGui.QDialog):
-    def __init__(self):
+    def __init__(self, iface):
         
         QtGui.QDialog.__init__(self)
         # Set up the user interface from Designer.
@@ -51,23 +51,20 @@ class PrevuDialog(QtGui.QDialog):
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
-            while query.next():
-                self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(1) )
+#        if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
+#            while query.next():
+#                self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(1) )
             # *Voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
 
         # On connecte les signaux des boutons a nos methodes definies ci dessous
         # connexion du signal du bouton OK
-        self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
-        self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
+#        self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
+#        self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
 
 
 #    def sauverInfos(self):
-        self.objetVisiClicked()
         query_save = QtSql.QSqlQuery(self.db)
-        # syntaxe utilisant des templates de chaînes (obsolète) : query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())
-        # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs lignes, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de .format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et simplifient la lecture.
         query = u'INSERT INTO bdtravaux.sortie (date_sortie, redacteur, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_redacteur}\', \'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
         zr_redacteur=self.ui.obsv.currentText(),\

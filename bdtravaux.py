@@ -64,7 +64,7 @@ class BdTravaux:
         self.action = QtGui.QAction(
             QtGui.QIcon(":/plugins/bdtravaux/icon2.png"),
             u"Saisie sortie", self.iface.mainWindow())
-        # connecte le bouton à une méthode "run" (def à la ligne 90)
+        # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.action, QtCore.SIGNAL("triggered()"), self.run)
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.action)
@@ -74,18 +74,18 @@ class BdTravaux:
         self.operation = QtGui.QAction(
             QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
             u"Saisie opérations", self.iface.mainWindow())
-        # connecte le bouton à une méthode "run" (def à la ligne 90)
+        # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.operation, QtCore.SIGNAL("triggered()"), self.run_ope)
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.operation)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.operation)
         
         # Création du bouton qui va démarrer le plugin (interface "gestion et suivis prévus")
-        self.operation = QtGui.QAction(
+        self.prevu = QtGui.QAction(
             QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
             u"Saisie gestion prévue", self.iface.mainWindow())
-        # connecte le bouton à une méthode "run" (def à la ligne 90)
-        QtCore.QObject.connect(self.operation, QtCore.SIGNAL("triggered()"), self.run_prev)
+        # connecte le bouton à une méthode "run" 
+        QtCore.QObject.connect(self.prevu, QtCore.SIGNAL("triggered()"), self.run_prev)
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.prevu)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.prevu)

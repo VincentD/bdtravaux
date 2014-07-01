@@ -59,51 +59,56 @@ class PrevuDialog(QtGui.QDialog):
 
         # On connecte les signaux des boutons a nos methodes definies ci dessous
         # connexion du signal du bouton OK
-#        self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
-#        self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
+        self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverInfos)
+        self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
 
 
-#    def sauverInfos(self):
-        query_save = QtSql.QSqlQuery(self.db)
-        query = u'INSERT INTO bdtravaux.sortie (date_sortie, redacteur, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_redacteur}\', \'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
-        zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
-        zr_redacteur=self.ui.obsv.currentText(),\
-        zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
-        zr_chantier_vol=self.chantvol,\
-        #str(self.ui.chantvol.isChecked()).lower(),\
-        zr_sort_com=self.ui.comm.toPlainText(),\
-        zr_objvisite=self.objetVisiText,\
-        zr_objvi_autr=self.ui.obj_autre_text.text(),\
-        zr_natfaune=self.ui.natfaune.toPlainText(),\
-        zr_natflore=self.ui.natflore.toPlainText(),\
-        zr_natautre=self.ui.natfaune.toPlainText()).encode("latin1")
-        print query
-        # à rebalancer dans finchantier.py : jours_chan,  ... \'{zr_jours_chantier}\' ... zr_jours_chantier=self.ui.jours_chan.toPlainText(),\
-        ok = query_save.exec_(query)
+    def sauverOpe(self):
+        # Fonction à lancer quans le bouton "OK" est cliqué
+        # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
+
+        if self.iface.activeLayer().geometryType()==0:
+            nom_table='list_gestprev_pts'
+        elif self.iface.activeLayer().geometryType()==1:
+            nom_table='list_gestprev_lgn'
+        elif self.iface.activeLayer().geometryType()==2:
+            nom_table='list_gestprev_surf'
+
+        coucheactive=self.iface.activeLayer()
+
+        #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
+        querysauvope = QtSql.QSqlQuery(self.db)
+        query = u"""insert into bdtravaux.{zr_nomtable} (prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg, the_geom) values ({zr_codesite}, '{zr_codeope}', '{zr_typeope}', '{zr_lblope}', '{zr_annprev}', '{zr_pdg}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154)')""".format (zr_nomtable=nom_table,\
+        zr_codesite = self.ui.prevcombo_codesite.itemData(self.ui.prevcombo_codesite.currentIndex()),\
+        zr_codeope = self.ui.prevledit_gh.text(),\
+        zr_typeope = self.ui.prevlist_typeope.currentItem().text(),\
+        zr_lblope = self.ui.prevtedit_lblope.toPlainText(),\
+        zr_annprev = self.ui.prevledit_annprev.text(),\
+        zr_pdg = self.ui.prevlist_pdg.currentItem().text(),\
+        zr_the_geom = coucheactive.selectedFeatures().exportToWkt(),\
+        ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-        self.chantVol()
-        self.db.close()
-        self.db.removeDatabase("sitescsn")
-        self.reinitialiser()
-        self.close()
+            print query
+        self.iface.setActiveLayer(coucheactive)
+        self.close
 
 
 
-    def reinitialiser(self):
-       for child in self.findChildren((QtGui.QRadioButton)):
-            print child.objectName()
-            child.setAutoExclusive(False)
-            child.setChecked(False)
-            child.setAutoExclusive(True)
-            if child.text()=='Travaux sur site (hors chantiers de volontaires)':
-                child.setChecked(True)
-       for child in self.findChildren((QtGui.QLineEdit)):
-            child.clear()
-       for child in self.findChildren((QtGui.QTextEdit)):
-            child.clear()
-       for child in self.findChildren((QtGui.QTableWidget)):
-            child.clear()
-       for child in self.findChildren((QtGui.QCalendarWidget)):
-            aujourdhui=QtCore.QDate.currentDate()
-            child.setSelectedDate(aujourdhui)
+#    def reinitialiser(self):
+#       for child in self.findChildren((QtGui.QRadioButton)):
+#            print child.objectName()
+#            child.setAutoExclusive(False)
+#            child.setChecked(False)
+#            child.setAutoExclusive(True)
+#            if child.text()=='Travaux sur site (hors chantiers de volontaires)':
+#                child.setChecked(True)
+#       for child in self.findChildren((QtGui.QLineEdit)):
+#            child.clear()
+#       for child in self.findChildren((QtGui.QTextEdit)):
+#            child.clear()
+#       for child in self.findChildren((QtGui.QTableWidget)):
+#            child.clear()
+#       for child in self.findChildren((QtGui.QCalendarWidget)):
+#            aujourdhui=QtCore.QDate.currentDate()
+#            child.setSelectedDate(aujourdhui)

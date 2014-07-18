@@ -21,6 +21,8 @@
 """
 
 from PyQt4 import QtCore, QtGui, QtSql
+from qgis.core import *
+from qgis.gui import *
 from ui_gestprev import Ui_GestPrev
 # create the dialog for zoom to point
 
@@ -29,17 +31,18 @@ class PrevuDialog(QtGui.QDialog):
     def __init__(self, iface):
         
         QtGui.QDialog.__init__(self)
-        # Set up the user interface from Designer.
+        # Configure l'interface utilisateur issue de QTDesigner.
         self.ui = Ui_GestPrev()
         self.ui.setupUi(self)
+        # Référencement de iface dans l'interface (iface = interface de QGIS)
+        self.iface = iface
+        self.canvas = self.iface.mapCanvas()
 
         #Quand la classe est fermée, elle est effacée. permet de réinitialiser toutes les valeurs si on réappuie sur le bouton.
         #self.setAttribute(QtCore.Qt.WA_QuitOnClose, True)
         
-        # DB type, host, user, password...
+        # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
-        # (une variable n'est exploitable que dans le bloc où elle a été créée)
         self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -47,6 +50,7 @@ class PrevuDialog(QtGui.QDialog):
         ok = self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
+
         # Remplir la combobox "site" avec les codes et noms de sites 
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
@@ -59,11 +63,11 @@ class PrevuDialog(QtGui.QDialog):
 
         # On connecte les signaux des boutons a nos methodes definies ci dessous
         # connexion du signal du bouton OK
-        self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverInfos)
+        self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpePrev)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
 
 
-    def sauverOpe(self):
+    def sauverOpePrev(self):
         # Fonction à lancer quans le bouton "OK" est cliqué
         # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
 
@@ -85,7 +89,7 @@ class PrevuDialog(QtGui.QDialog):
         zr_lblope = self.ui.prevtedit_lblope.toPlainText(),\
         zr_annprev = self.ui.prevledit_annprev.text(),\
         zr_pdg = self.ui.prevlist_pdg.currentItem().text(),\
-        zr_the_geom = coucheactive.selectedFeatures().exportToWkt(),\
+        zr_the_geom = coucheactive.selectedFeatures().exportToWkt())
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')

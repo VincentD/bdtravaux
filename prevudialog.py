@@ -55,11 +55,9 @@ class PrevuDialog(QtGui.QDialog):
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-#        if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
-#            while query.next():
-#                self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(1) )
-            # *Voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
-            # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
+        if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
+            while query.next():
+                self.ui.prevcbo_codesite.addItem(query.value(1) + " " + query.value(2), query.value(1) )
 
         # On connecte les signaux des boutons a nos methodes definies ci dessous
         # connexion du signal du bouton OK
@@ -83,7 +81,7 @@ class PrevuDialog(QtGui.QDialog):
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg, the_geom) values ({zr_codesite}, '{zr_codeope}', '{zr_typeope}', '{zr_lblope}', '{zr_annprev}', '{zr_pdg}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154)')""".format (zr_nomtable=nom_table,\
-        zr_codesite = self.ui.prevcombo_codesite.itemData(self.ui.prevcombo_codesite.currentIndex()),\
+        zr_codesite = self.ui.prevcbo_codesite.itemData(self.ui.prevcombo_codesite.currentIndex()),\
         zr_codeope = self.ui.prevledit_gh.text(),\
         zr_typeope = self.ui.prevlist_typeope.currentItem().text(),\
         zr_lblope = self.ui.prevtedit_lblope.toPlainText(),\

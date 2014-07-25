@@ -102,6 +102,7 @@ class BdTravaux:
         self.iface.removePluginMenu(u"&Saisie_gestion_prévue", self.prevu)
         self.iface.removeToolBarIcon(self.prevu)
 
+
     # démarre la méthode qui va faire tout le travail (interface "sortie")
     def run(self):
         # show the dialog
@@ -113,26 +114,65 @@ class BdTravaux:
             # do something useful (delete the line containing pass and
             # substitute with your code)
             pass
-    
-    
+
+
     # démarre la méthode qui va faire tout le travail  (interface "operation")
     def run_ope(self):
+        self.verif_geom()
+        if self.dlg_ope.sansgeom=='True' or self.dlg_ope.sansgeom=='Geom':
+            # show the dialog
+            self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
+            self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
+                                    # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
+            #self.dlg_ope.recupDonnSortie()
+            self.dlg_ope.actu_gestprev_chxopechvol()#maj de la QListWidget gestprev selon le site choisi dans la ccbox "sortie"
+            self.dlg_ope.show()
+            # Run the dialog event loop
+            result = self.dlg_ope.exec_()
+            # See if OK was pressed
+            if result == 1:
+                # do something useful (delete the line containing pass and
+                # substitute with your code)
+                pass
+
+
+    # démarre la méthode qui va faire tout le travail (interface "gestion et suivis prévus")
+    def run_prev(self):
+        self.verif_geom()
+        if self.dlg_prev.sansgeom=='True' or self.dlg_prev.sansgeom=='Geom':
+            # show the dialog
+            self.dlg_prev.show()
+            # Run the dialog event loop
+            result = self.dlg_prev.exec_()
+            # See if OK was pressed
+            if result == 1:
+                # do something useful (delete the line containing pass and
+                # substitute with your code)
+                pass
+
+
+    def verif_geom(self):
         # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
         layer=self.iface.activeLayer()
+        self.dlg_ope.sansgeom='Geom'
+        self.dlg_prev.sansgeom='Geom'
+        # construction du message d'erreur
+        messlayer=QtGui.QMessageBox()
+        messlayer.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
+        messlayer.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        messlayer.setDefaultButton(QtGui.QMessageBox.No)
+        messlayer.setIcon(QtGui.QMessageBox.Question)
+
         if not layer:
             #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
-            messlayer=QtGui.QMessageBox()
             messlayer.setText(u'Aucune couche SIG sélectionnée')
-            messlayer.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
-            messlayer.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            messlayer.setDefaultButton(QtGui.QMessageBox.No)
-            messlayer.setIcon(QtGui.QMessageBox.Question)
             ret = messlayer.exec_()
             if ret == QtGui.QMessageBox.Yes:
-                print 'Yes'
                 self.dlg_ope.sansgeom='True'
+                self.dlg_prev.sansgeom='True'
             elif ret == QtGui.QMessageBox.No:
-                print 'No'
+                self.dlg_ope.sansgeom='False'
+                self.dlg_prev.sansgeom='False'
                 return
         # Attention : au contraire de ce qu'on a fait dans operationdialog.py, ne pas utiliser "self" en premier paramètre de
         # QMessageBox (il faut le widget parent), car ici self désigne une classe qui n'est pas un QWidget. 
@@ -144,47 +184,15 @@ class BdTravaux:
         #même code pour l'absence d'entité sélectionnée dans la couche active        
         if layer:
             selection=self.iface.activeLayer().selectedFeatures()
-            self.dlg_ope.sansgeom='False'
             if not selection:
                 #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
-                messfeat=QtGui.QMessageBox()
-                messfeat.setText(u'Aucune entité sélectionnée')
-                messfeat.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
-                messfeat.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                messfeat.setDefaultButton(QtGui.QMessageBox.No)
-                messfeat.setIcon(QtGui.QMessageBox.Question)
-                ret = messfeat.exec_()
+                messlayer.setText(u'Aucune entité sélectionnée')
+                ret = messlayer.exec_()
                 if ret == QtGui.QMessageBox.Yes:
-                    print 'Yes'
                     self.dlg_ope.sansgeom='True'
+                    self.dlg_prev.sansgeom='True'
                 elif ret == QtGui.QMessageBox.No:
-                    print 'No'
+                    self.dlg_ope.sansgeom='False'
+                    self.dlg_prev.sansgeom='False'
                     return
-
-        # show the dialog
-        self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
-        self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
-                                    # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
-        #self.dlg_ope.recupDonnSortie()
-        self.dlg_ope.actu_gestprev_chxopechvol()#mise à jour de la QListWidget gestprev selon le site choisi dans la ccbox "sortie"
-        self.dlg_ope.show()
-        # Run the dialog event loop
-        result = self.dlg_ope.exec_()
-        # See if OK was pressed
-        if result == 1:
-            # do something useful (delete the line containing pass and
-            # substitute with your code)
-            pass
-
-    # démarre la méthode qui va faire tout le travail (interface "gestion et suivis prévus")
-    def run_prev(self):
-        # show the dialog
-        self.dlg_prev.show()
-        # Run the dialog event loop
-        result = self.dlg_prev.exec_()
-        # See if OK was pressed
-        if result == 1:
-            # do something useful (delete the line containing pass and
-            # substitute with your code)
-            pass
 

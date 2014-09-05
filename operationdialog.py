@@ -436,18 +436,20 @@ class OperationDialog(QtGui.QDialog):
         #Récupération du template. Intégration des ses éléments dans la carte.
         file1=QtCore.QFile('/home/vincent/form_pyqgis2013/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
         #file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
-        print file1
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         self.composition.loadFromTemplate(doc)
         #CARTE : Récupération de la carte
-        maplist=[]
-        for item in self.composition.composerMapItems():
-            maplist.append(item)
-        self.composerMap=maplist[0]
+#        maplist=[]
+#        for item in self.composition.composerMapItems():
+#            maplist.append(item)
+#        print 'maplist :',maplist
+#        self.composerMap=maplist[0]
+        self.composerMap = QgsComposerMap(self.composition, 5,2,408,286)
+        self.composition.addComposerMap(self.composerMap)
         #Taille définie pour la carte
-        x, y, w, h = 5, 28, 408, 240
-        self.composerMap.setItemPosition(x, y, w, h)
+#        x, y, w, h = 5, 28, 408, 240
+#        self.composerMap.setItemPosition(x, y, w, h)
         #Crée la bbox autour du site pour la carte en cours (fonction mapItemSetBBox l 293)
         #self.contours_sites est défini dans la fonction affiche()
         self.margin=10
@@ -455,10 +457,15 @@ class OperationDialog(QtGui.QDialog):
                     #(Dé)zoome sur l'ensemble des deux pages du composeur
                     #self.composition.mActionZoomFullExtent().trigger()
 
+
         #LEGENDE : mettre à jour la légende
-        for i in self.composition.items():
-            if isinstance(i,QgsComposerLegend):
-                    legend = i 
+#        for i in self.composition.items():
+#            if isinstance(i,QgsComposerLegend):
+#                legend = i 
+        legends = [item for item in self.composition.items() if item.type() == QgsComposerItem.ComposerLegend]
+        print 'legendes',legends
+        legend = legends[0]
+        print 'legende=',legend
         legend.updateLegend() 
 
         #ETIQUETTES :       Modifier les étiquettes du composeur.

@@ -433,13 +433,15 @@ class OperationDialog(QtGui.QDialog):
         self.composition = self.composerView.composition()
         #operationOnTop() : afficher le form "operation.py" devant QGIS qd le composeur est fermé
         self.composerView.composerViewHide.connect(self.operationOnTop)
-        #Récupération du template. Intégration des ses éléments dans la carte.
+
+        #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
         file1=QtCore.QFile('/home/vincent/form_pyqgis2013/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
         #file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
-        self.composition.loadFromTemplate(doc)
-        #CARTE : Récupération de la carte
+        self.composition.loadFromTemplate(doc, substitutionMap=None, addUndoCommands =False)
+
+        #CARTE : Récupération de la carte. Code correct, mais ne fonctionne pas encore sous Windows. A décommenter à la version 1.6 de QGIS.
 #        maplist=[]
 #        for item in self.composition.composerMapItems():
 #            maplist.append(item)
@@ -458,15 +460,22 @@ class OperationDialog(QtGui.QDialog):
                     #self.composition.mActionZoomFullExtent().trigger()
 
 
-        #LEGENDE : mettre à jour la légende
+        #LEGENDE : mettre à jour la légende. Code correct, mais ne fonctionne pas encore sous Windows. A décommenter à la version 1.6 de QGIS.
 #        for i in self.composition.items():
 #            if isinstance(i,QgsComposerLegend):
 #                legend = i 
-        legends = [item for item in self.composition.items() if item.type() == QgsComposerItem.ComposerLegend]
-        print 'legendes',legends
-        legend = legends[0]
-        print 'legende=',legend
-        legend.updateLegend() 
+#Nouvel essai. Pb avec Windows.
+#        legends = [item for item in self.composition.items() if item.type() == QgsComposerItem.ComposerLegend]
+#        print 'legendes',legends
+#        legend = legends[0]
+#        print 'legende=',legend
+#        legend.updateLegend() 
+        self.composerLegend = QgsComposerLegend(self.composition)
+        self.composition.addComposerLegend(self.composerLegend)
+        self.composerLegend.setItemPosition(330, 124)
+        self.composerLegend.setFrameEnabled(True)
+        self.composerLegend.updateLegend()
+
 
         #ETIQUETTES :       Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur

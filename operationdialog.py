@@ -200,6 +200,11 @@ class OperationDialog(QtGui.QDialog):
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
         #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
         self.recupIdChantvol()
+        #récupération des noms des prestataires sélectionnés dans la QListWidget "prestataire"
+        prestitems=[]
+        for index in xrange (len(self.ui.prestataire.selectedItems())):
+            prestitems.append(self.ui.prestataire.selectedItems()[index])
+        lbl_presta=[i.text() for i in prestitems]
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), '{zr_opechvol}')""".format (zr_nomtable=nom_table,\
@@ -207,7 +212,7 @@ class OperationDialog(QtGui.QDialog):
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ = self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
-        zr_opera = self.ui.prestataire.currentItem().text(),\
+        zr_opera = '; '.join(lbl_presta),\
         zr_libelle = self.ui.descriptio.toPlainText(),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = geom2.exportToWkt(),\

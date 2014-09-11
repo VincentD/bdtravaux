@@ -392,7 +392,7 @@
     <item row="1" column="1">
      <widget class="QListWidget" name="prestataire">
       <property name="selectionMode">
-       <enum>QAbstractItemView::MultiSelection</enum>
+       <enum>QAbstractItemView::ExtendedSelection</enum>
       </property>
       <item>
        <property name="text">

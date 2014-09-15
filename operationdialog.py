@@ -213,6 +213,7 @@ class OperationDialog(QtGui.QDialog):
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ = self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
         zr_opera = '; '.join(lbl_presta),\
+#        zr_opera = self.ui.prestataire.currentItem().text(),\
         zr_libelle = self.ui.descriptio.toPlainText(),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = geom2.exportToWkt(),\
@@ -454,6 +455,9 @@ class OperationDialog(QtGui.QDialog):
 #        self.composerMap=maplist[0]
         self.composerMap = QgsComposerMap(self.composition, 5,2,408,286)
         self.composition.addComposerMap(self.composerMap)
+        self.composition.moveItemToBottom(self.composerMap)
+        self.composition.moveSelectedItemsToBottom()
+        print "est-ce que ça marche?"
         #Taille définie pour la carte
 #        x, y, w, h = 5, 28, 408, 240
 #        self.composerMap.setItemPosition(x, y, w, h)

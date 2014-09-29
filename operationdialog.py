@@ -83,6 +83,20 @@ class OperationDialog(QtGui.QDialog):
         # pour la date : plus de "toString()" dans l'API de QGIS 2.0 => QDate retransformé en PyQt pour utiliser "strftime"
         # afin de le transformer en chaîne de caractères.
         self.blocActuGestPrev='0'
+        
+        
+    def actu_listeschoix(self):
+        self.ui.opreal.clear()
+        self.ui.prestataire.clear()
+        queryopes = QtSql.QSqlQuery(self.db)
+        if queryopes.exec_('select * from bdtravaux.list_operations_cen order by operations'):
+            while queryopes.next():
+                self.ui.opreal.addItem(query.value(1), int(query.value(0)))
+        queryoper = QtSql.QSqlQuery(self.db)
+        if queryoper.exec_('select * from bdtravaux.list_operateur order by nom_oper'):
+            while queryoper.next():
+                self.ui.opreal.addItem(query.value(1), int(query.value(0)))
+
 
 
 
@@ -441,7 +455,7 @@ class OperationDialog(QtGui.QDialog):
         self.composerView.composerViewHide.connect(self.operationOnTop)
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
-        file1=QtCore.QFile('/home/vincent/form_pyqgis2013/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
+        file1=QtCore.QFile('/home/auchan/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
         #file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)

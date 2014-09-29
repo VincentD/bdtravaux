@@ -122,6 +122,7 @@ class BdTravaux:
         if self.dlg_ope.sansgeom=='True' or self.dlg_ope.sansgeom=='Geom':
             # show the dialog
             self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
+            self.actu_listeschoix() 
             self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
                                     # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
             #self.dlg_ope.recupDonnSortie()

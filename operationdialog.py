@@ -43,7 +43,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -55,16 +55,23 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
+        self.ui.buttonBox.setEnabled(0)
+        self.ui.compoButton.setEnabled(0)
 
         # Connexions aux boutons
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
         self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.actu_gestprev_chxopechvol)
+        
+        # Si l'une des listes de choix est cliquée, connexion à la fonction ..., qui vérifie qu'un item est sélectionné dans chaque pour donner accès aux boutons "OK" et "Dernier - Editer CR".
+        self.connect(self.ui.opprev, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
+        self.connect(self.ui.opreal, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
+        self.connect(self.ui.prestataire, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
 
 
 
@@ -87,6 +94,7 @@ class OperationDialog(QtGui.QDialog):
 
 
     def actu_listeschoix(self):
+        print 'entrée dans actulisteschoix'
         self.ui.opreal.clear()
         queryopes = QtSql.QSqlQuery(self.db)
         if queryopes.exec_('select * from bdtravaux.list_operations_cen order by operations'):
@@ -141,6 +149,17 @@ class OperationDialog(QtGui.QDialog):
             else :
                 self.ui.chx_opechvol.setVisible(False)
 
+    def activBoutons(self):
+        print 'entree dans activBoutons'
+        opprevlist = self.ui.opprev.selectedItems()
+        opreallist = self.ui.opreal.selectedItems()
+        prestalist = self.ui.prestataire.selectedItems()
+        if len(opprevlist)!=0 and len(opreallist)!=0 and len(prestalist)!=0 :
+            print u'des items sont séléctionnés dans les 3 listes'
+            self.ui.buttonBox.setEnabled(1)
+            self.ui.compoButton.setEnabled(1)
+        else :
+            print 'au moins 1 liste a 0 item séléctionné'
 
 
     def sauverOpeChoi(self):
@@ -375,8 +394,7 @@ class OperationDialog(QtGui.QDialog):
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
             print 'arret affiche 7'
-        print 'arret affiche 7 bis'
-        else :
+        else:
             print "couche polygones vide"
         # Affichage de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)

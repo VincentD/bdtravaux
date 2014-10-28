@@ -59,7 +59,7 @@ class OperationDialog(QtGui.QDialog):
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
-        self.ui.buttonBox.setEnabled(0)
+        self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
 
         # Connexions aux boutons
@@ -150,16 +150,12 @@ class OperationDialog(QtGui.QDialog):
                 self.ui.chx_opechvol.setVisible(False)
 
     def activBoutons(self):
-        print 'entree dans activBoutons'
         opprevlist = self.ui.opprev.selectedItems()
         opreallist = self.ui.opreal.selectedItems()
         prestalist = self.ui.prestataire.selectedItems()
         if len(opprevlist)!=0 and len(opreallist)!=0 and len(prestalist)!=0 :
-            print u'des items sont séléctionnés dans les 3 listes'
-            self.ui.buttonBox.setEnabled(1)
+            self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(1)
             self.ui.compoButton.setEnabled(1)
-        else :
-            print 'au moins 1 liste a 0 item séléctionné'
 
 
     def sauverOpeChoi(self):
@@ -188,6 +184,8 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+        self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
+        self.ui.compoButton.setEnabled(0)
         self.close
 
 
@@ -259,6 +257,8 @@ class OperationDialog(QtGui.QDialog):
             print query
 #            print zr_sortie
         self.iface.setActiveLayer(coucheactive)
+        self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
+        self.ui.compoButton.setEnabled(0)
         self.close
 
 

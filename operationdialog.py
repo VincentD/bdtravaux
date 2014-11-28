@@ -43,7 +43,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -55,7 +55,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -273,7 +273,8 @@ class OperationDialog(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé Id du chantier de volontaire')
             queryopechvol.next()
             self.id_opechvol = queryopechvol.value(0)
-            print self.id_opechvol
+            if self.id_opechvol==None :
+                self.id_opechvol='0'
         else:
             self.id_opechvol='0'
 
@@ -496,7 +497,9 @@ class OperationDialog(QtGui.QDialog):
         #file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
-        self.composition.loadFromTemplate(doc, substitutionMap=None, addUndoCommands =False, clearComposition = False)
+        elem=doc.firstChildElement()
+#       self.composition.loadFromTemplate(doc, substitutionMap=None, addUndoCommands =False)
+        self.composition.addItemsFromXML(elem , doc)
 
         #CARTE : Récupération de la carte. Code correct, mais ne fonctionne pas encore sous Windows. A décommenter à la version 1.6 de QGIS.
 #        maplist=[]

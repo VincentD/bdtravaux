@@ -273,7 +273,8 @@ class OperationDialog(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé Id du chantier de volontaire')
             queryopechvol.next()
             self.id_opechvol = queryopechvol.value(0)
-            print self.id_opechvol
+            if self.id_opechvol==None :
+                self.id_opechvol='0'
         else:
             self.id_opechvol='0'
 
@@ -494,7 +495,9 @@ class OperationDialog(QtGui.QDialog):
         #file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
-        self.composition.loadFromTemplate(doc, substitutionMap=None, addUndoCommands =False)
+        elem=doc.firstChildElement()
+#       self.composition.loadFromTemplate(doc, substitutionMap=None, addUndoCommands =False)
+        self.composition.addItemsFromXML(elem , doc)
 
         #CARTE : Récupération de la carte. Code correct, mais ne fonctionne pas encore sous Windows. A décommenter à la version 1.6 de QGIS.
 #        maplist=[]

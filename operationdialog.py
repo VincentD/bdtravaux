@@ -43,7 +43,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -55,7 +55,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -94,7 +94,6 @@ class OperationDialog(QtGui.QDialog):
 
 
     def actu_listeschoix(self):
-        print 'entrée dans actulisteschoix'
         self.ui.opreal.clear()
         queryopes = QtSql.QSqlQuery(self.db)
         if queryopes.exec_('select * from bdtravaux.list_operations_cen order by operations'):
@@ -131,13 +130,10 @@ class OperationDialog(QtGui.QDialog):
 
     def actu_gestprev_chxopechvol(self):
         if self.blocActuGestPrev=='1':
-            print 'ActuGestPrev blocked'
             return
         else:
             # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
             self.ui.opprev.clear()
-            print "entree dans actu_gestprev"
-            print self.ui.sortie.itemData(self.ui.sortie.currentIndex())
             self.recupDonnSortie()
             query = QtSql.QSqlQuery(self.db)
             if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
@@ -160,10 +156,8 @@ class OperationDialog(QtGui.QDialog):
 
     def sauverOpeChoi(self):
         if self.sansgeom=='True':
-            print 'sansgeomtrue'
             self.sauvOpeSansGeom()
         else:
-            print 'avecgeomtrue'
             self.sauverOpe()
 
 
@@ -255,7 +249,6 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
             print query
-#            print zr_sortie
         self.iface.setActiveLayer(coucheactive)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
@@ -285,7 +278,6 @@ class OperationDialog(QtGui.QDialog):
         querycodesite = QtSql.QSqlQuery(self.db)
         qcodesite = u"""select codesite, redacteur, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        print qcodesite
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupDonnSortie ratée')
@@ -307,7 +299,6 @@ class OperationDialog(QtGui.QDialog):
         # recup des données d'un chantier de volontaires en fction de l'Id de la sortie (et de l'opé). Pour afficher les textes ds composeur().
         querycodevolont = QtSql.QSqlQuery(self.db)
         qchvolont = u"""select nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm, sem_enc, sem_ben from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        print qchvolont
         ok = querycodevolont.exec_(qchvolont)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête Chvolotaires ratée')
@@ -344,7 +335,6 @@ class OperationDialog(QtGui.QDialog):
         # renvoie une couleur au hasard, en hexadécimal. Utilisé pour attribuer une couleur aux polygones affichés en fonction de leur catégorie.
         r=lambda: random.randint(0,255)
         couleur='#%02X%02X%02X' % (r(),r(),r())
-        print couleur
         return couleur
         
 
@@ -358,30 +348,22 @@ class OperationDialog(QtGui.QDialog):
 
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        print 'arret affiche 0' + reqwhere
         # Affichage de la couche de polygoness si des surfaces sont saisis pour cette sortie
         # Configure le shéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
         self.uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
-        print 'arret affiche 1'
         # Instanciation de la couche dans qgis 
         self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
-        print 'arret affiche 2'
         if self.gestrealpolys.featureCount()>0:
-            print 'arret affiche 2 bis'
             #si la couche importée n'est pas vide, intégration dans le Map Layer Registry pour pouvoir l'utiliser
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys)
-            print 'arret affiche 2 ter'
             # Attribution de couleurs différentes aux opérations
             # Récupération des valeurs uniques du champ qui servira de base à la symbologie
-            print 'arret affiche 3'
             layer=self.gestrealpolys
             field_index = layer.dataProvider().fieldNameIndex('typ_operat')
             unique_values = layer.uniqueValues(field_index)
-            print 'arret affiche 4'
             # Définit une correspondance: valeur -> (couleur) au moyen d'un dictionnaire et de la fonction clr_hasard
             # Création du dictionnaire au moyen d'une compréhension de dictionnaire
             operations={valeurunique : self.clr_hasard() for valeurunique in unique_values}
-            print 'arret affiche 5'
             # Crée une catégorie pour chaque item dans operations, puis les groupe en une liste (operations)
             categories = []
             for nom_opera, couleur in operations.items():
@@ -389,14 +371,11 @@ class OperationDialog(QtGui.QDialog):
                 symbol.setColor(QtGui.QColor(couleur))
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
-            print 'arret affiche 6'
             # Crée le renderer et l'assigne à la couche
             expression = 'typ_operat' # field name
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
-            print 'arret affiche 7'
         else:
-            print "couche polygones vide"
         # Affichage de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
         self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
@@ -442,14 +421,11 @@ class OperationDialog(QtGui.QDialog):
 
 
     def composeur(self):
-        print 'arret 0 abcdefghijklmnopqrstuvwxyz'
         #Intégration en base de la dernière opération saisie
         self.sauverOpeChoi()
-        print 'arret 0 bis'
         #S'il y a des entités géographiques dans la sortie, les afficher
         if self.sansgeom!='True':
             self.affiche()
-        print 'arret 1'
         #Récupération des données de la table "sortie" pour affichage du site et utilisation dans les étiquettes du composeur
         self.recupDonnSortie()
         reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
@@ -470,12 +446,10 @@ class OperationDialog(QtGui.QDialog):
         renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
             # assign the renderer to the layer
         self.contours_site.setRendererV2(renderer)
-        print 'arret 2'
 
 
         #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur
         self.recupDonnChVolont()
-        print 'arret 3'
         #COMPOSEUR : Production d'un composeur
         beforeList = self.iface.activeComposers()
         self.iface.actionPrintComposer().trigger()  
@@ -489,32 +463,32 @@ class OperationDialog(QtGui.QDialog):
         self.composition = self.composerView.composition()
         #operationOnTop() : afficher le form "operation.py" devant QGIS qd le composeur est fermé
         self.composerView.composerViewHide.connect(self.operationOnTop)
-#        self.composition.zoomFull()
-        self.composition.setPaperSize(420,297)
+        # Adaptation de la composition : 2 pages A3
+        self.composition.setPaperSize(420, 297)
         self.composition.setNumPages(2)
+
+
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
-        file1=QtCore.QFile('BDT_20130705_T_CART_ComposerTemplate.qpt')
+        file1=QtCore.QFile('/home/vincent/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
         #file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         elem=doc.firstChildElement()
-#       self.composition.loadFromTemplate(doc, substitutionMap=None, addUndoCommands =False)
-        self.composition.addItemsFromXML(elem , doc)
+        self.composition.loadFromTemplate(doc, substitutionMap=None, addUndoCommands =False)
+#        self.composition.addItemsFromXML(elem , doc)
 
         #CARTE : Récupération de la carte. Code correct, mais ne fonctionne pas encore sous Windows. A décommenter à la version 1.6 de QGIS.
-#        maplist=[]
-#        for item in self.composition.composerMapItems():
-#            maplist.append(item)
-#        print 'maplist :',maplist
-#        self.composerMap=maplist[0]
-        self.composerMap = QgsComposerMap(self.composition, 5,2,408,286)
-        self.composition.addComposerMap(self.composerMap)
-        self.composition.moveItemToBottom(self.composerMap)
-        self.composition.moveSelectedItemsToBottom()
-        print "est-ce que ça marche?"
+        maplist=[]
+        for item in self.composition.composerMapItems():
+            maplist.append(item)
+        self.composerMap=maplist[0]
+#        self.composerMap = QgsComposerMap(self.composition, 5,2,408,286)
+#        self.composition.addComposerMap(self.composerMap)
+#        self.composition.moveItemToBottom(self.composerMap)
+#        self.composition.moveSelectedItemsToBottom()
         #Taille définie pour la carte
-#        x, y, w, h = 5, 28, 408, 240
-#        self.composerMap.setItemPosition(x, y, w, h)
+        x, y, w, h = 5, 28, 408, 240
+        self.composerMap.setItemPosition(x, y, w, h)
         #Crée la bbox autour du site pour la carte en cours (fonction mapItemSetBBox l 293)
         #self.contours_sites est défini dans la fonction affiche()
         self.margin=10
@@ -529,9 +503,7 @@ class OperationDialog(QtGui.QDialog):
 #                legend = i 
 #Nouvel essai. Pb avec Windows.
 #        legends = [item for item in self.composition.items() if item.type() == QgsComposerItem.ComposerLegend]
-#        print 'legendes',legends
 #        legend = legends[0]
-#        print 'legende=',legend
 #        legend.updateLegend() 
         self.composerLegend = QgsComposerLegend(self.composition)
         self.composition.addComposerLegend(self.composerLegend)

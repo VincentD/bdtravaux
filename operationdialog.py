@@ -165,12 +165,11 @@ class OperationDialog(QtGui.QDialog):
     def sauvOpeSansGeom(self):
         self.recupIdChantvol()
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}',{zr_opechvol})""".format (\
+        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', '{zr_chantfini}',{zr_opechvol})""".format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
-        zr_ope_typ= self.ui.opreal.currentItem().text(),\
-        zr_opera= self.ui.prestataire.currentItem().text(),\
+        zr_ope_typ= self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
         zr_libelle= self.ui.descriptio.toPlainText(),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_opechvol = self.id_opechvol)
@@ -178,6 +177,8 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+        self.nom_table='operation_poly'
+        self.rempliJoinOperateur()
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
         self.close
@@ -194,10 +195,10 @@ class OperationDialog(QtGui.QDialog):
         geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
         if geom_cbbx == 'Points' :
             geom_output=QGis.Point
-            nom_table='operation_pts'
+            self.nom_table='operation_pts'
         elif geom_cbbx == 'Lignes':
             geom_output=QGis.Line
-            nom_table='operation_lgn'
+            self.nom_table='operation_lgn'
             if self.iface.activeLayer().geometryType()==0:
                 if self.iface.activeLayer().selectedFeatureCount()<2:
                     mess2pts=QtGui.QMessageBox()
@@ -209,7 +210,7 @@ class OperationDialog(QtGui.QDialog):
                     return
         elif geom_cbbx == 'Surfaces':
             geom_output=QGis.Polygon
-            nom_table='operation_poly'
+            self.nom_table='operation_poly'
             if self.iface.activeLayer().geometryType()==0:
                 if self.iface.activeLayer().selectedFeatureCount()<3:
                     mess3pts=QtGui.QMessageBox()
@@ -226,20 +227,13 @@ class OperationDialog(QtGui.QDialog):
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
         #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
         self.recupIdChantvol()
-        #récupération des noms des prestataires sélectionnés dans la QListWidget "prestataire"
-        prestitems=[]
-        for index in xrange (len(self.ui.prestataire.selectedItems())):
-            prestitems.append(self.ui.prestataire.selectedItems()[index])
-        lbl_presta=[i.text() for i in prestitems]
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, operateur, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_opera}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), '{zr_opechvol}')""".format (zr_nomtable=nom_table,\
+        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
         zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ = self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
-        zr_opera = '; '.join(lbl_presta),\
-#        zr_opera = self.ui.prestataire.currentItem().text(),\
         zr_libelle = self.ui.descriptio.toPlainText(),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = geom2.exportToWkt(),\
@@ -249,11 +243,32 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
             print query
+        self.rempliJoinOperateur()
         self.iface.setActiveLayer(coucheactive)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
         self.close
 
+    def rempliJoinOperateur(self):
+    #remplissage de la table join_operateur avec les prestataires sélectionnés dans la QListWidget "prestataire"
+        #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs
+        queryidoper = QtSql.QSqlQuery(self.db)
+        qidoper = u"""select id_oper from bdtravaux.{zr_nomtable} order by id_oper desc limit 1""".format (zr_nomtable=self.nom_table)
+        ok2=queryidoper.exec_(qidoper)
+        if not ok2:
+            QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id du prestataire')
+        queryidoper.next()
+        self.id_oper = queryidoper.value(0)
+        print str(self.id_oper)
+        #remplissage de la table join_operateurs : id_oper et noms du (des) prestataire(s)
+        for item in xrange (len(self.ui.prestataire.selectedItems())):
+            querypresta = QtSql.QSqlQuery(self.db)
+            qpresta = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs) values ({zr_idjoinop}, '{zr_operateur}')""".format (zr_idjoinop = self.id_oper, zr_operateur = self.ui.prestataire.selectedItems()[item].text().replace("\'","\'\'"))
+            ok3 = querypresta.exec_(qpresta)
+            if not ok3:
+               # QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des prestas en base ratée')
+                print qpresta
+            querypresta.next()
 
 
     def recupIdChantvol(self):

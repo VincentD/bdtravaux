@@ -376,6 +376,8 @@ class OperationDialog(QtGui.QDialog):
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
         else:
+            print 'couche de surfaces vide'
+
         # Affichage de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
         self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
@@ -469,23 +471,21 @@ class OperationDialog(QtGui.QDialog):
 
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
-        file1=QtCore.QFile('/home/vincent/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
-        #file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
+        if sys.platform.startswith('linux'):
+            file1=QtCore.QFile('/home/vincent/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
+        if sys.platform.startswith('win32'):
+            file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         elem=doc.firstChildElement()
         self.composition.loadFromTemplate(doc, substitutionMap=None, addUndoCommands =False)
-#        self.composition.addItemsFromXML(elem , doc)
 
-        #CARTE : Récupération de la carte. Code correct, mais ne fonctionne pas encore sous Windows. A décommenter à la version 1.6 de QGIS.
+
+        #CARTE : Récupération de la carte. 
         maplist=[]
         for item in self.composition.composerMapItems():
             maplist.append(item)
         self.composerMap=maplist[0]
-#        self.composerMap = QgsComposerMap(self.composition, 5,2,408,286)
-#        self.composition.addComposerMap(self.composerMap)
-#        self.composition.moveItemToBottom(self.composerMap)
-#        self.composition.moveSelectedItemsToBottom()
         #Taille définie pour la carte
         x, y, w, h = 5, 28, 408, 240
         self.composerMap.setItemPosition(x, y, w, h)
@@ -497,19 +497,11 @@ class OperationDialog(QtGui.QDialog):
                     #self.composition.mActionZoomFullExtent().trigger()
 
 
-        #LEGENDE : mettre à jour la légende. Code correct, mais ne fonctionne pas encore sous Windows. A décommenter à la version 1.6 de QGIS.
-#        for i in self.composition.items():
-#            if isinstance(i,QgsComposerLegend):
-#                legend = i 
-#Nouvel essai. Pb avec Windows.
-#        legends = [item for item in self.composition.items() if item.type() == QgsComposerItem.ComposerLegend]
-#        legend = legends[0]
-#        legend.updateLegend() 
-        self.composerLegend = QgsComposerLegend(self.composition)
-        self.composition.addComposerLegend(self.composerLegend)
-        self.composerLegend.setItemPosition(330, 124)
-        self.composerLegend.setFrameEnabled(True)
-        self.composerLegend.updateLegend()
+        #LEGENDE : mettre à jour la légende. 
+        for i in self.composition.items():
+            if isinstance(i,QgsComposerLegend):
+                legend = i 
+                legend.updateLegend()
 
 
         #ETIQUETTES :       Modifier les étiquettes du composeur.

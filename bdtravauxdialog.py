@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -181,8 +181,6 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
     def reinitialiser(self):
-       for child in self.findChildren((QtGui.QLineEdit,QtGui.QTextEdit,QtGui.QTableWidget)):
-            child.clear()
        for child in self.findChildren((QtGui.QRadioButton)):
             print child.objectName()
             child.setAutoExclusive(False)
@@ -190,6 +188,12 @@ class BdTravauxDialog(QtGui.QDialog):
             child.setAutoExclusive(True)
             if child.text()=='Travaux sur site (hors chantiers de volontaires)':
                 child.setChecked(True)
+       for child in self.findChildren((QtGui.QLineEdit)):
+            child.clear()
+       for child in self.findChildren((QtGui.QTextEdit)):
+            child.clear()
+       for child in self.findChildren((QtGui.QTableWidget)):
+            child.clear()
        for child in self.findChildren((QtGui.QCalendarWidget)):
             aujourdhui=QtCore.QDate.currentDate()
             child.setSelectedDate(aujourdhui)

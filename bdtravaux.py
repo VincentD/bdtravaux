@@ -27,6 +27,7 @@ import resources_rc
 # Import the code for the dialog
 from bdtravauxdialog import BdTravauxDialog
 from operationdialog import OperationDialog
+from prevudialog import PrevuDialog
 
 
 class BdTravaux:
@@ -56,13 +57,14 @@ class BdTravaux:
         # Create the dialog (after translation) and keep reference
         self.dlg = BdTravauxDialog()
         self.dlg_ope= OperationDialog(iface)
+        self.dlg_prev= PrevuDialog(iface)
         
     def initGui(self):
         # Création du bouton qui va démarrer le plugin (interface "sortie")
         self.action = QtGui.QAction(
             QtGui.QIcon(":/plugins/bdtravaux/icon2.png"),
             u"Saisie sortie", self.iface.mainWindow())
-        # connecte le bouton à une méthode "run" (def à la ligne 90)
+        # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.action, QtCore.SIGNAL("triggered()"), self.run)
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.action)
@@ -72,11 +74,21 @@ class BdTravaux:
         self.operation = QtGui.QAction(
             QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
             u"Saisie opérations", self.iface.mainWindow())
-        # connecte le bouton à une méthode "run" (def à la ligne 90)
+        # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.operation, QtCore.SIGNAL("triggered()"), self.run_ope)
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
         self.iface.addToolBarIcon(self.operation)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.operation)
+        
+        # Création du bouton qui va démarrer le plugin (interface "gestion et suivis prévus")
+        self.prevu = QtGui.QAction(
+            QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
+            u"Saisie gestion prévue", self.iface.mainWindow())
+        # connecte le bouton à une méthode "run" 
+        QtCore.QObject.connect(self.prevu, QtCore.SIGNAL("triggered()"), self.run_prev)
+        # ajoute l'icône sur la barre d'outils et l'élément de menu.
+        self.iface.addToolBarIcon(self.prevu)
+        self.iface.addPluginToMenu(u"&Saisie_travaux", self.prevu)
 
 
     def unload(self):
@@ -86,6 +98,9 @@ class BdTravaux:
         # Remove the plugin menu item and icon (interface "opérations")
         self.iface.removePluginMenu(u"&Saisie_travaux", self.operation)
         self.iface.removeToolBarIcon(self.operation)
+        # Remove the plugin menu item and icon (interface "gestion et suivis prévus")
+        self.iface.removePluginMenu(u"&Saisie_gestion_prévue", self.prevu)
+        self.iface.removeToolBarIcon(self.prevu)
 
 
     # démarre la méthode qui va faire tout le travail (interface "sortie")
@@ -99,26 +114,66 @@ class BdTravaux:
             # do something useful (delete the line containing pass and
             # substitute with your code)
             pass
-    
-    
+
+
     # démarre la méthode qui va faire tout le travail  (interface "operation")
     def run_ope(self):
+        self.verif_geom()
+        if self.dlg_ope.sansgeom=='True' or self.dlg_ope.sansgeom=='Geom':
+            # show the dialog
+            self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
+            self.dlg_ope.actu_listeschoix() 
+            self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
+                                    # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
+            #self.dlg_ope.recupDonnSortie()
+            self.dlg_ope.actu_gestprev_chxopechvol()#maj de la QListWidget gestprev selon le site choisi dans la ccbox "sortie"
+            self.dlg_ope.show()
+            # Run the dialog event loop
+            result = self.dlg_ope.exec_()
+            # See if OK was pressed
+            if result == 1:
+                # do something useful (delete the line containing pass and
+                # substitute with your code)
+                pass
+
+
+    # démarre la méthode qui va faire tout le travail (interface "gestion et suivis prévus")
+    def run_prev(self):
+        self.verif_geom()
+        if self.dlg_prev.sansgeom=='True' or self.dlg_prev.sansgeom=='Geom':
+            # show the dialog
+            self.dlg_prev.show()
+            # Run the dialog event loop
+            result = self.dlg_prev.exec_()
+            # See if OK was pressed
+            if result == 1:
+                # do something useful (delete the line containing pass and
+                # substitute with your code)
+                pass
+
+
+    def verif_geom(self):
         # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
         layer=self.iface.activeLayer()
+        self.dlg_ope.sansgeom='Geom'
+        self.dlg_prev.sansgeom='Geom'
+        # construction du message d'erreur
+        messlayer=QtGui.QMessageBox()
+        messlayer.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
+        messlayer.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        messlayer.setDefaultButton(QtGui.QMessageBox.No)
+        messlayer.setIcon(QtGui.QMessageBox.Question)
+
         if not layer:
             #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
-            messlayer=QtGui.QMessageBox()
             messlayer.setText(u'Aucune couche SIG sélectionnée')
-            messlayer.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
-            messlayer.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            messlayer.setDefaultButton(QtGui.QMessageBox.No)
-            messlayer.setIcon(QtGui.QMessageBox.Question)
             ret = messlayer.exec_()
             if ret == QtGui.QMessageBox.Yes:
-                print 'Yes'
                 self.dlg_ope.sansgeom='True'
+                self.dlg_prev.sansgeom='True'
             elif ret == QtGui.QMessageBox.No:
-                print 'No'
+                self.dlg_ope.sansgeom='False'
+                self.dlg_prev.sansgeom='False'
                 return
         # Attention : au contraire de ce qu'on a fait dans operationdialog.py, ne pas utiliser "self" en premier paramètre de
         # QMessageBox (il faut le widget parent), car ici self désigne une classe qui n'est pas un QWidget. 
@@ -130,34 +185,15 @@ class BdTravaux:
         #même code pour l'absence d'entité sélectionnée dans la couche active        
         if layer:
             selection=self.iface.activeLayer().selectedFeatures()
-            self.dlg_ope.sansgeom='False'
             if not selection:
                 #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
-                messfeat=QtGui.QMessageBox()
-                messfeat.setText(u'Aucune entité sélectionnée')
-                messfeat.setInformativeText(u'Voulez-vous saisir des données sans les placer sur le terrain?')
-                messfeat.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                messfeat.setDefaultButton(QtGui.QMessageBox.No)
-                messfeat.setIcon(QtGui.QMessageBox.Question)
-                ret = messfeat.exec_()
+                messlayer.setText(u'Aucune entité sélectionnée')
+                ret = messlayer.exec_()
                 if ret == QtGui.QMessageBox.Yes:
-                    print 'Yes'
                     self.dlg_ope.sansgeom='True'
+                    self.dlg_prev.sansgeom='True'
                 elif ret == QtGui.QMessageBox.No:
-                    print 'No'
+                    self.dlg_ope.sansgeom='False'
+                    self.dlg_prev.sansgeom='False'
                     return
 
-        # show the dialog
-        self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
-        self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
-                                    # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
-        #self.dlg_ope.recupDonnSortie()
-        self.dlg_ope.actu_gestprev_chxopechvol()#mise à jour de la QListWidget gestprev selon le site choisi dans la ccbox "sortie"
-        self.dlg_ope.show()
-        # Run the dialog event loop
-        result = self.dlg_ope.exec_()
-        # See if OK was pressed
-        if result == 1:
-            # do something useful (delete the line containing pass and
-            # substitute with your code)
-            pass

@@ -106,12 +106,12 @@ class BdTravauxDialog(QtGui.QDialog):
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_chantier_vol=self.chantvol,\
         #str(self.ui.chantvol.isChecked()).lower(),\
-        zr_sort_com=self.ui.comm.toPlainText(),\
+        zr_sort_com=self.ui.comm.toPlainText().replace("\'","\'\'"),\
         zr_objvisite=self.objetVisiText,\
-        zr_objvi_autr=self.ui.obj_autre_text.text(),\
-        zr_natfaune=self.ui.natfaune.toPlainText(),\
-        zr_natflore=self.ui.natflore.toPlainText(),\
-        zr_natautre=self.ui.natfaune.toPlainText()).encode("latin1")
+        zr_objvi_autr=self.ui.obj_autre_text.text().replace("\'","\'\'"),\
+        zr_natfaune=self.ui.natfaune.toPlainText().replace("\'","\'\'"),\
+        zr_natflore=self.ui.natflore.toPlainText().replace("\'","\'\'"),\
+        zr_natautre=self.ui.natfaune.toPlainText().replace("\'","\'\'")).encode("latin1")
         print query
         # à rebalancer dans finchantier.py : jours_chan,  ... \'{zr_jours_chantier}\' ... zr_jours_chantier=self.ui.jours_chan.toPlainText(),\
         ok = query_save.exec_(query)
@@ -148,7 +148,10 @@ class BdTravauxDialog(QtGui.QDialog):
         #remplissage de la table join_salaries : sortie_id et noms du (des) salarié(s)
         for item in xrange (len(self.ui.obsv.selectedItems())):
             querysalarie = QtSql.QSqlQuery(self.db)
-            qsalarie = u"""insert into bdtravaux.join_salaries (id_joinsal, salaries) values ({zr_idjoinsal}, '{zr_salarie}')""".format (zr_idjoinsal = self.sortie_id, zr_salarie = self.ui.obsv.selectedItems()[item].text().replace("\'","\'\'"))
+            qsalarie = u"""insert into bdtravaux.join_salaries (id_joinsal, salaries, sal_initia) values ({zr_idjoinsal}, '{zr_salarie}','{zr_initiales}')""".format (\
+            zr_idjoinsal = self.sortie_id,\
+            zr_salarie = self.ui.obsv.selectedItems()[item].text().split("/")[0].replace("\'","\'\'"),\
+            zr_initiales=self.ui.obsv.selectedItems()[item].text().split("/")[1])
             ok3 = querysalarie.exec_(qsalarie)
             if not ok3:
                # QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des salariés en base ratée')

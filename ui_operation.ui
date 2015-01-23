@@ -272,6 +272,11 @@
         <string>000 / AvtPdG / Avant le plan de gestion / Opération antérieure au plan de gestion / AvtPdG</string>
        </property>
       </item>
+      <item>
+       <property name="text">
+        <string>000 / 0GH / Pas encore de GH / GH non attribué / 0GH</string>
+       </property>
+      </item>
      </widget>
     </item>
    </layout>

@@ -87,32 +87,32 @@
         </property>
         <item>
          <property name="text">
-          <string>Alexis Thery</string>
+          <string>Alexis Thery / AT</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Kevin Guaquier</string>
+          <string>Kevin Guaquier / KG</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Matthieu Loquet</string>
+          <string>Matthieu Loquet / ML</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Quentin Vanquelef</string>
+          <string>Quentin Vanquelef /QV</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Sandrine Gougaud</string>
+          <string>Sandrine Gougaud / SG</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Simon Bezille</string>
+          <string> Simon Bezille / SB</string>
          </property>
         </item>
        </widget>

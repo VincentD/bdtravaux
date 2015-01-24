@@ -78,10 +78,10 @@ class OperationDialog(QtGui.QDialog):
     def actu_cbbx(self):
         self.blocActuGestPrev='1'
         self.ui.sortie.clear()
-        # Remplir la combobox "sortie" avec les champs date_sortie+site+redacteur de la table "sortie" issus de la table "sites"
+        # Remplir la combobox "sortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        if query.exec_('select sortie_id, date_sortie, codesite, redacteur from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
+        if query.exec_('select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), \'; \') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
             while query.next():
                 self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
         # 1er paramètre = ce qu'on affiche, 
@@ -165,12 +165,12 @@ class OperationDialog(QtGui.QDialog):
     def sauvOpeSansGeom(self):
         self.recupIdChantvol()
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', '{zr_chantfini}',{zr_opechvol})""".format (\
+        query = u'insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, ope_chvol) values ({zr_sortie}, \'{zr_plangestion}\', \'{zr_code_gh}\', \'{zr_ope_typ}\', \'{zr_libelle}\', \'{zr_chantfini}\',{zr_opechvol})'.format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
-        zr_libelle= self.ui.descriptio.toPlainText(),\
+        zr_libelle= self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_opechvol = self.id_opechvol)
         print query
@@ -234,7 +234,7 @@ class OperationDialog(QtGui.QDialog):
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ = self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
-        zr_libelle = self.ui.descriptio.toPlainText(),\
+        zr_libelle = self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = geom2.exportToWkt(),\
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
@@ -291,14 +291,14 @@ class OperationDialog(QtGui.QDialog):
     def recupDonnSortie(self):
         #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche(), les txts des étiqu dans composeur() et mettre à jour "opprev" et "chx_opechvol" au lancement du module, et qd une nouvelle sortie est sélectionnée.
         querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite, redacteur, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+        qcodesite = u"""select codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupDonnSortie ratée')
         querycodesite.next()
         self.codedusite=querycodesite.value(0)
-        self.redacteur=querycodesite.value(1)
+        self.salaries=querycodesite.value(1)
         self.datesortie=querycodesite.value(2).toPyDate().strftime("%Y-%m-%d")
         self.chantvol=querycodesite.value(3)
         self.sortcom=querycodesite.value(4)
@@ -561,7 +561,7 @@ class OperationDialog(QtGui.QDialog):
             if label.displayText().find("$redac")>-1:
                 plac_redac=label.displayText().find("$redac")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_redac]+self.redacteur+texte[plac_redac+6:])
+                label.setText(texte[0:plac_redac]+self.salaries+texte[plac_redac+6:])
             if label.displayText().find("$date")>-1:
                 plac_date=label.displayText().find("$date")
                 texte=unicode(label.displayText())

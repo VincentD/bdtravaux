@@ -173,7 +173,7 @@ class OperationDialog(QtGui.QDialog):
         zr_libelle= self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_opechvol = self.id_opechvol)
-        print query
+        print u'query'
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
@@ -242,7 +242,7 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-            print query
+            print u'query'
         self.rempliJoinOperateur()
         self.iface.setActiveLayer(coucheactive)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -586,9 +586,9 @@ class OperationDialog(QtGui.QDialog):
                     texte=unicode(label.displayText())
                     label.setText(texte[0:plac_objautre]+self.objautre+texte[plac_objautre+12:])
             if label.displayText().find("$natfaune")>-1:
-                label.setText(str(self.natfaune))
+                label.setText(self.natfaune)
             if label.displayText().find("$natflore")>-1:
-                label.setText(str(self.natflore))
+                label.setText(self.natflore)
             if self.cv_partenaire is not None:
                 if label.displayText().find("$nbjours")>-1:
                     plac_nbjours=label.displayText().find("$nbjours")

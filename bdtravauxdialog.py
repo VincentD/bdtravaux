@@ -176,8 +176,8 @@ class BdTravauxDialog(QtGui.QDialog):
             zr_nb_jours = self.ui.ch_nb_jours.text(),\
             zr_nb_heur_ch = self.ui.ch_nb_heur_ch.text(),\
             zr_nb_heur_de = self.ui.ch_nb_heur_dec.text(),\
-            zr_partenaire = self.ui.ch_partenaire.currentItem().text(),\
-            zr_heberg = self.ui.ch_heberg.text(),\
+            zr_partenaire = self.ui.ch_partenaire.currentItem().text().replace("\'","\'\'"),\
+            zr_heberg = self.ui.ch_heberg.text().replace("\'","\'\'"),\
             zr_j1_enc_am = self.ui.chtab_nbpers_jr1.item(0,0).text(),\
             zr_j1_enc_pm = self.ui.chtab_nbpers_jr1.item(0,1).text(),\
             zr_j1_tot_am = self.ui.chtab_nbpers_jr1.item(1,0).text(),\

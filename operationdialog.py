@@ -49,7 +49,7 @@ class OperationDialog(QtGui.QDialog):
         self.db.setPassword("postgres")
         ok = self.db.open()
         if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Connexion échouée')
+            QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée')
 
         #Definition de URI pour extraire des couches des tables PG. Uri est utilisé dans les fonctions "afficher" et "composeur".
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
@@ -79,16 +79,17 @@ class OperationDialog(QtGui.QDialog):
         self.blocActuGestPrev='1'
         self.ui.sortie.clear()
         # Remplir la combobox "sortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
-        query = QtSql.QSqlQuery(self.db)
-        # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        if query.exec_('select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), \'; \') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30'):
-            while query.next():
-                self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
+        query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
+        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
+        ok = query.exec_(querySortie)
+        print querySortie
+        while query.next():
+            self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
         # 1er paramètre = ce qu'on affiche, 
         # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
         # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
-        # pour la date : plus de "toString()" dans l'API de QGIS 2.0 => QDate retransformé en PyQt pour utiliser "strftime"
-        # afin de le transformer en chaîne de caractères.
+        if not ok :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
         self.blocActuGestPrev='0'
 
 
@@ -294,6 +295,7 @@ class OperationDialog(QtGui.QDialog):
         qcodesite = u"""select codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
+        print qcodesite
         if not ok2:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupDonnSortie ratée')
         querycodesite.next()
@@ -307,6 +309,7 @@ class OperationDialog(QtGui.QDialog):
         self.natfaune=querycodesite.value(7)
         self.natflore=querycodesite.value(8)
         self.natautre=querycodesite.value(9)
+
 
 
 

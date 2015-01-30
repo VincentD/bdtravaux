@@ -115,6 +115,8 @@ class OperationDialog(QtGui.QDialog):
         # obtenir une chaîne de caractère : geometryType() ne renvoie que des constantes (0, 1 ou 2). Il faut donc ruser...
         if not self.iface.activeLayer():
             self.ui.lbl_geom.setText(u"0 points, lignes ou polygones sélectionnés")
+        elif self.iface.activeLayer().type() == QgsMapLayer.RasterLayer:
+            self.ui.lbl_geom.setText(u"0 points, lignes ou polygones sélectionnés")
         else:
             geometrie=""
             if self.iface.activeLayer().geometryType() == QGis.Polygon:

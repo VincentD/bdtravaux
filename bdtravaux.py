@@ -123,9 +123,8 @@ class BdTravaux:
             # show the dialog
             self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
             self.dlg_ope.actu_listeschoix() 
+            print 'sansGeom ='+self.dlg_ope.sansgeom
             self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
-                                    # méthode actu_lblgeom() est importée avec OperationDialog (se trouve dans operationdialog.py)
-            #self.dlg_ope.recupDonnSortie()
             self.dlg_ope.actu_gestprev_chxopechvol()#maj de la QListWidget gestprev selon le site choisi dans la ccbox "sortie"
             self.dlg_ope.show()
             # Run the dialog event loop
@@ -165,7 +164,7 @@ class BdTravaux:
         messlayer.setIcon(QtGui.QMessageBox.Question)
 
         if not layer:
-            #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
+            #S'il n'y a aucune couche active
             messlayer.setText(u'Aucune couche SIG sélectionnée')
             ret = messlayer.exec_()
             if ret == QtGui.QMessageBox.Yes:
@@ -178,31 +177,33 @@ class BdTravaux:
         # Attention : au contraire de ce qu'on a fait dans operationdialog.py, ne pas utiliser "self" en premier paramètre de
         # QMessageBox (il faut le widget parent), car ici self désigne une classe qui n'est pas un QWidget. 
         # Avec self.dlg_ope, la fenêtre "operation" devient parent => plus d'erreur "parameter 1 : unexpected 'instance'".
-        #return permet de quitter la fonction sans exécuter la suite. D'où, plus de message d'erreur parce que 
-        #la méthode "geometrytype" d'un "active layer" vide n'existe pas.
+        # return permet de quitter la fonction sans exécuter la suite. D'où, plus de message d'erreur parce que 
+        # la méthode "geometrytype" d'un "active layer" vide n'existe pas.
         
-        #même code si la couche active est un raster        
-        if layer.type() == QgsMapLayer.RasterLayer:
-            messlayer.setText(u'La couche SIG sélectionnée est une image')
-            ret = messlayer.exec_()
-            if ret == QtGui.QMessageBox.Yes:
-                self.dlg_ope.sansgeom='True'
-                self.dlg_prev.sansgeom='True'
-            elif ret == QtGui.QMessageBox.No:
-                self.dlg_ope.sansgeom='False'
-                self.dlg_prev.sansgeom='False'
-                return
-        #même code pour l'absence d'entité sélectionnée dans la couche active        
-        selection=self.iface.activeLayer().selectedFeatures()
-        if not selection:
-            #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
-            messlayer.setText(u'Aucune entité sélectionnée')
-            ret = messlayer.exec_()
-            if ret == QtGui.QMessageBox.Yes:
-                self.dlg_ope.sansgeom='True'
-                self.dlg_prev.sansgeom='True'
-            elif ret == QtGui.QMessageBox.No:
-                self.dlg_ope.sansgeom='False'
-                self.dlg_prev.sansgeom='False'
-                return
+        else:
+            # S'il y a une couche active, mais que c'est un raster
+            if layer.type() == QgsMapLayer.RasterLayer:
+                messlayer.setText(u'La couche SIG sélectionnée est une image')
+                ret = messlayer.exec_()
+                if ret == QtGui.QMessageBox.Yes:
+                    self.dlg_ope.sansgeom='True'
+                    self.dlg_prev.sansgeom='True'
+                elif ret == QtGui.QMessageBox.No:
+                    self.dlg_ope.sansgeom='False'
+                    self.dlg_prev.sansgeom='False'
+                    return
+            else:
+                #Si la couche active est bien un vecteur, mais aucune entité n'est sélectionnée
+                selection=self.iface.activeLayer().selectedFeatures()
+                if not selection:
+                    #QtGui.QMessageBox.warning(self.dlg_ope, 'Alerte', u'Voulez-vous saisir des données non géographiques?')
+                    messlayer.setText(u'Aucune entité sélectionnée')
+                    ret = messlayer.exec_()
+                    if ret == QtGui.QMessageBox.Yes:
+                        self.dlg_ope.sansgeom='True'
+                        self.dlg_prev.sansgeom='True'
+                    elif ret == QtGui.QMessageBox.No:
+                        self.dlg_ope.sansgeom='False'
+                        self.dlg_prev.sansgeom='False'
+                        return
 

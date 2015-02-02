@@ -22,9 +22,9 @@
 
 from PyQt4 import QtCore, QtGui, QtSql
 from ui_bdtravaux_sortie import Ui_BdTravaux
+# from composeur import *
+
 # create the dialog for zoom to point
-
-
 class BdTravauxDialog(QtGui.QDialog):
     def __init__(self):
         
@@ -63,7 +63,6 @@ class BdTravauxDialog(QtGui.QDialog):
         print self.objetVisiText
         self.chantvol=False
         self.ui.tab_chantvol.setEnabled(0)
-#        self.ui.ch_partenaire.setCurrentRow(1)
         aucunpart=self.ui.ch_partenaire.findItems('Aucun',QtCore.Qt.MatchExactly)
         # findItems nécessite 2 arguments : la chaine à trouver et un QT.matchFlags qui correspond à la façon de chercher (chaine exacte, regex...) cf. http://qt-project.org/doc/qt-4.8/qt.html#MatchFlag-enum
         for item in aucunpart:
@@ -77,6 +76,10 @@ class BdTravauxDialog(QtGui.QDialog):
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.objetvisite, QtCore.SIGNAL('buttonClicked(QAbstractButton*)'), self.objetVisiClicked)
         #http://www.qtcentre.org/archive/index.php/t-15687.html pour l'emploi de QAbstractButton
+        #Connexion du signal "chagement d'onglet" à la fonction qui active / désactive les bouton "OK" et "Annuler"
+        self.connect(self.ui.tab_widget, QtCore.SIGNAL('currentChanged(int)'), self.masqueBoutons)
+        #self.connect(self.ui.btn_imp_exsortie, QtCore.SIGNAL(''), self.imprimExSort)
+
 
 
     def objetVisiClicked(self):
@@ -202,6 +205,36 @@ class BdTravauxDialog(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
             print querych
 
+
+    def masqueBoutons(self, index):
+        #si l'onglet actif est "tab_extsortie" (index=4), alors les boutons OK et annuler sont masqués. Sinon ils sont actifs.
+        print 'Boutons à masquer'+str(index)
+        if index == 4:
+            self.ui.buttonBox_2.setEnabled(False)
+        else:
+            self.ui.buttonBox_2.setEnabled(True)
+
+
+    def fillExSortieList(self):
+        self.ui.cbx_exsortie.clear()
+        # Remplir la QlistWidget "lisetsortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
+        query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
+        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
+        ok = query.exec_(querySortie)
+        print querySortie
+        while query.next():
+            self.ui.cbx_exsortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int (query.value(0)))
+        # 1er paramètre = ce qu'on affiche, 
+        # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
+        if not ok :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
+
+    def imprimExSort(self):
+        #Récupérer l'id_sortie à partir de la combobox cbx_exsortie (cf. RecupDonnSortie)
+        self.sourceAffiche='ModSortie' # Pour indiquer au nouveau module "composeur.py" qu'on vient du module "Sortie" (peut-être pus nécessaire si on récupère id_sortie ici, et qu'on le passe en paramètre du composeur => le module composeur se fiche d'où vient l'info, tant qu'elle lui arrive)
+        print self.sourceAffiche
+        #lancement de la fonction composeur dans le module composeur
+        #composeur.creaComposeur()
 
 
     def reinitialiser(self):

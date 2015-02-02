@@ -106,6 +106,7 @@ class BdTravaux:
     # démarre la méthode qui va faire tout le travail (interface "sortie")
     def run(self):
         # show the dialog
+        self.dlg.fillExSortieList()    # mise à jour de la liste de sorties déjà saisies (onglet 4)
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()

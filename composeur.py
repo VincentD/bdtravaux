@@ -13,7 +13,8 @@
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  * *   the Free Software Foundation; either version 2 of the License, or     *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
@@ -22,274 +23,12 @@
 from PyQt4 import QtCore, QtGui, QtSql, QtXml, Qt
 from qgis.core import *
 from qgis.gui import *
-from ui_operation import Ui_operation
-from convert_geoms import convert_geometries
-import sys
-import inspect
-import re
-import random
+import sys                                          # Pour changer le chemin du modèle de composeur en fonction de l'OS
+import inspect                                      # ???
+import re                                           # Pour la méthode find : trouve des mots-clés dans les étiquettes du composeur
+import random                                       # Pour choisir des couleurs au hasard dans le module Affiche
 
-
-class OperationDialog(QtGui.QDialog):
-    def __init__(self, iface):
-        
-        QtGui.QDialog.__init__(self)
-        # Configure l'interface utilisateur issue de QTDesigner.
-        self.ui = Ui_operation()
-        self.ui.setupUi(self)
-        # Référencement de iface dans l'interface (iface = interface de QGIS)
-        self.iface = iface
-        self.canvas = self.iface.mapCanvas()
-
-        # Type de BD, hôte, utilisateur, mot de passe...
-        self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
-        self.db.setDatabaseName("sitescsn")
-        self.db.setUserName("postgres")
-        self.db.setPassword("postgres")
-        ok = self.db.open()
-        if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée')
-
-        #Definition de URI pour extraire des couches des tables PG. Uri est utilisé dans les fonctions "afficher" et "composeur".
-        #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
-        self.uri = QgsDataSourceURI()
-        # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
-
-        #Initialisations
-        self.ui.chx_opechvol.setVisible(False)
-        self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
-        self.ui.compoButton.setEnabled(0)
-        self.sourceAffiche='ModOperation'
-
-        # Connexions signaux-slots
-        self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
-        self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
-        self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.composeur)
-        self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.actu_gestprev_chxopechvol)
-        # Si l'une des listes de choix est cliquée, connexion à la fonction activBoutons, qui vérifie qu'un item est sélectionné dans chaque pour donner accès aux boutons "OK" et "Dernier - Editer CR".
-        self.connect(self.ui.opprev, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
-        self.connect(self.ui.opreal, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
-        self.connect(self.ui.prestataire, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
-
-
-
-    def actu_cbbx(self):
-        self.blocActuGestPrev='1'
-        self.ui.sortie.clear()
-        # Remplir la combobox "sortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
-        query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
-        ok = query.exec_(querySortie)
-        print querySortie
-        while query.next():
-            self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
-        # 1er paramètre = ce qu'on affiche, 
-        # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
-        # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
-        if not ok :
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
-        self.blocActuGestPrev='0'
-
-
-
-    def actu_listeschoix(self):
-        self.ui.opreal.clear()
-        queryopes = QtSql.QSqlQuery(self.db)
-        if queryopes.exec_('select * from bdtravaux.list_operations_cen order by operations'):
-            while queryopes.next():
-                self.ui.opreal.addItem(unicode(queryopes.value(1)))
-
-        self.ui.prestataire.clear()
-        queryoper = QtSql.QSqlQuery(self.db)
-        if queryoper.exec_('select * from bdtravaux.list_operateur order by nom_oper'):
-            while queryoper.next():
-                self.ui.prestataire.addItem(unicode(queryoper.value(1)))
-
-
-
-    def actu_lblgeom(self):
-        # Indiquer le nombre d'entités sélectionnées dans le contrôle lbl_geo et le type de géométrie.
-        # En premier lieu, on compare la constante renvoyée par geometrytype() à celle renvoyée par les constantes de QGis pour 
-        # obtenir une chaîne de caractère : geometryType() ne renvoie que des constantes (0, 1 ou 2). Il faut donc ruser...
-        if not self.iface.activeLayer():
-            self.ui.lbl_geom.setText(u"0 points, lignes ou polygones sélectionnés")
-        elif self.iface.activeLayer().type() == QgsMapLayer.RasterLayer:
-            self.ui.lbl_geom.setText(u"0 points, lignes ou polygones sélectionnés")
-        else:
-            geometrie=""
-            if self.iface.activeLayer().geometryType() == QGis.Polygon:
-                geometrie="polygone"
-            elif self.iface.activeLayer().geometryType() == QGis.Line:
-                geometrie="ligne"
-            elif self.iface.activeLayer().geometryType() == QGis.Point:
-                geometrie="point"
-                #puis, on écrit la phrase qui apparaîtra dans lbl_geom
-            self.ui.lbl_geom.setText(u"{nb_geom} {typ_geom}(s) sélectionné(s)".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
-            typ_geom=geometrie))
-
-
-
-    def actu_gestprev_chxopechvol(self):
-        if self.blocActuGestPrev=='1':
-            return
-        else:
-            # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
-            self.ui.opprev.clear()
-            self.recupDonnSortie()
-            query = QtSql.QSqlQuery(self.db)
-            if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
-                while query.next():
-                    self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
-            if self.chantvol == True:
-                self.ui.chx_opechvol.setVisible(True)
-                self.ui.chx_opechvol.setChecked(True)
-            else :
-                self.ui.chx_opechvol.setVisible(False)
-
-    def activBoutons(self):
-        opprevlist = self.ui.opprev.selectedItems()
-        opreallist = self.ui.opreal.selectedItems()
-        prestalist = self.ui.prestataire.selectedItems()
-        if len(opprevlist)!=0 and len(opreallist)!=0 and len(prestalist)!=0 :
-            self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(1)
-            self.ui.compoButton.setEnabled(1)
-
-
-    def sauverOpeChoi(self):
-        if self.sansgeom=='True':
-            self.sauvOpeSansGeom()
-        else:
-            self.sauverOpe()
-
-
-
-    def sauvOpeSansGeom(self):
-        self.recupIdChantvol()
-        querysauvope = QtSql.QSqlQuery(self.db)
-        query = u'insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, ope_chvol) values ({zr_sortie}, \'{zr_plangestion}\', \'{zr_code_gh}\', \'{zr_ope_typ}\', \'{zr_libelle}\', \'{zr_chantfini}\',{zr_opechvol})'.format (\
-        zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
-        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
-        zr_ope_typ= self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
-        zr_libelle= self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
-        zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
-        zr_opechvol = self.id_opechvol)
-        print u'query'
-        ok = querysauvope.exec_(query)
-        if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-        self.nom_table='operation_poly'
-        self.rempliJoinOperateur()
-        self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
-        self.ui.compoButton.setEnabled(0)
-        self.close
-
-
-
-    def sauverOpe(self):
-        # Fonction à lancer quans les boutons "OK" ou "Dernier - Editer CR" sont cliqué
-        # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
-        # Gère les erreurs "pas assez de points sélectionnés pour construire une ligne ou un polygone"
-        # Gère également la transformation géométrique, via le module convert_geoms
-        # Récupération de la géométrie finale. On en déduit la table où sera stockée l'information, et on gère les erreurs 
-        # "pas assez de points pour faire la transformation"
-        geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
-        if geom_cbbx == 'Points' :
-            geom_output=QGis.Point
-            self.nom_table='operation_pts'
-        elif geom_cbbx == 'Lignes':
-            geom_output=QGis.Line
-            self.nom_table='operation_lgn'
-            if self.iface.activeLayer().geometryType()==0:
-                if self.iface.activeLayer().selectedFeatureCount()<2:
-                    mess2pts=QtGui.QMessageBox()
-                    mess2pts.setText(u'Pas assez de points sélectionnés')
-                    mess2pts.setInformativeText(u'Il faut au moins 2 points pour faire une ligne. Merci d\'en sélectionner plus')
-                    mess2pts.setIcon(QtGui.QMessageBox.Warning)
-                    mess2pts.setStandardButtons(QtGui.QMessageBox.Ok)
-                    ret = mess2pts.exec_()
-                    return
-        elif geom_cbbx == 'Surfaces':
-            geom_output=QGis.Polygon
-            self.nom_table='operation_poly'
-            if self.iface.activeLayer().geometryType()==0:
-                if self.iface.activeLayer().selectedFeatureCount()<3:
-                    mess3pts=QtGui.QMessageBox()
-                    mess3pts.setText(u'Pas assez de points sélectionnés')
-                    mess3pts.setInformativeText(u'Il faut au moins 3 points pour faire un polygone. Merci d\'en sélectionner plus')
-                    mess3pts.setIcon(QtGui.QMessageBox.Warning)
-                    mess3pts.setStandardButtons(QtGui.QMessageBox.Ok)
-                    ret = mess3pts.exec_()
-                    return
-        #lancement de convert_geoms.py pour transformer les entités sélectionnées dans le type d'entités choisi.
-        liste=[feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()]
-        coucheactive=self.iface.activeLayer()
-        #compréhension de liste : [fonction for x in liste]
-        geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
-        #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
-        self.recupIdChantvol()
-        #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
-        querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
-        zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
-        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
-        zr_ope_typ = self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
-        zr_libelle = self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
-        zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
-        zr_the_geom = geom2.exportToWkt(),\
-        #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
-        zr_opechvol = self.id_opechvol)
-        ok = querysauvope.exec_(query)
-        if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-            print u'query'
-        self.rempliJoinOperateur()
-        self.iface.setActiveLayer(coucheactive)
-        self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
-        self.ui.compoButton.setEnabled(0)
-        self.close
-
-    def rempliJoinOperateur(self):
-    #remplissage de la table join_operateur avec les prestataires sélectionnés dans la QListWidget "prestataire"
-        #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs
-        queryidoper = QtSql.QSqlQuery(self.db)
-        qidoper = u"""select id_oper from bdtravaux.{zr_nomtable} order by id_oper desc limit 1""".format (zr_nomtable=self.nom_table)
-        ok2=queryidoper.exec_(qidoper)
-        if not ok2:
-            QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id du prestataire')
-        queryidoper.next()
-        self.id_oper = queryidoper.value(0)
-        print str(self.id_oper)
-        #remplissage de la table join_operateurs : id_oper et noms du (des) prestataire(s)
-        for item in xrange (len(self.ui.prestataire.selectedItems())):
-            querypresta = QtSql.QSqlQuery(self.db)
-            qpresta = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs) values ({zr_idjoinop}, '{zr_operateur}')""".format (zr_idjoinop = self.id_oper, zr_operateur = self.ui.prestataire.selectedItems()[item].text().replace("\'","\'\'"))
-            ok3 = querypresta.exec_(qpresta)
-            if not ok3:
-               # QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des prestas en base ratée')
-                print qpresta
-            querypresta.next()
-
-
-    def recupIdChantvol(self):
-        #récupération de l'id du chantier du volontaire si l'opération en fait partie
-        if self.ui.chx_opechvol.isChecked():
-            queryopechvol = QtSql.QSqlQuery(self.db)
-            queryvol = u"""select id_chvol from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-            ok = queryopechvol.exec_(queryvol)
-            if not ok :
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé Id du chantier de volontaire')
-            queryopechvol.next()
-            self.id_opechvol = queryopechvol.value(0)
-            if self.id_opechvol==None :
-                self.id_opechvol='0'
-        else:
-            self.id_opechvol='0'
-
-
+# créer une classe composeur (self) pour gérer toutes les classes "enfants" dans le module
 
     def recupDonnSortie(self):
         #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche(), les txts des étiqu dans composeur() et mettre à jour "opprev" et "chx_opechvol" au lancement du module, et qd une nouvelle sortie est sélectionnée.
@@ -311,8 +50,6 @@ class OperationDialog(QtGui.QDialog):
         self.natfaune=querycodesite.value(7)
         self.natflore=querycodesite.value(8)
         self.natautre=querycodesite.value(9)
-
-
 
 
     def recupDonnChVolont(self):
@@ -440,11 +177,11 @@ class OperationDialog(QtGui.QDialog):
             print 'couche de ponctuels vide'
 
 
-    def composeur(self):
+    def creaComposeur(self):
         #Intégration en base de la dernière opération saisie
-        #if sourceAffiche=='ModOperation':
-        self.sauverOpeChoi()
-        print 'ModOperation'
+        if sourceAffiche=='ModOperation':
+            self.sauverOpeChoi()
+            print 'ModOperation'
         #S'il y a des entités géographiques dans la sortie, les afficher
         if self.sansgeom!='True':
             self.affiche()
@@ -723,5 +460,3 @@ class OperationDialog(QtGui.QDialog):
             QgsMapLayerRegistry.instance().removeMapLayer( self.gestrealpts.id() )
         if self.contours_site:
             QgsMapLayerRegistry.instance().removeMapLayer( self.contours_site.id() )
-
-

@@ -92,6 +92,11 @@
         </item>
         <item>
          <property name="text">
+          <string>Anthony Vasseux / AV</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Kevin Guaquier / KG</string>
          </property>
         </item>
@@ -112,7 +117,7 @@
         </item>
         <item>
          <property name="text">
-          <string> Simon Bezille / SB</string>
+          <string>Simon Bezille / SB</string>
          </property>
         </item>
        </widget>
@@ -746,6 +751,50 @@
        <string>0</string>
       </property>
      </item>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_exsortie">
+    <attribute name="title">
+     <string>Réimprimer une sortie</string>
+    </attribute>
+    <widget class="QLabel" name="lbl_exsortiechx">
+     <property name="geometry">
+      <rect>
+       <x>29</x>
+       <y>15</y>
+       <width>340</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Sélectionner une sortie à réimprimer :</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_imp_exsortie">
+     <property name="geometry">
+      <rect>
+       <x>316</x>
+       <y>51</y>
+       <width>98</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Impression</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cbx_exsortie">
+     <property name="geometry">
+      <rect>
+       <x>24</x>
+       <y>51</y>
+       <width>278</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="maxVisibleItems">
+      <number>50</number>
+     </property>
     </widget>
    </widget>
   </widget>

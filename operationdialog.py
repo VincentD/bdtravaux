@@ -142,11 +142,15 @@ class OperationDialog(QtGui.QDialog):
             if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
                 while query.next():
                     self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
+            # Si la sortie contient un chantier de volontaire, la case à cocher "Chantier de volontaire" apparaît pour indiquer si l'opération courante fait partiue ou non du chantier de volontaire. Sinon, la case à cocher est cachée.
             if self.chantvol == True:
                 self.ui.chx_opechvol.setVisible(True)
                 self.ui.chx_opechvol.setChecked(True)
             else :
                 self.ui.chx_opechvol.setVisible(False)
+                # la liste "opprev" vient de changer. Les boutons "OK - Annuler" et "Dertnier - Editer CR" sont inactifs jusqu'à ce qu'un nouvel item soit sélectionné dans "opprev".
+            self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
+            self.ui.compoButton.setEnabled(0)
 
     def activBoutons(self):
         opprevlist = self.ui.opprev.selectedItems()
@@ -179,7 +183,7 @@ class OperationDialog(QtGui.QDialog):
         print u'query'
         ok = querysauvope.exec_(query)
         if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sansgeom ratée')
         self.nom_table='operation_poly'
         self.rempliJoinOperateur()
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -189,10 +193,12 @@ class OperationDialog(QtGui.QDialog):
 
 
     def sauverOpe(self):
-        # Fonction à lancer quans les boutons "OK" ou "Dernier - Editer CR" sont cliqué
+        # Fonction à lancer quans les boutons "OK" ou "Dernier - Editer CR" sont cliqués
         # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
         # Gère les erreurs "pas assez de points sélectionnés pour construire une ligne ou un polygone"
         # Gère également la transformation géométrique, via le module convert_geoms
+
+
         # Récupération de la géométrie finale. On en déduit la table où sera stockée l'information, et on gère les erreurs 
         # "pas assez de points pour faire la transformation"
         geom_cbbx=self.ui.trsf_geom.itemText(self.ui.trsf_geom.currentIndex())
@@ -225,27 +231,40 @@ class OperationDialog(QtGui.QDialog):
                     return
         #lancement de convert_geoms.py pour transformer les entités sélectionnées dans le type d'entités choisi.
         liste=[feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()]
+        print liste
         coucheactive=self.iface.activeLayer()
-        #compréhension de liste : [fonction for x in liste]
+                                #compréhension de liste : [fonction for x in liste]
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
+
+        #export de la géométrie en WKT et transformation de la projection si les données ne sont pas saisies en Lambert 93
+        if self.iface.activeLayer().crs().authid() == u'EPSG:2154':
+            thegeom='st_setsrid(st_geometryfromtext (\'{zr_geom2}\'), 2154)'.format(zr_geom2=geom2.exportToWkt())
+            print thegeom
+        elif self.iface.activeLayer().crs().authid() == u'EPSG:4326':
+            thegeom='st_transform(st_setsrid(st_geometryfromtext (\'{zr_geom2}\'),4326), 2154)'.format(zr_geom2=geom2.exportToWkt())
+            print thegeom
+        else :
+            print u'La projection de la couche active n\'est pas supportée'
+
         #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
         self.recupIdChantvol()
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', '{zr_chantfini}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154), '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
+        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
         zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
         zr_ope_typ = self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
         zr_libelle = self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
-        zr_the_geom = geom2.exportToWkt(),\
+        zr_the_geom = thegeom,\
+        #geom2.exportToWkt(),\
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
         zr_opechvol = self.id_opechvol)
         ok = querysauvope.exec_(query)
         if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
-            print u'query'
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
+            print query
         self.rempliJoinOperateur()
         self.iface.setActiveLayer(coucheactive)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -534,7 +553,7 @@ class OperationDialog(QtGui.QDialog):
         qnomsite=(u"""select nomsite from sites_cen.t_sitescen where codesite='{zr_codesite}'""".format (zr_codesite=self.codedusite))
         ok = querynomsite.exec_(qnomsite)
         if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête nom site ratée')
         querynomsite.next()
         nomdusite=unicode(querynomsite.value(0))
 

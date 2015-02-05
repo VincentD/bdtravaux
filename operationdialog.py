@@ -80,7 +80,7 @@ class OperationDialog(QtGui.QDialog):
         self.ui.sortie.clear()
         # Remplir la combobox "sortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
+        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by sortie_id DESC LIMIT 30"""
         ok = query.exec_(querySortie)
         print querySortie
         while query.next():

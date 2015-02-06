@@ -560,7 +560,7 @@ class OperationDialog(QtGui.QDialog):
         #trouver les opérations effectuées lors de la sortie et leurs commentaires dans la table postgresql, selon l'id de la sortie sélectionnée dans le module "opération"
         # une boucle permet de récupérer et afficher à la suite dans une seule zone de texte toutes les opérations et leurs descriptions
         querycomope = QtSql.QSqlQuery(self.db)
-        qcomope=u"""select typ_operat, descriptio from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
+        qcomope=u"""select typ_operat, descriptio, code_gh, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=sortie),'; ') as operateurs from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
         (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
@@ -570,7 +570,12 @@ class OperationDialog(QtGui.QDialog):
         for i in xrange(0 , querycomope.size()):
             ope=unicode(querycomope.value(0))
             descrope=unicode(querycomope.value(1))
-            texteope=unicode(texteope+'<br/>'+'<b>'+ope+'</b>'+'<br/>'+descrope+'<br/>')
+            ghope=unicode(querycomope.value(2))
+            surfope=unicode(querycomope.value(3))
+            longope=unicode(querycomope.value(4))
+            countope=unicode(querycomope.value(5))
+            operatope=unicode(querycomope.value(6))
+            texteope=unicode(texteope+u'<br/>'+u'<b>'+ope+u'</b>'+u'<h style="margin-left:1cm;">('+ ghope+u')<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+surfope+u' m²'+'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+longope+u' ml<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+operatope+u'<br/>'+descrope+u'<br/>')
             querycomope.next()
 
         # Pour chaque étiquette qui contient le mot-clé (comme "$codesite"), remplacer le texte par le code du site concerné

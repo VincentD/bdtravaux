@@ -82,7 +82,6 @@ class OperationDialog(QtGui.QDialog):
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by sortie_id DESC LIMIT 30"""
         ok = query.exec_(querySortie)
-        print querySortie
         while query.next():
             self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
         # 1er paramètre = ce qu'on affiche, 
@@ -180,7 +179,6 @@ class OperationDialog(QtGui.QDialog):
         zr_libelle= self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_opechvol = self.id_opechvol)
-        print u'query'
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sansgeom ratée')
@@ -239,10 +237,8 @@ class OperationDialog(QtGui.QDialog):
         #export de la géométrie en WKT et transformation de la projection si les données ne sont pas saisies en Lambert 93
         if self.iface.activeLayer().crs().authid() == u'EPSG:2154':
             thegeom='st_setsrid(st_geometryfromtext (\'{zr_geom2}\'), 2154)'.format(zr_geom2=geom2.exportToWkt())
-            print thegeom
         elif self.iface.activeLayer().crs().authid() == u'EPSG:4326':
             thegeom='st_transform(st_setsrid(st_geometryfromtext (\'{zr_geom2}\'),4326), 2154)'.format(zr_geom2=geom2.exportToWkt())
-            print thegeom
         else :
             print u'La projection de la couche active n\'est pas supportée'
 
@@ -264,7 +260,6 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
-            print query
         self.rempliJoinOperateur()
         self.iface.setActiveLayer(coucheactive)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -281,7 +276,6 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id du prestataire')
         queryidoper.next()
         self.id_oper = queryidoper.value(0)
-        print str(self.id_oper)
         #remplissage de la table join_operateurs : id_oper et noms du (des) prestataire(s)
         for item in xrange (len(self.ui.prestataire.selectedItems())):
             querypresta = QtSql.QSqlQuery(self.db)
@@ -289,8 +283,7 @@ class OperationDialog(QtGui.QDialog):
             ok3 = querypresta.exec_(qpresta)
             if not ok3:
                # QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des prestas en base ratée')
-                print qpresta
-            querypresta.next()
+                querypresta.next()
 
 
     def recupIdChantvol(self):
@@ -316,7 +309,6 @@ class OperationDialog(QtGui.QDialog):
         qcodesite = u"""select codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         ok2 = querycodesite.exec_(qcodesite)
-        print qcodesite
         if not ok2:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupDonnSortie ratée')
         querycodesite.next()

@@ -203,7 +203,7 @@ class BdTravauxDialog(QtGui.QDialog):
             ok_chvol = querychantvol.exec_(querych)
             if not ok_chvol:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
-            print querych
+            print unicode(querych)
 
 
     def masqueBoutons(self, index):

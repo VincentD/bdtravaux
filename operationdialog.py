@@ -552,21 +552,32 @@ class OperationDialog(QtGui.QDialog):
         #trouver les opérations effectuées lors de la sortie et leurs commentaires dans la table postgresql, selon l'id de la sortie sélectionnée dans le module "opération"
         # une boucle permet de récupérer et afficher à la suite dans une seule zone de texte toutes les opérations et leurs descriptions
         querycomope = QtSql.QSqlQuery(self.db)
-        qcomope=u"""select typ_operat, descriptio, code_gh, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=sortie),'; ') as operateurs from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
+        qcomope=u"""select operation_id, typ_operat, descriptio, code_gh, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, (select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper order by operateurs),'; ')) as operateurs from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
         (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        print unicode(qcomope)
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête operations ratée')
         querycomope.first()
         texteope=""
+        #Requête : Données à récupérer pour chaque opération de la sortie
         for i in xrange(0 , querycomope.size()):
-            ope=unicode(querycomope.value(0))
-            descrope=unicode(querycomope.value(1))
-            ghope=unicode(querycomope.value(2))
-            surfope=unicode(querycomope.value(3))
-            longope=unicode(querycomope.value(4))
-            countope=unicode(querycomope.value(5))
-            operatope=unicode(querycomope.value(6))
+            #Requête : récupération des opérateurs dans la table "join_operateurs" à partir l'id de l'opération
+#            id_ope=unicode(querycomope.value(0))
+#            queryopertrs=QtSql.QSqlQuery(self.db)
+#            qopertrs=u"""select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=309 order by operateurs),'; ') as operateurs from bdtravaux.join_operateurs""".format \
+#            (zr_id_ope=id_ope)
+#            ok4 = querycopertrs.exec_(qopertrs)
+#            if not ok4:
+#                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête operateurs ratée')
+            #Récupération des autres valeurs de chaque opération
+            ope=unicode(querycomope.value(1))
+            descrope=unicode(querycomope.value(2))
+            ghope=unicode(querycomope.value(3))
+            surfope=unicode(querycomope.value(4))
+            longope=unicode(querycomope.value(5))
+            countope=unicode(querycomope.value(6))
+            operatope=unicode(querycomope.value(7))
             texteope=unicode(texteope+u'<br/>'+u'<b>'+ope+u'</b>'+u'<h style="margin-left:1cm;">('+ ghope+u')<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+surfope+u' m²'+'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+longope+u' ml<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+operatope+u'<br/>'+descrope+u'<br/>')
             querycomope.next()
 

@@ -454,9 +454,9 @@ class OperationDialog(QtGui.QDialog):
     def composeur(self):
         #Intégration en base de la dernière opération saisie
         self.sauverOpeChoi()
-        #S'il y a des entités géographiques dans la sortie, les afficher
-        if self.sansgeom!='True':
-            self.affiche()
+
+
+        #Affichage des contours du site
         #Récupération des données de la table "sortie" pour affichage du site et utilisation dans les étiquettes du composeur
         self.recupDonnSortie()
         reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
@@ -478,15 +478,23 @@ class OperationDialog(QtGui.QDialog):
             # assign the renderer to the layer
         self.contours_site.setRendererV2(renderer)
 
+
+        #S'il y a des entités géographiques dans la sortie, les afficher
+        if self.sansgeom!='True':
+            self.affiche()
+
+
         # Affichage des couches contenant les contours du site et les opérations de gestion saisies, et masquage des autres
+        self.rendreVisible=[]
         layers=iface.legendInterface().layers()
         for layer in layers:
             if layer.name()=='gestrealpolys' or layer.name()=='gestreallgn' or layer.name()=='gestrealpts' or layer.name()=='contours_site':
                 iface.legendInterface().setLayerVisible(layer, True)
-                print layer.name()+"couche affichee"
             else:
-                print layer.name()+"couche masquee"
+                if iface.legendInterface().isLayerVisible(layer):
+                    self.rendreVisible.append(layer)
                 iface.legendInterface().setLayerVisible(layer, False)
+
 
         #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur
         self.recupDonnChVolont()
@@ -502,8 +510,8 @@ class OperationDialog(QtGui.QDialog):
         #Intégration du composeur dans le QgsComposerView et création du QgsComposition
         self.composerView = diffList[0]
         self.composition = self.composerView.composition()
-        #operationOnTop() : afficher le form "operation.py" devant QGIS qd le composeur est fermé
-        self.composerView.composerViewHide.connect(self.operationOnTop)
+        #afterComposerClose() : afficher le form "operation.py" devant QGIS qd le composeur est fermé + supprimer les couches de gestion saisir et de contour du site + rendre visibles les couches qui l'étaient avant l'ouverture du composeur
+        self.composerView.composerViewHide.connect(self.afterComposerClose)
         # Adaptation de la composition : 2 pages A3
         self.composition.setPaperSize(420, 297)
         self.composition.setNumPages(2)
@@ -745,11 +753,11 @@ class OperationDialog(QtGui.QDialog):
 
 
 
-    def operationOnTop(self):
+    def afterComposerClose(self):
     # Afficher le formulaire "operationdialog.py" (Qdialog) devant iface (QmainWindow) lorsque l'on ferme le composeur (QgsComposerView)
-    # les couches de points, lignes et polygones créées pour le compte-rendu ainsi que le contour du site sont supprimées avec le composeur.
         self.raise_()
         self.activateWindow()
+    # les couches de points, lignes et polygones créées pour le compte-rendu ainsi que le contour du site sont supprimées avec le composeur.
         if self.gestrealpolys:
             QgsMapLayerRegistry.instance().removeMapLayer( self.gestrealpolys.id() )
         if self.gestreallgn:
@@ -758,5 +766,9 @@ class OperationDialog(QtGui.QDialog):
             QgsMapLayerRegistry.instance().removeMapLayer( self.gestrealpts.id() )
         if self.contours_site:
             QgsMapLayerRegistry.instance().removeMapLayer( self.contours_site.id() )
+    # la visibilité de chaque couche revient à son état initial
+        legend = self.iface.legendInterface()
+        for wanted in self.rendreVisible:
+            legend.setLayerVisible(wanted, True)
 
 

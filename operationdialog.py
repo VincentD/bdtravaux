@@ -22,6 +22,7 @@
 from PyQt4 import QtCore, QtGui, QtSql, QtXml, Qt
 from qgis.core import *
 from qgis.gui import *
+from qgis.utils import *
 from ui_operation import Ui_operation
 from convert_geoms import convert_geometries
 import sys
@@ -61,7 +62,6 @@ class OperationDialog(QtGui.QDialog):
         self.ui.chx_opechvol.setVisible(False)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
-        self.sourceAffiche='ModOperation'
 
         # Connexions signaux-slots
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
@@ -377,8 +377,8 @@ class OperationDialog(QtGui.QDialog):
 
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        # Affichage de la couche de polygoness si des surfaces sont saisis pour cette sortie
-        # Configure le shéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
+        # Import de la couche de polygoness si des surfaces sont saisis pour cette sortie
+        # Configure le schéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
         self.uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
         # Instanciation de la couche dans qgis 
         self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
@@ -407,7 +407,7 @@ class OperationDialog(QtGui.QDialog):
         else:
             print 'couche de surfaces vide'
 
-        # Affichage de la couche de lignes si des linéaires sont saisis pour cette sortie
+        # Import de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
         self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
         if self.gestreallgn.featureCount()>0:
@@ -429,7 +429,7 @@ class OperationDialog(QtGui.QDialog):
         else :
             print 'couche de linéaires vide'
 
-        # Affichage de la couche de points si des ponctuels sont saisis pour cette sortie
+        # Import de la couche de points si des ponctuels sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
         self.gestrealpts=QgsVectorLayer(self.uri.uri(), "gestrealpts", "postgres")
         if self.gestrealpts.featureCount()>0:
@@ -453,9 +453,7 @@ class OperationDialog(QtGui.QDialog):
 
     def composeur(self):
         #Intégration en base de la dernière opération saisie
-        #if sourceAffiche=='ModOperation':
         self.sauverOpeChoi()
-        print 'ModOperation'
         #S'il y a des entités géographiques dans la sortie, les afficher
         if self.sansgeom!='True':
             self.affiche()
@@ -464,7 +462,7 @@ class OperationDialog(QtGui.QDialog):
         reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
         self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
         self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
-        # Affichage du site
+        # Import de la couche contenant les contours du site
         if self.contours_site.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.contours_site)
         # Symbologie du contour de site
@@ -480,9 +478,19 @@ class OperationDialog(QtGui.QDialog):
             # assign the renderer to the layer
         self.contours_site.setRendererV2(renderer)
 
+        # Affichage des couches contenant les contours du site et les opérations de gestion saisies, et masquage des autres
+        layers=iface.legendInterface().layers()
+        for layer in layers:
+            if layer.name()=='gestrealpolys' or layer.name()=='gestreallgn' or layer.name()=='gestrealpts' or layer.name()=='contours_site':
+                iface.legendInterface().setLayerVisible(layer, True)
+                print layer.name()+"couche affichee"
+            else:
+                print layer.name()+"couche masquee"
+                iface.legendInterface().setLayerVisible(layer, False)
 
         #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur
         self.recupDonnChVolont()
+
         #COMPOSEUR : Production d'un composeur
         beforeList = self.iface.activeComposers()
         self.iface.actionPrintComposer().trigger()  
@@ -528,13 +536,6 @@ class OperationDialog(QtGui.QDialog):
                     #self.composition.mActionZoomFullExtent().trigger()
 
 
-        #LEGENDE : mettre à jour la légende. 
-        for i in self.composition.items():
-            if isinstance(i,QgsComposerLegend):
-                legend = i 
-                legend.updateLegend()
-
-
         #ETIQUETTES :       Modifier les étiquettes du composeur.
         # Trouver les étiquettes dans le composeur
         labels = [item for item in self.composition.items()\
@@ -554,7 +555,7 @@ class OperationDialog(QtGui.QDialog):
         querycomope = QtSql.QSqlQuery(self.db)
         qcomope=u"""select operation_id, typ_operat, descriptio, code_gh, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, (select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper order by operateurs),'; ')) as operateurs from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
         (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        print unicode(qcomope)
+        #print unicode(qcomope)
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête operations ratée')
@@ -689,6 +690,13 @@ class OperationDialog(QtGui.QDialog):
                 #search : on cherche la chaîne quelque-part dans le texte.
                 #le \ permet d'échapper le $ (qui correspond normalement à une fin de ligne dans une regexp).
 
+
+        #LEGENDE : mettre à jour la légende. 
+        for i in self.composition.items():
+            if isinstance(i,QgsComposerLegend):
+                print "mise a jour legende"
+                legend = i 
+                legend.updateLegend()
 
 
     def composerMapSetBBox(self, geom, margin = None):

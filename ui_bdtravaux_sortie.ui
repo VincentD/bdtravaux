@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -403,6 +403,21 @@
         <item>
          <property name="text">
           <string>Blongios</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Commune de Ligny-sur-Canche</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Commune de Noeux-les-Auxi</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Ecole de Noeux-les-Auxi</string>
          </property>
         </item>
         <item>

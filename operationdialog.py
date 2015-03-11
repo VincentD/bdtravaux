@@ -704,7 +704,12 @@ class OperationDialog(QtGui.QDialog):
             if isinstance(i,QgsComposerLegend):
                 print "mise a jour legende"
                 legend = i 
-                legend.updateLegend()
+                legend.setAutoUpdateModel(True)
+                legend.setLegendFilterByMapEnabled(True)
+#                for item in legend.items():
+#                    if item.itemtype() == QgsComposerLegendItem.GroupItem:
+#                        print groupItem.userText()
+
 
 
     def composerMapSetBBox(self, geom, margin = None):

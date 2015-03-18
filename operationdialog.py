@@ -488,12 +488,13 @@ class OperationDialog(QtGui.QDialog):
         self.rendreVisible=[]
         layers=iface.legendInterface().layers()
         for layer in layers:
-            if layer.name()=='gestrealpolys' or layer.name()=='gestreallgn' or layer.name()=='gestrealpts' or layer.name()=='contours_site':
-                iface.legendInterface().setLayerVisible(layer, True)
-            else:
-                if iface.legendInterface().isLayerVisible(layer):
-                    self.rendreVisible.append(layer)
-                iface.legendInterface().setLayerVisible(layer, False)
+            if layer.type()==QgsMapLayer.VectorLayer:
+                if layer.name()=='gestrealpolys' or layer.name()=='gestreallgn' or layer.name()=='gestrealpts' or layer.name()=='contours_site':
+                    iface.legendInterface().setLayerVisible(layer, True)
+                else:
+                    if iface.legendInterface().isLayerVisible(layer):
+                        self.rendreVisible.append(layer)
+                    iface.legendInterface().setLayerVisible(layer, False)
 
 
         #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur

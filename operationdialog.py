@@ -260,6 +260,7 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
+            print unicode(query)
         self.rempliJoinOperateur()
         self.iface.setActiveLayer(coucheactive)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -707,6 +708,7 @@ class OperationDialog(QtGui.QDialog):
                 legend = i 
                 legend.setAutoUpdateModel(True)
                 legend.setLegendFilterByMapEnabled(True)
+                print legend.modelV2().index(1, 0).data()
 #                for item in legend.items():
 #                    if item.itemtype() == QgsComposerLegendItem.GroupItem:
 #                        print groupItem.userText()

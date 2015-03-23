@@ -708,7 +708,11 @@ class OperationDialog(QtGui.QDialog):
                 legend = i 
                 legend.setAutoUpdateModel(True)
                 legend.setLegendFilterByMapEnabled(True)
-                print legend.modelV2().index(1, 0).data()
+                valeurindex=legend.modelV2().index(1, 0).data()
+                print valeurindex
+                print legend.modelV2().rowCount()
+                for i in xrange(legend.modelV2().rowCount()):
+                    print legend.modelV2().index(i, 0).data()
 #                for item in legend.items():
 #                    if item.itemtype() == QgsComposerLegendItem.GroupItem:
 #                        print groupItem.userText()

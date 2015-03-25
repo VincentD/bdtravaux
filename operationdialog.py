@@ -712,7 +712,10 @@ class OperationDialog(QtGui.QDialog):
                 print valeurindex
                 print legend.modelV2().rowCount()
                 for i in xrange(legend.modelV2().rowCount()):
-                    print legend.modelV2().index(i, 0).data()
+                    posteleg=legend.modelV2().index(i, 0)
+                    print posteleg.data()
+#                    if postleg.isGroup==True
+#                        print 'Group'
 #                for item in legend.items():
 #                    if item.itemtype() == QgsComposerLegendItem.GroupItem:
 #                        print groupItem.userText()

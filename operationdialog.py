@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -56,7 +56,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -227,10 +227,26 @@ class OperationDialog(QtGui.QDialog):
                     mess3pts.setStandardButtons(QtGui.QMessageBox.Ok)
                     ret = mess3pts.exec_()
                     return
-        #lancement de convert_geoms.py pour transformer les entités sélectionnées dans le type d'entités choisi.
-        liste=[feature.geometry() for feature in self.iface.activeLayer().selectedFeatures()]
-        print liste
+
+        #copie des entités sélectionnées dans une couche "memory". Evite les problèmes avec les types de couches "non éditables" (comme les GPX).
         coucheactive=self.iface.activeLayer()
+        entselect=[feature.geometry() for feature in coucheactive.selectedFeatures()]
+        if entselect[0].type() == QGis.Line:
+            typegeom='LineString'
+        if entselect[0].type() == QGis.Point:
+            typegeom='Point'
+        if entselect[0].type() == QGis.Polygon:
+            typegeom='Polygon'
+        self.iface.actionCopyFeatures().trigger()
+        memlayer=QgsVectorLayer(typegeom, "memlayer", "memory")
+        self.iface.setActiveLayer(memlayer)
+        memlayer.startEditing()
+        self.iface.actionPasteFeatures().trigger()
+        memlayer.commitChanges()
+
+
+        #lancement de convert_geoms.py pour transformer les entités sélectionnées dans le type d'entités choisi.
+
                                 #compréhension de liste : [fonction for x in liste]
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
 
@@ -374,19 +390,25 @@ class OperationDialog(QtGui.QDialog):
 
     def affiche(self):
         # Fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
-        # Accès à la base de données postgresql/postigs : cf l.52
+        # Pour l'accès à la base de données postgresql/postigs, voir l.52
+
+        # Référencer l'arborescence de la TOC (layer tree). Cela permettra de placer la (les) couche(s) où l'on veut à l'intérieur (i.e. en haut, et en dehors d'un groupe)
+        root = QgsProject.instance().layerTreeRoot()
 
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        # Import de la couche de polygoness si des surfaces sont saisis pour cette sortie
+
+        # SURFACES : Import de la couche de polygoness si des surfaces sont saisies pour cette sortie
         # Configure le schéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
         self.uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
         # Instanciation de la couche dans qgis 
         self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
-        if self.gestrealpolys.featureCount()>0:
-            #si la couche importée n'est pas vide, intégration dans le Map Layer Registry pour pouvoir l'utiliser
-            QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys)
-            # Attribution de couleurs différentes aux opérations
+        if self.gestrealpolys.featureCount()>0:     #si la couche importée n'est pas vide...
+            # Intégration dans le Map Layer Registry pour pouvoir l'utiliser, MAIS sans l'importer dans l'arborescence (d'où le False)
+            QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys, False)
+            # Intégration de la couche dans l'arboresecnce, à l'index 0 (c'est à dire en haut de l'arborescence)
+            root.insertLayer(0, self.gestrealpolys)
+            ## Attribution de COULEURS différentes aux opérations
             # Récupération des valeurs uniques du champ qui servira de base à la symbologie
             layer=self.gestrealpolys
             field_index = layer.dataProvider().fieldNameIndex('typ_operat')
@@ -399,20 +421,22 @@ class OperationDialog(QtGui.QDialog):
             for nom_opera, couleur in operations.items():
                 symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
                 symbol.setColor(QtGui.QColor(couleur))
+                #création de la catégorie. 1er param : l'attribut / 2ème : le symbole à appliquer / 3ème : l'étiquet ds tble matières
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
             # Crée le renderer et l'assigne à la couche
-            expression = 'typ_operat' # field name
+            expression = 'typ_operat' # nom du champ
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
         else:
             print 'couche de surfaces vide'
 
-        # Import de la couche de lignes si des linéaires sont saisis pour cette sortie
+        # LIGNES : Import de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
         self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
         if self.gestreallgn.featureCount()>0:
-            QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn)
+            QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn, False)
+            root.insertLayer(0, self.gestreallgn)
             layer=self.gestreallgn
             field_index = layer.dataProvider().fieldNameIndex('typ_operat')
             unique_values = layer.uniqueValues(field_index)
@@ -421,20 +445,20 @@ class OperationDialog(QtGui.QDialog):
             for nom_opera, couleur in operations.items():
                 symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
                 symbol.setColor(QtGui.QColor(couleur))
-                #création de la catégorie 1er param : l'attribut / 2ème : le symbole à appliquer / 3ème : l'étiquet ds tble matières
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
-            expression = 'typ_operat' # field name
+            expression = 'typ_operat'
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
         else :
             print 'couche de linéaires vide'
 
-        # Import de la couche de points si des ponctuels sont saisis pour cette sortie
+        # POINTS : Import de la couche de points si des ponctuels sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
         self.gestrealpts=QgsVectorLayer(self.uri.uri(), "gestrealpts", "postgres")
         if self.gestrealpts.featureCount()>0:
-            QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts)
+            QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts, False)
+            root.insertLayer(0, self.gestrealpts)
             layer=self.gestrealpts
             field_index = layer.dataProvider().fieldNameIndex('typ_operat')
             unique_values = layer.uniqueValues(field_index)
@@ -445,7 +469,7 @@ class OperationDialog(QtGui.QDialog):
                 symbol.setColor(QtGui.QColor(couleur))
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
-            expression = 'typ_operat' # Nom du champ
+            expression = 'typ_operat'
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
         else :
@@ -464,8 +488,10 @@ class OperationDialog(QtGui.QDialog):
         self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
         self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
         # Import de la couche contenant les contours du site
+        root = QgsProject.instance().layerTreeRoot()
         if self.contours_site.featureCount()>0:
-            QgsMapLayerRegistry.instance().addMapLayer(self.contours_site)
+            QgsMapLayerRegistry.instance().addMapLayer(self.contours_site, False)
+            root.insertLayer(0, self.contours_site)
         # Symbologie du contour de site
             # create a new single symbol renderer
         symbol = QgsSymbolV2.defaultSymbol(self.contours_site.geometryType())
@@ -536,8 +562,9 @@ class OperationDialog(QtGui.QDialog):
             maplist.append(item)
         self.composerMap=maplist[0]
         #Taille définie pour la carte
-        x, y, w, h = 5, 28, 408, 240
-        self.composerMap.setItemPosition(x, y, w, h)
+        x, y, w, h, mode, frame, page = 5, 15, 408, 270, QgsComposerItem.UpperLeft, False, 1
+        self.composerMap.setItemPosition(x, y, w, h, mode, frame, page)
+        print self.composerMap.page()
         #Crée la bbox autour du site pour la carte en cours (fonction mapItemSetBBox l 293)
         #self.contours_sites est défini dans la fonction affiche()
         self.margin=10
@@ -573,14 +600,6 @@ class OperationDialog(QtGui.QDialog):
         texteope=""
         #Requête : Données à récupérer pour chaque opération de la sortie
         for i in xrange(0 , querycomope.size()):
-            #Requête : récupération des opérateurs dans la table "join_operateurs" à partir l'id de l'opération
-#            id_ope=unicode(querycomope.value(0))
-#            queryopertrs=QtSql.QSqlQuery(self.db)
-#            qopertrs=u"""select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=309 order by operateurs),'; ') as operateurs from bdtravaux.join_operateurs""".format \
-#            (zr_id_ope=id_ope)
-#            ok4 = querycopertrs.exec_(qopertrs)
-#            if not ok4:
-#                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête operateurs ratée')
             #Récupération des autres valeurs de chaque opération
             ope=unicode(querycomope.value(1))
             descrope=unicode(querycomope.value(2))
@@ -707,18 +726,22 @@ class OperationDialog(QtGui.QDialog):
                 print "mise a jour legende"
                 legend = i 
                 legend.setAutoUpdateModel(True)
+                for j in xrange(legend.modelV2().rowCount()):
+                    modelindex=legend.modelV2().index(j, 0)
+                    layertreenode=legend.modelV2().index2node(modelindex)
+                    print modelindex.data()
+                    print modelindex.__class__.__name__
+                    print layertreenode.__class__.__name__
+                    if isinstance(layertreenode, QgsLayerTreeGroup):
+                        layertreenode.setVisible(False)
+                        print modelindex.data()
+#                        layertreenode.setName("")
+#                        print modelindex.data()
+                    else:
+                         print 'Layer'
+                legend.setAutoUpdateModel(False)
                 legend.setLegendFilterByMapEnabled(True)
-                valeurindex=legend.modelV2().index(1, 0).data()
-                print valeurindex
-                print legend.modelV2().rowCount()
-                for i in xrange(legend.modelV2().rowCount()):
-                    posteleg=legend.modelV2().index(i, 0)
-                    print posteleg.data()
-#                    if postleg.isGroup==True
-#                        print 'Group'
-#                for item in legend.items():
-#                    if item.itemtype() == QgsComposerLegendItem.GroupItem:
-#                        print groupItem.userText()
+
 
 
 

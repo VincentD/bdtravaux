@@ -238,22 +238,25 @@ class OperationDialog(QtGui.QDialog):
         if entselect[0].type() == QGis.Polygon:
             typegeom='Polygon'
         self.iface.actionCopyFeatures().trigger()
-        memlayer=QgsVectorLayer(typegeom, "memlayer", "memory")
+        memlayer=QgsVectorLayer("{zr_typegeom}?crs=epsg:4326".format(zr_typegeom = typegeom), "memlayer", "memory")
+        QgsMapLayerRegistry.instance().addMapLayer(memlayer, False)
+        root = QgsProject.instance().layerTreeRoot()
+        memLayerNode = QgsLayerTreeLayer(memlayer)
+        root.insertChildNode(0, memLayerNode)
         self.iface.setActiveLayer(memlayer)
         memlayer.startEditing()
         self.iface.actionPasteFeatures().trigger()
         memlayer.commitChanges()
 
-
         #lancement de convert_geoms.py pour transformer les entités sélectionnées dans le type d'entités choisi.
 
                                 #compréhension de liste : [fonction for x in liste]
-        geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in self.iface.activeLayer().selectedFeatures()],geom_output)
+        geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in memlayer.selectedFeatures()],geom_output)
 
         #export de la géométrie en WKT et transformation de la projection si les données ne sont pas saisies en Lambert 93
-        if self.iface.activeLayer().crs().authid() == u'EPSG:2154':
+        if memlayer.crs().authid() == u'EPSG:2154':
             thegeom='st_setsrid(st_geometryfromtext (\'{zr_geom2}\'), 2154)'.format(zr_geom2=geom2.exportToWkt())
-        elif self.iface.activeLayer().crs().authid() == u'EPSG:4326':
+        elif memlayer.crs().authid() == u'EPSG:4326':
             thegeom='st_transform(st_setsrid(st_geometryfromtext (\'{zr_geom2}\'),4326), 2154)'.format(zr_geom2=geom2.exportToWkt())
         else :
             print u'La projection de la couche active n\'est pas supportée'

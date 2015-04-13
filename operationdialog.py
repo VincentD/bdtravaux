@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -56,7 +56,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -228,7 +228,7 @@ class OperationDialog(QtGui.QDialog):
                     ret = mess3pts.exec_()
                     return
 
-        #copie des entités sélectionnées dans une couche "memory". Evite les problèmes avec les types de couches "non éditables" (comme les GPX).
+        #copie des entités sélectionnées dans une couche "memory". Evite les problèmes avec les types de couches "non  éditables" (comme les GPX).
         coucheactive=self.iface.activeLayer()
         entselect=[feature.geometry() for feature in coucheactive.selectedFeatures()]
         if entselect[0].type() == QGis.Line:
@@ -238,11 +238,14 @@ class OperationDialog(QtGui.QDialog):
         if entselect[0].type() == QGis.Polygon:
             typegeom='Polygon'
         self.iface.actionCopyFeatures().trigger()
-        memlayer=QgsVectorLayer("{zr_typegeom}?crs=epsg:4326".format(zr_typegeom = typegeom), "memlayer", "memory")
+        if self.iface.activeLayer().crs().authid() == u'EPSG:4326':
+           memlayer=QgsVectorLayer("{zr_typegeom}?crs=epsg:4326".format(zr_typegeom = typegeom), "memlayer", "memory")
+        if self.iface.activeLayer().crs().authid() == u'EPSG:2154':
+           memlayer=QgsVectorLayer("{zr_typegeom}?crs=epsg:2154".format(zr_typegeom = typegeom), "memlayer", "memory")
         QgsMapLayerRegistry.instance().addMapLayer(memlayer, False)
         root = QgsProject.instance().layerTreeRoot()
-        memLayerNode = QgsLayerTreeLayer(memlayer)
-        root.insertChildNode(0, memLayerNode)
+        memlayerNode = QgsLayerTreeLayer(memlayer)
+        root.insertChildNode(0, memlayerNode)
         self.iface.setActiveLayer(memlayer)
         memlayer.startEditing()
         self.iface.actionPasteFeatures().trigger()
@@ -279,9 +282,10 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
-            print unicode(query)
+#            print unicode(query)
         self.rempliJoinOperateur()
         self.iface.setActiveLayer(coucheactive)
+        QgsMapLayerRegistry.instance().removeMapLayer(memlayer.id())
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
         self.close
@@ -567,7 +571,7 @@ class OperationDialog(QtGui.QDialog):
         #Taille définie pour la carte
         x, y, w, h, mode, frame, page = 5, 15, 408, 270, QgsComposerItem.UpperLeft, False, 1
         self.composerMap.setItemPosition(x, y, w, h, mode, frame, page)
-        print self.composerMap.page()
+#        print self.composerMap.page()
         #Crée la bbox autour du site pour la carte en cours (fonction mapItemSetBBox l 293)
         #self.contours_sites est défini dans la fonction affiche()
         self.margin=10
@@ -671,7 +675,7 @@ class OperationDialog(QtGui.QDialog):
                     plac_partenair=label.displayText().find("$partenair")
                     texte=unicode(label.displayText())
                     label.setText(texte[0:plac_partenair]+self.cv_partenaire+texte[plac_partenair+10:])
-                    print unicode(texte)
+#                    print unicode(texte)
                 if label.displayText().find("$heberg")>-1:
                     plac_heberg=label.displayText().find("$heberg")
                     texte=unicode(label.displayText())
@@ -732,12 +736,12 @@ class OperationDialog(QtGui.QDialog):
                 for j in xrange(legend.modelV2().rowCount()):
                     modelindex=legend.modelV2().index(j, 0)
                     layertreenode=legend.modelV2().index2node(modelindex)
-                    print modelindex.data()
-                    print modelindex.__class__.__name__
-                    print layertreenode.__class__.__name__
+#                    print modelindex.data()
+#                    print modelindex.__class__.__name__
+#                    print layertreenode.__class__.__name__
                     if isinstance(layertreenode, QgsLayerTreeGroup):
                         layertreenode.setVisible(False)
-                        print modelindex.data()
+#                        print modelindex.data()
 #                        layertreenode.setName("")
 #                        print modelindex.data()
                     else:

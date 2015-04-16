@@ -424,12 +424,20 @@ class OperationDialog(QtGui.QDialog):
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie_id="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
 
+
+        querypoly = QtSql.QSqlQuery(self.db)
+        qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie={zr_sortie} order by operation_id limit 1""".format \
+        (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        okpoly = querypoly.exec_(qpoly)
+        if not okpoly:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence polygones ratée')
+        if querypoly.size()>0:
         # SURFACES : Import de la couche de polygoness si des surfaces sont saisies pour cette sortie
         # Configure le schéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
-        self.uri.setDataSource("bdtravaux", "v_bdtravaux_surfaces", "the_geom", reqwhere, "operation_id")
+            self.uri.setDataSource("bdtravaux", "v_bdtravaux_surfaces", "the_geom", reqwhere, "operation_id")
         # Instanciation de la couche dans qgis 
-        self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
-        if self.gestrealpolys.featureCount()>0:     #si la couche importée n'est pas vide...
+            self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
+#        if self.gestrealpolys.featureCount()>0:     #si la couche importée n'est pas vide...
             # Intégration dans le Map Layer Registry pour pouvoir l'utiliser, MAIS sans l'importer dans l'arborescence (d'où le False)
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys, False)
             # Intégration de la couche dans l'arboresecnce, à l'index 0 (c'est à dire en haut de l'arborescence)

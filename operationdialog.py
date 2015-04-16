@@ -233,13 +233,15 @@ class OperationDialog(QtGui.QDialog):
 
         #copie des entités sélectionnées dans une couche "memory". Evite les problèmes avec les types de couches "non  éditables" (comme les GPX).
         coucheactive=self.iface.activeLayer()
-        entselect=[feature.geometry() for feature in coucheactive.selectedFeatures()]
+        entselect=[QgsGeometry(feature.geometry()) for feature in coucheactive.selectedFeatures()]
         if entselect[0].type() == QGis.Line:
             typegeom='LineString'
-        if entselect[0].type() == QGis.Point:
+        elif entselect[0].type() == QGis.Point:
             typegeom='Point'
-        if entselect[0].type() == QGis.Polygon:
+        elif entselect[0].type() == QGis.Polygon:
             typegeom='Polygon'
+        else: 
+            print "ce ne sont pas des points, des lignes ou des polygones"
         self.iface.actionCopyFeatures().trigger()
         if self.iface.activeLayer().crs().authid() == u'EPSG:4326':
            memlayer=QgsVectorLayer("{zr_typegeom}?crs=epsg:4326".format(zr_typegeom = typegeom), "memlayer", "memory")
@@ -452,8 +454,11 @@ class OperationDialog(QtGui.QDialog):
             expression = 'typ_operat' # nom du champ
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
+            layer.setLayerTransparency(50)
         else:
             print 'couche de surfaces vide'
+
+
 
         # LIGNES : Import de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "v_bdtravaux_lignes", "the_geom", reqwhere, "operation_id")
@@ -474,8 +479,10 @@ class OperationDialog(QtGui.QDialog):
             expression = 'typ_operat'
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
+            layer.setLayerTransparency(50)
         else :
             print 'couche de linéaires vide'
+
 
         # POINTS : Import de la couche de points si des ponctuels sont saisis pour cette sortie
         self.uri.setDataSource("bdtravaux", "v_bdtravaux_points", "the_geom", reqwhere, "operation_id")
@@ -496,6 +503,7 @@ class OperationDialog(QtGui.QDialog):
             expression = 'typ_operat'
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
+            layer.setLayerTransparency(50)
         else :
             print 'couche de ponctuels vide'
 

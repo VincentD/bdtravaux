@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -56,7 +56,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -151,6 +151,8 @@ class OperationDialog(QtGui.QDialog):
             self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
             self.ui.compoButton.setEnabled(0)
 
+
+
     def activBoutons(self):
         opprevlist = self.ui.opprev.selectedItems()
         opreallist = self.ui.opreal.selectedItems()
@@ -158,6 +160,7 @@ class OperationDialog(QtGui.QDialog):
         if len(opprevlist)!=0 and len(opreallist)!=0 and len(prestalist)!=0 :
             self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(1)
             self.ui.compoButton.setEnabled(1)
+
 
 
     def sauverOpeChoi(self):
@@ -268,11 +271,11 @@ class OperationDialog(QtGui.QDialog):
         self.recupIdChantvol()
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_ope_typ}', '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
+        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
         zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
         zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
-        zr_ope_typ = self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
+#        zr_ope_typ = self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
         zr_libelle = self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = thegeom,\
@@ -290,24 +293,38 @@ class OperationDialog(QtGui.QDialog):
         self.ui.compoButton.setEnabled(0)
         self.close
 
+
+
     def rempliJoinOperateur(self):
-    #remplissage de la table join_operateur avec les prestataires sélectionnés dans la QListWidget "prestataire"
-        #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs
+    #remplissage des tables join_operateur et join_operations avec les prestataires et eles types d'opés sélectionnés par l'utilisateur
+        #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs et join_operations
         queryidoper = QtSql.QSqlQuery(self.db)
         qidoper = u"""select id_oper from bdtravaux.{zr_nomtable} order by id_oper desc limit 1""".format (zr_nomtable=self.nom_table)
         ok2=queryidoper.exec_(qidoper)
         if not ok2:
-            QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id du prestataire')
+            QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id de l opération')
         queryidoper.next()
         self.id_oper = queryidoper.value(0)
+
         #remplissage de la table join_operateurs : id_oper et noms du (des) prestataire(s)
         for item in xrange (len(self.ui.prestataire.selectedItems())):
             querypresta = QtSql.QSqlQuery(self.db)
             qpresta = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs) values ({zr_idjoinop}, '{zr_operateur}')""".format (zr_idjoinop = self.id_oper, zr_operateur = self.ui.prestataire.selectedItems()[item].text().replace("\'","\'\'"))
             ok3 = querypresta.exec_(qpresta)
             if not ok3:
-               # QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des prestas en base ratée')
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des prestas en base ratée')
                 querypresta.next()
+
+        #remplissage de la table join_operation : id_oper et noms du (des) type(s) d'opération
+        for item in xrange (len(self.ui.opreal.selectedItems())):
+            querytypope = QtSql.QSqlQuery(self.db)
+            qtypope = u"""insert into bdtravaux.join_typoperation (id_jointyp, typoperation) values ({zr_idjointyp}, '{zr_typoperation}')""".format (zr_idjointyp = self.id_oper, zr_typoperation = self.ui.opreal.selectedItems()[item].text().replace("\'","\'\'"))
+            ok4 = querytypope.exec_(qtypope)
+            # print qtypope
+            if not ok4:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des types d opérations en base ratée')
+                querytypope.next()
+
 
 
     def recupIdChantvol(self):
@@ -403,11 +420,11 @@ class OperationDialog(QtGui.QDialog):
         root = QgsProject.instance().layerTreeRoot()
 
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
-        reqwhere="""sortie="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        reqwhere="""sortie_id="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
 
         # SURFACES : Import de la couche de polygoness si des surfaces sont saisies pour cette sortie
         # Configure le schéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
-        self.uri.setDataSource("bdtravaux", "operation_poly", "the_geom", reqwhere)
+        self.uri.setDataSource("bdtravaux", "v_bdtravaux_surfaces", "the_geom", reqwhere, "operation_id")
         # Instanciation de la couche dans qgis 
         self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
         if self.gestrealpolys.featureCount()>0:     #si la couche importée n'est pas vide...
@@ -439,7 +456,7 @@ class OperationDialog(QtGui.QDialog):
             print 'couche de surfaces vide'
 
         # LIGNES : Import de la couche de lignes si des linéaires sont saisis pour cette sortie
-        self.uri.setDataSource("bdtravaux", "operation_lgn", "the_geom", reqwhere)
+        self.uri.setDataSource("bdtravaux", "v_bdtravaux_lignes", "the_geom", reqwhere, "operation_id")
         self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
         if self.gestreallgn.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn, False)
@@ -461,7 +478,7 @@ class OperationDialog(QtGui.QDialog):
             print 'couche de linéaires vide'
 
         # POINTS : Import de la couche de points si des ponctuels sont saisis pour cette sortie
-        self.uri.setDataSource("bdtravaux", "operation_pts", "the_geom", reqwhere)
+        self.uri.setDataSource("bdtravaux", "v_bdtravaux_points", "the_geom", reqwhere, "operation_id")
         self.gestrealpts=QgsVectorLayer(self.uri.uri(), "gestrealpts", "postgres")
         if self.gestrealpts.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts, False)
@@ -597,7 +614,7 @@ class OperationDialog(QtGui.QDialog):
         #trouver les opérations effectuées lors de la sortie et leurs commentaires dans la table postgresql, selon l'id de la sortie sélectionnée dans le module "opération"
         # une boucle permet de récupérer et afficher à la suite dans une seule zone de texte toutes les opérations et leurs descriptions
         querycomope = QtSql.QSqlQuery(self.db)
-        qcomope=u"""select operation_id, typ_operat, descriptio, code_gh, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, (select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper order by operateurs),'; ')) as operateurs from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
+        qcomope=u"""select operation_id, (select distinct array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper order by typoperation),'; ')) as typope, descriptio, code_gh, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, (select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper order by operateurs),'; ')) as operateurs from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
         (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
         #print unicode(qcomope)
         ok3 = querycomope.exec_(qcomope)

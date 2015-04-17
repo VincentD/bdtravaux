@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -56,7 +56,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -425,13 +425,12 @@ class OperationDialog(QtGui.QDialog):
         reqwhere="""sortie_id="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
 
 
-        querypoly = QtSql.QSqlQuery(self.db)
-        qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie={zr_sortie} order by operation_id limit 1""".format \
-        (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        okpoly = querypoly.exec_(qpoly)
+        self.querypoly = QtSql.QSqlQuery(self.db)
+        qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        okpoly = self.querypoly.exec_(qpoly)
         if not okpoly:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence polygones ratée')
-        if querypoly.size()>0:
+        if self.querypoly.size()>0:
         # SURFACES : Import de la couche de polygoness si des surfaces sont saisies pour cette sortie
         # Configure le schéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
             self.uri.setDataSource("bdtravaux", "v_bdtravaux_surfaces", "the_geom", reqwhere, "operation_id")
@@ -467,11 +466,16 @@ class OperationDialog(QtGui.QDialog):
             print 'couche de surfaces vide'
 
 
-
         # LIGNES : Import de la couche de lignes si des linéaires sont saisis pour cette sortie
-        self.uri.setDataSource("bdtravaux", "v_bdtravaux_lignes", "the_geom", reqwhere, "operation_id")
-        self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
-        if self.gestreallgn.featureCount()>0:
+        self.querylgn = QtSql.QSqlQuery(self.db)
+        qlgn=u"""select operation_id from bdtravaux.operation_lgn where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        oklgn = self.querylgn.exec_(qlgn)
+        if not oklgn:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence lignes ratée')
+        if self.querylgn.size()>0:
+            self.uri.setDataSource("bdtravaux", "v_bdtravaux_lignes", "the_geom", reqwhere, "operation_id")
+            self.gestreallgn=QgsVectorLayer(self.uri.uri(), "gestreallgn", "postgres")
+#        if self.gestreallgn.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn, False)
             root.insertLayer(0, self.gestreallgn)
             layer=self.gestreallgn
@@ -493,9 +497,15 @@ class OperationDialog(QtGui.QDialog):
 
 
         # POINTS : Import de la couche de points si des ponctuels sont saisis pour cette sortie
-        self.uri.setDataSource("bdtravaux", "v_bdtravaux_points", "the_geom", reqwhere, "operation_id")
-        self.gestrealpts=QgsVectorLayer(self.uri.uri(), "gestrealpts", "postgres")
-        if self.gestrealpts.featureCount()>0:
+        self.querypts = QtSql.QSqlQuery(self.db)
+        qpts=u"""select operation_id from bdtravaux.operation_pts where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        okpts = self.querypts.exec_(qpts)
+        if not okpts:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence points ratée')
+        if self.querypts.size()>0:
+            self.uri.setDataSource("bdtravaux", "v_bdtravaux_points", "the_geom", reqwhere, "operation_id")
+            self.gestrealpts=QgsVectorLayer(self.uri.uri(), "gestrealpts", "postgres")
+        #if self.gestrealpts.featureCount()>0:
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts, False)
             root.insertLayer(0, self.gestrealpts)
             layer=self.gestrealpts
@@ -836,11 +846,11 @@ class OperationDialog(QtGui.QDialog):
         self.raise_()
         self.activateWindow()
     # les couches de points, lignes et polygones créées pour le compte-rendu ainsi que le contour du site sont supprimées avec le composeur.
-        if self.gestrealpolys:
+        if self.querypoly.size()>0:
             QgsMapLayerRegistry.instance().removeMapLayer( self.gestrealpolys.id() )
-        if self.gestreallgn:
+        if self.querylgn.size()>0:
             QgsMapLayerRegistry.instance().removeMapLayer( self.gestreallgn.id() )
-        if self.gestrealpts:
+        if self.querypts.size()>0:
             QgsMapLayerRegistry.instance().removeMapLayer( self.gestrealpts.id() )
         if self.contours_site:
             QgsMapLayerRegistry.instance().removeMapLayer( self.contours_site.id() )

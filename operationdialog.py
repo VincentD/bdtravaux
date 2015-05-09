@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -56,7 +56,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -186,7 +186,7 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sansgeom ratée')
         self.nom_table='operation_poly'
-        self.rempliJoinOperateur()
+        self.rempliJoinOpe()
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
         self.close
@@ -288,7 +288,7 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
 #            print unicode(query)
-        self.rempliJoinOperateur()
+        self.rempliJoinOpe()
         self.iface.setActiveLayer(coucheactive)
         QgsMapLayerRegistry.instance().removeMapLayer(memlayer.id())
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -297,7 +297,7 @@ class OperationDialog(QtGui.QDialog):
 
 
 
-    def rempliJoinOperateur(self):
+    def rempliJoinOpe(self):
     #remplissage des tables join_operateur et join_operations avec les prestataires et eles types d'opés sélectionnés par l'utilisateur
         #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs et join_operations
         queryidoper = QtSql.QSqlQuery(self.db)
@@ -422,7 +422,8 @@ class OperationDialog(QtGui.QDialog):
         root = QgsProject.instance().layerTreeRoot()
 
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
-        reqwhere="""sortie_id="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        reqwhere="""sortie_id="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))+""" and the_geom IS NOT NULL"""
+        print reqwhere
 
 
         self.querypoly = QtSql.QSqlQuery(self.db)
@@ -556,9 +557,8 @@ class OperationDialog(QtGui.QDialog):
         self.contours_site.setRendererV2(renderer)
 
 
-        #S'il y a des entités géographiques dans la sortie, les afficher
-        if self.sansgeom!='True':
-            self.affiche()
+        #Appel à la fonction "affiche", qui importe les couches non vides de gestion réalisée, parmi operation_poly, operation_lgn et operation_pts
+        self.affiche()
 
 
         # Affichage des couches contenant les contours du site et les opérations de gestion saisies, et masquage des autres

@@ -359,12 +359,12 @@ class OperationDialog(QtGui.QDialog):
         self.salaries=querycodesite.value(1)
         self.datesortie=querycodesite.value(2).toPyDate().strftime("%Y-%m-%d")
         self.chantvol=querycodesite.value(3)
-        self.sortcom=querycodesite.value(4)
+        self.sortcom=querycodesite.value(4).replace('\n','<br/>')
         self.objvisite=querycodesite.value(5)
         self.objautre=querycodesite.value(6)
-        self.natfaune=querycodesite.value(7)
-        self.natflore=querycodesite.value(8)
-        self.natautre=querycodesite.value(9)
+        self.natfaune=querycodesite.value(7).replace('\n','<br/>')
+        self.natflore=querycodesite.value(8).replace('\n','<br/>')
+        self.natautre=querycodesite.value(9).replace('\n','<br/>')
 
 
 
@@ -650,7 +650,7 @@ class OperationDialog(QtGui.QDialog):
         for i in xrange(0 , querycomope.size()):
             #Récupération des autres valeurs de chaque opération
             ope=unicode(querycomope.value(1))
-            descrope=unicode(querycomope.value(2))
+            descrope=unicode(querycomope.value(2)).replace('\n','<br/>')
             ghope=unicode(querycomope.value(3))
             surfope=unicode(querycomope.value(4))
             longope=unicode(querycomope.value(5))

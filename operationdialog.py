@@ -432,6 +432,7 @@ class OperationDialog(QtGui.QDialog):
         if not okpoly:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence polygones ratée')
         if self.querypoly.size()>0:
+            print 'taille requete'+str(self.querypoly.size)
         # SURFACES : Import de la couche de polygoness si des surfaces sont saisies pour cette sortie
         # Configure le schéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
             self.uri.setDataSource("bdtravaux", "v_bdtravaux_surfaces", "the_geom", reqwhere, "operation_id")
@@ -691,10 +692,12 @@ class OperationDialog(QtGui.QDialog):
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_objet]+self.objvisite+texte[plac_objet+6:])
             if label.displayText().find("$objvi_autre")>-1:
+                plac_objautre=label.displayText().find("$objvi_autre")
+                texte=unicode(label.displayText())
                 if self.objautre:
-                    plac_objautre=label.displayText().find("$objvi_autre")
-                    texte=unicode(label.displayText())
                     label.setText(texte[0:plac_objautre]+self.objautre+texte[plac_objautre+12:])
+                else:
+                    label.setText(texte[0:plac_objautre]+''+texte[plac_objautre+12:])
             if label.displayText().find("$natfaune")>-1:
                 label.setText(self.natfaune)
             if label.displayText().find("$natflore")>-1:

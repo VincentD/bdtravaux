@@ -3,7 +3,7 @@
 /***************************************************************************
  BdTravauxDialog
                                  A QGIS plugin
- Plugin d'aide à la saisie à destination des gerdes-techniciens
+ Plugin d'aide à la saisie à destination des gardes-techniciens
                              -------------------
         begin                : 2013-03-27
         copyright            : (C) 2013 by CEN NPdC
@@ -26,9 +26,9 @@ from qgis.utils import *
 from ui_operation import Ui_operation
 from convert_geoms import convert_geometries
 import sys
-import inspect
 import re
 import random
+#from composeur import Composeur
 
 
 class OperationDialog(QtGui.QDialog):
@@ -353,6 +353,13 @@ class OperationDialog(QtGui.QDialog):
                 self.id_opechvol='0'
         else:
             self.id_opechvol='0'
+
+
+
+#    def lancerComposeur(self):
+#        self.sauverOpeChoi()
+#        id_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+#        composeur(id_sortie)
 
 
 

@@ -3,7 +3,7 @@
 /***************************************************************************
  BdTravauxDialog
                                  A QGIS plugin
- Plugin d'aide à la saisie à destination des gerdes-techniciens
+ Plugin d'aide à la saisie à destination des gardes-techniciens
                              -------------------
         begin                : 2013-03-27
         copyright            : (C) 2013 by CEN NPdC
@@ -22,7 +22,7 @@
 
 from PyQt4 import QtCore, QtGui, QtSql
 from ui_bdtravaux_sortie import Ui_BdTravaux
-# from composeur import *
+from composeur2 import Composer
 
 # create the dialog for zoom to point
 class BdTravauxDialog(QtGui.QDialog):
@@ -35,7 +35,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
         #Quand la classe est fermée, elle est effacée. permet de réinitialiser toutes les valeurs si on réappuie sur le bouton.
         #self.setAttribute(QtCore.Qt.WA_QuitOnClose, True)
-        
+
         # DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
@@ -78,7 +78,7 @@ class BdTravauxDialog(QtGui.QDialog):
         #http://www.qtcentre.org/archive/index.php/t-15687.html pour l'emploi de QAbstractButton
         #Connexion du signal "chagement d'onglet" à la fonction qui active / désactive les bouton "OK" et "Annuler"
         self.connect(self.ui.tab_widget, QtCore.SIGNAL('currentChanged(int)'), self.masqueBoutons)
-        #self.connect(self.ui.btn_imp_exsortie, QtCore.SIGNAL(''), self.imprimExSort)
+        self.connect(self.ui.btn_imp_exsortie, QtCore.SIGNAL('clicked()'), self.imprimExSort)
 
 
 
@@ -231,12 +231,19 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
 
+
     def imprimExSort(self):
         #Récupérer l'id_sortie à partir de la combobox cbx_exsortie (cf. RecupDonnSortie)
         self.sourceAffiche='ModSortie' # Pour indiquer au nouveau module "composeur.py" qu'on vient du module "Sortie" (peut-être pus nécessaire si on récupère id_sortie ici, et qu'on le passe en paramètre du composeur => le module composeur se fiche d'où vient l'info, tant qu'elle lui arrive)
         print self.sourceAffiche
-        #lancement de la fonction composeur dans le module composeur
-        #composeur.creaComposeur()
+        id_sortie = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex())
+        print "id_sortie="+str(id_sortie)
+        #lancement de la fonction composeur dans le module composeur avec le paramètre id_sortie
+        obj_compo=Composer()
+        obj_compo.composeur(id_sortie)
+
+
+
 
 
     def reinitialiser(self):

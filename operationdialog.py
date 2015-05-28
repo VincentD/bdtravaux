@@ -44,7 +44,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -56,7 +56,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -136,7 +136,17 @@ class OperationDialog(QtGui.QDialog):
         else:
             # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
             self.ui.opprev.clear()
-            self.recupDonnSortie()
+            #Récupération du code du site et de chantvol
+            querycodesite = QtSql.QSqlQuery(self.db)
+            qcodesite = u"""select codesite,chantvol from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+            (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+            ok2 = querycodesite.exec_(qcodesite)
+            if not ok2:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupCodeSite raté')
+            querycodesite.next()
+            self.codedusite=querycodesite.value(0)
+            self.chantvol=querycodesite.value(1)
+
             query = QtSql.QSqlQuery(self.db)
             if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
                 while query.next():
@@ -347,7 +357,7 @@ class OperationDialog(QtGui.QDialog):
 
 
     def recupDonnSortie(self):
-        #recup de données en fction de l'Id de la sortie. Pr afficher le site dans affiche(), les txts des étiqu dans composeur() et mettre à jour "opprev" et "chx_opechvol" au lancement du module, et qd une nouvelle sortie est sélectionnée.
+        #recup de données en fction de l'Id de la sortie. Pr afficher le site et les txts des étiqu dans composeur() et mettre à jour "opprev" et "chx_opechvol" au lancement du module, et qd une nouvelle sortie est sélectionnée.
         querycodesite = QtSql.QSqlQuery(self.db)
         qcodesite = u"""select codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))

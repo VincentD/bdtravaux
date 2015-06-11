@@ -103,15 +103,14 @@ class BdTravauxDialog(QtGui.QDialog):
 
     def sauverInfos(self):
         self.objetVisiClicked()
+        #Insertion en base des données saisies par l'utilisateur dans le module "sortie".
         query_save = QtSql.QSqlQuery(self.db)
-        # syntaxe utilisant des templates de chaînes (obsolète) : query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())
-        # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs lignes, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de .format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et simplifient la lecture.
-        query = u'INSERT INTO bdtravaux.sortie (date_sortie, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
+        query = u'INSERT INTO bdtravaux.sortie (date_sortie, date_fin, jours_chan, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_date_fin}\'::date,\'{zr_jourschan}\',\'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
-        #zr_redacteur=self.ui.obsv.currentText(),\
+        zr_date_fin=self.ui.datefin.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
+        zr_jourschan=self.ui.plsrsdates.toPlainText().replace("\'","\'\'"),\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_chantier_vol=self.chantvol,\
-        #str(self.ui.chantvol.isChecked()).lower(),\
         zr_sort_com=self.ui.comm.toPlainText().replace("\'","\'\'"),\
         zr_objvisite=self.objetVisiText,\
         zr_objvi_autr=self.ui.obj_autre_text.text().replace("\'","\'\'"),\
@@ -119,7 +118,6 @@ class BdTravauxDialog(QtGui.QDialog):
         zr_natflore=self.ui.natflore.toPlainText().replace("\'","\'\'"),\
         zr_natautre=self.ui.natfaune.toPlainText().replace("\'","\'\'")).encode("latin1")
         print query
-        # à rebalancer dans finchantier.py : jours_chan,  ... \'{zr_jours_chantier}\' ... zr_jours_chantier=self.ui.jours_chan.toPlainText(),\
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
@@ -133,7 +131,7 @@ class BdTravauxDialog(QtGui.QDialog):
         # contrôle "date" : on utilise la méthode SelectedDate des calendriers : self.ui.date.selectedDate(), toPyDate() pour
         # transformer l'objet QDate en objet "date " de Python, et la méthode Python strftime pour définir le format de sortie.
         # contrôle "obsv" : on utilise la méthode CurrentText d'une combobox
-        # contrôle "site" : c'est aussi une combobox, mais on ne neut pas de texte, on veut la data définie quand on a rempli la combobox (cf. l54)
+        # contrôle "site" : c'est aussi une combobox, mais on ne veut pas de texte, on veut la data définie quand on a rempli la combobox (cf. l54)
         # contrôles checkboxes : méthode isChecked renvoie un booléen. on transforme en chaîne (str), ce qui donne True ou False.
         # Or, on veut true ou false pour que PostGreSQl puisse les interprêter. D'où laméthode Python .lower, qui change la casse des chaînes.
         # contrôles "jours_chan" et "comm" : ce qont des QTextEdit. Ils prennent donc le texte saisi au format HTML. 

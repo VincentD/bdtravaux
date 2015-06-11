@@ -190,6 +190,14 @@ class composerClass (QtGui.QDialog):
                 plac_date=label.displayText().find("$date")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_date]+self.datesortie+texte[plac_date+5:])
+            if label.displayText().find("$datefin")>-1:
+                plac_date=label.displayText().find("$datefin")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_date]+self.datefin+texte[plac_date+8:])
+            if label.displayText().find("$jourschan")>-1:
+                plac_date=label.displayText().find("$jourschan")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_date]+self.jourschan+texte[plac_date+10:])
             if label.displayText().find("$commsortie")>-1:
                 plac_commsortie=label.displayText().find("$commsortie")
                 texte=unicode(label.displayText())
@@ -314,7 +322,7 @@ class composerClass (QtGui.QDialog):
         #recup de données en fction de l'Id de la sortie. Pr afficher le site et les txts des étiqu dans composeur()
         querycodesite = QtSql.QSqlQuery(self.db)
         qcodesite = u"""select sor.codesite, 
-(select nomsite from sites_cen.t_sitescen sit where sit.codesite=sor.codesite) as nomsite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie sor where sortie_id = {zr_sortie_id}""".format \
+(select nomsite from sites_cen.t_sitescen sit where sit.codesite=sor.codesite) as nomsite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, date_fin, jours_chan, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie sor where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = str(idsortie)) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
@@ -325,13 +333,15 @@ class composerClass (QtGui.QDialog):
         self.nomdusite=querycodesite.value(1)
         self.salaries=querycodesite.value(2)
         self.datesortie=querycodesite.value(3).toPyDate().strftime("%Y-%m-%d")
-        self.chantvol=querycodesite.value(4)
-        self.sortcom=querycodesite.value(5).replace('\n','<br/>')
-        self.objvisite=querycodesite.value(6)
-        self.objautre=querycodesite.value(7)
-        self.natfaune=querycodesite.value(8).replace('\n','<br/>')
-        self.natflore=querycodesite.value(9).replace('\n','<br/>')
-        self.natautre=querycodesite.value(10).replace('\n','<br/>')
+        self.datefin=querycodesite.value(4).toPyDate().strftime("%Y-%m-%d")
+        self.jourschan=querycodesite.value(5)
+        self.chantvol=querycodesite.value(6)
+        self.sortcom=querycodesite.value(7).replace('\n','<br/>')
+        self.objvisite=querycodesite.value(8)
+        self.objautre=querycodesite.value(9)
+        self.natfaune=querycodesite.value(10).replace('\n','<br/>')
+        self.natflore=querycodesite.value(11).replace('\n','<br/>')
+        self.natautre=querycodesite.value(12).replace('\n','<br/>')
 
 
 

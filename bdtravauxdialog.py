@@ -95,8 +95,9 @@ class BdTravauxDialog(QtGui.QDialog):
         else: 
             self.chantvol=False
             self.ui.tab_chantvol.setEnabled(0)
-        if self.ui.obj_autre.isChecked:
+        if self.ui.obj_autre.isChecked()==True:
             self.objetVisiText='Autre...'
+        print self.objetVisiText
         return
 
 

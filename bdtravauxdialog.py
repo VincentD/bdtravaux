@@ -22,7 +22,7 @@
 
 from PyQt4 import QtCore, QtGui, QtSql
 from ui_bdtravaux_sortie import Ui_BdTravaux
-from composeur2 import Composer
+from composeur import composerClass
 
 # create the dialog for zoom to point
 class BdTravauxDialog(QtGui.QDialog):
@@ -232,17 +232,26 @@ class BdTravauxDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
 
 
+
     def imprimExSort(self):
         #Récupérer l'id_sortie à partir de la combobox cbx_exsortie (cf. RecupDonnSortie)
         self.sourceAffiche='ModSortie' # Pour indiquer au nouveau module "composeur.py" qu'on vient du module "Sortie" (peut-être pus nécessaire si on récupère id_sortie ici, et qu'on le passe en paramètre du composeur => le module composeur se fiche d'où vient l'info, tant qu'elle lui arrive)
         print self.sourceAffiche
         id_sortie = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex())
         print "id_sortie="+str(id_sortie)
-        #lancement de la fonction composeur dans le module composeur avec le paramètre id_sortie
-        obj_compo=Composer()
-        obj_compo.composeur(id_sortie)
+        #lancement de la fonction Composeur dans le module composerClass avec le paramètre id_sortie
+        self.obj_compo=composerClass()
+        self.obj_compo.Composer(id_sortie)
+        # Afficher le formulaire "bdtravauxdialog.py" devant iface, et l'activer.
+        self.obj_compo.composerView.composerViewHide.connect(self.raiseModule)
+        #lancement de la fonction afterComposeurClose dans le module composerClass pour effacer les couches ayant servi au composeur, et réafficher les autres.
+        self.obj_compo.composerView.composerViewHide.connect(self.obj_compo.afterComposerClose)
 
 
+
+    def raiseModule(self):
+        self.raise_()
+        self.activateWindow()
 
 
 

@@ -22,7 +22,7 @@
 
 from PyQt4 import QtCore, QtGui, QtSql
 from ui_bdtravaux_sortie import Ui_BdTravaux
-from composeur2 import Composer
+from composeur import Composer
 
 # create the dialog for zoom to point
 class BdTravauxDialog(QtGui.QDialog):
@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -219,7 +219,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
     def fillExSortieList(self):
         self.ui.cbx_exsortie.clear()
-        # Remplir la QlistWidget "lisetsortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
+        # Remplir la QlistWidget "listesortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
         ok = query.exec_(querySortie)

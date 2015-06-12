@@ -27,10 +27,36 @@ import sys
 import re
 import random
 
-    def composeur(self):
+class Composer:
+    def __init__(self):
+
+        #Référencement de iface dans l'interface
+        self.iface = iface
+        self.canvas = self.iface.mapCanvas()
+
+        # Connexion à la BD PostgreSQL
+        self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
+        self.db.setHostName("192.168.0.10") 
+        self.db.setDatabaseName("sitescsn")
+        self.db.setUserName("postgres")
+        self.db.setPassword("postgres")
+        ok = self.db.open()
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée')
+
+        #Definition de URI pour extraire des couches des tables PG. Uri est utilisé dans les fonctions "afficher" et "composeur".
+        #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
+        self.uri = QgsDataSourceURI()
+        # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+
+
+
+    def composeur(self, idsortie):
+        print 'dans composeur, id_sortie='+str(idsortie)
         #Affichage des contours du site
         #Récupération des données de la table "sortie" pour affichage du site et utilisation dans les étiquettes du composeur
-        self.recupDonnSortie()
+        self.recupDonnSortie(idsortie)
         reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
         self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
         self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
@@ -54,7 +80,7 @@ import random
 
 
         #Appel à la fonction "affiche", qui importe les couches non vides de gestion réalisée, parmi operation_poly, operation_lgn et operation_pts
-        self.affiche()
+        self.affiche(idsortie)
 
 
         # Affichage des couches contenant les contours du site et les opérations de gestion saisies, et masquage des autres
@@ -71,7 +97,7 @@ import random
 
 
         #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur
-        self.recupDonnChVolont()
+        self.recupDonnChVolont(idsortie)
 
         #COMPOSEUR : Production d'un composeur
         beforeList = self.iface.activeComposers()
@@ -86,6 +112,7 @@ import random
         self.composition = self.composerView.composition()
         #afterComposerClose() : afficher le form "operation.py" devant QGIS qd le composeur est fermé + supprimer les couches de gestion saisir et de contour du site + rendre visibles les couches qui l'étaient avant l'ouverture du composeur
         self.composerView.composerViewHide.connect(self.afterComposerClose)
+        print 'après afterclose'
         # Adaptation de la composition : 2 pages A3
         self.composition.setPaperSize(420, 297)
         self.composition.setNumPages(2)
@@ -128,7 +155,7 @@ import random
         # une boucle permet de récupérer et afficher à la suite dans une seule zone de texte toutes les opérations et leurs descriptions
         querycomope = QtSql.QSqlQuery(self.db)
         qcomope=u"""select operation_id, (select distinct array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper order by typoperation),'; ')) as typope, descriptio, code_gh, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, (select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper order by operateurs),'; ')) as operateurs from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
-        (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        (zr_sortie = idsortie) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         #print unicode(qcomope)
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
@@ -284,14 +311,17 @@ import random
 
 
 
-    def recupDonnSortie(self):
+    def recupDonnSortie(self, idsortie):
+        print 'dans recupDonnSortie, id_sortie='+str(idsortie)
         #recup de données en fction de l'Id de la sortie. Pr afficher le site et les txts des étiqu dans composeur() et mettre à jour "opprev" et "chx_opechvol" au lancement du module, et qd une nouvelle sortie est sélectionnée.
         querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite, nomsite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
-        (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        qcodesite = u"""select sor.codesite, 
+(select nomsite from sites_cen.t_sitescen sit where sit.codesite=sor.codesite) as nomsite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie sor where sortie_id = {zr_sortie_id}""".format \
+        (zr_sortie_id = str(idsortie)) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupDonnSortie ratée')
+            print qcodesite
+            print u'Requête recupDonnSortie ratée'
         querycodesite.next()
         self.codedusite=querycodesite.value(0)
         self.nomdusite=querycodesite.value(1)
@@ -307,7 +337,7 @@ import random
 
 
 
-    def affiche(self):
+    def affiche(self, idsortie):
         # Fonction affichant dans QGIS les entités de la sortie en cours, présentes en base.
         # Pour l'accès à la base de données postgresql/postigs, voir l.52
 
@@ -315,11 +345,11 @@ import random
         root = QgsProject.instance().layerTreeRoot()
 
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
-        reqwhere="""sortie_id="""+str(self.ui.sortie.itemData(self.ui.sortie.currentIndex()))+""" and the_geom IS NOT NULL"""
+        reqwhere="""sortie_id="""+str(idsortie)+""" and the_geom IS NOT NULL"""  #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         print reqwhere
 
         self.querypoly = QtSql.QSqlQuery(self.db)
-        qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = idsortie) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         okpoly = self.querypoly.exec_(qpoly)
         if not okpoly:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence polygones ratée')
@@ -361,7 +391,7 @@ import random
 
         # LIGNES : Import de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.querylgn = QtSql.QSqlQuery(self.db)
-        qlgn=u"""select operation_id from bdtravaux.operation_lgn where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        qlgn=u"""select operation_id from bdtravaux.operation_lgn where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = idsortie )   #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         oklgn = self.querylgn.exec_(qlgn)
         if not oklgn:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence lignes ratée')
@@ -389,7 +419,7 @@ import random
 
         # POINTS : Import de la couche de points si des ponctuels sont saisis pour cette sortie
         self.querypts = QtSql.QSqlQuery(self.db)
-        qpts=u"""select operation_id from bdtravaux.operation_pts where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        qpts=u"""select operation_id from bdtravaux.operation_pts where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = idsortie)    #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         okpts = self.querypts.exec_(qpts)
         if not okpts:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence points ratée')
@@ -423,10 +453,10 @@ import random
         return couleur
 
 
-    def recupDonnChVolont(self):
+    def recupDonnChVolont(self, idsortie):
         # recup des données d'un chantier de volontaires en fction de l'Id de la sortie (et de l'opé). Pour afficher les textes ds composeur().
         querycodevolont = QtSql.QSqlQuery(self.db)
-        qchvolont = u"""select nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm, sem_enc, sem_ben from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        qchvolont = u"""select nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm, sem_enc, sem_ben from bdtravaux.ch_volont where sortie={zr_sortie}""".format(zr_sortie=idsortie)    #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         ok = querycodevolont.exec_(qchvolont)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête Chvolotaires ratée')
@@ -507,6 +537,7 @@ import random
 
     def afterComposerClose(self):
     # Afficher le formulaire "operationdialog.py" (Qdialog) devant iface (QmainWindow) lorsque l'on ferme le composeur (QgsComposerView)
+        print "on passe dans afterComposerClose"
         self.raise_()
         self.activateWindow()
     # les couches de points, lignes et polygones créées pour le compte-rendu ainsi que le contour du site sont supprimées avec le composeur.

@@ -31,7 +31,7 @@ TRANSLATIONS =
 
 PLUGINNAME = bdtravaux
 
-PY_FILES = bdtravaux.py bdtravauxdialog.py __init__.py operationdialog.py convert_geoms.py prevudialog.py composeur2.py
+PY_FILES = bdtravaux.py bdtravauxdialog.py __init__.py operationdialog.py convert_geoms.py prevudialog.py composeur.py
  
 EXTRAS = icon2.png icon3.png metadata.txt BDT_20130705_T_CART_ComposerTemplate.qpt
 

@@ -22,7 +22,7 @@
 
 from PyQt4 import QtCore, QtGui, QtSql
 from ui_bdtravaux_sortie import Ui_BdTravaux
-from composeur import Composer
+from composeur import composerClass
 
 # create the dialog for zoom to point
 class BdTravauxDialog(QtGui.QDialog):
@@ -95,22 +95,22 @@ class BdTravauxDialog(QtGui.QDialog):
         else: 
             self.chantvol=False
             self.ui.tab_chantvol.setEnabled(0)
-        if self.ui.obj_autre.isChecked:
+        if self.ui.obj_autre.isChecked()==True:
             self.objetVisiText='Autre...'
+        print self.objetVisiText
         return
 
 
     def sauverInfos(self):
         self.objetVisiClicked()
+        #Insertion en base des données saisies par l'utilisateur dans le module "sortie".
         query_save = QtSql.QSqlQuery(self.db)
-        # syntaxe utilisant des templates de chaînes (obsolète) : query = """insert into sortie (date_sortie, redacteur, site, jours_chantier, chantier_vol, sort_com) values ('%s'::date, '%s', %s, '%s', %s, %s, '%s')""" % (self.ui.date.selectedDate().toString('yyyy-MM-dd'), self.ui.obsv.currentText(), self.ui.site.itemData(self.ui.site.currentIndex()).toInt()[0], self.ui.jours_chan.toPlainText(), str(self.ui.chantvol.isChecked()).lower(), self.ui.comm.toPlainText())
-        # la requête ci-dessus avec des templates de chaîne fonctionne, mais est lourde. la syntaxe ci-dessous, sur plusieurs lignes, est beaucoup plus lisible. Les zones entre accolades sont des zones à remplacer. les zones sont suivies de .format (zone1=expression, zone2=expression2...). Les antislash provoquent un retour à la ligne sans couper la ligne de commande, et simplifient la lecture.
-        query = u'INSERT INTO bdtravaux.sortie (date_sortie, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
+        query = u'INSERT INTO bdtravaux.sortie (date_sortie, date_fin, jours_chan, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_date_fin}\'::date,\'{zr_jourschan}\',\'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
-        #zr_redacteur=self.ui.obsv.currentText(),\
+        zr_date_fin=self.ui.datefin.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
+        zr_jourschan=self.ui.plsrsdates.toPlainText().replace("\'","\'\'"),\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_chantier_vol=self.chantvol,\
-        #str(self.ui.chantvol.isChecked()).lower(),\
         zr_sort_com=self.ui.comm.toPlainText().replace("\'","\'\'"),\
         zr_objvisite=self.objetVisiText,\
         zr_objvi_autr=self.ui.obj_autre_text.text().replace("\'","\'\'"),\
@@ -118,7 +118,6 @@ class BdTravauxDialog(QtGui.QDialog):
         zr_natflore=self.ui.natflore.toPlainText().replace("\'","\'\'"),\
         zr_natautre=self.ui.natfaune.toPlainText().replace("\'","\'\'")).encode("latin1")
         print query
-        # à rebalancer dans finchantier.py : jours_chan,  ... \'{zr_jours_chantier}\' ... zr_jours_chantier=self.ui.jours_chan.toPlainText(),\
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
@@ -132,7 +131,7 @@ class BdTravauxDialog(QtGui.QDialog):
         # contrôle "date" : on utilise la méthode SelectedDate des calendriers : self.ui.date.selectedDate(), toPyDate() pour
         # transformer l'objet QDate en objet "date " de Python, et la méthode Python strftime pour définir le format de sortie.
         # contrôle "obsv" : on utilise la méthode CurrentText d'une combobox
-        # contrôle "site" : c'est aussi une combobox, mais on ne neut pas de texte, on veut la data définie quand on a rempli la combobox (cf. l54)
+        # contrôle "site" : c'est aussi une combobox, mais on ne veut pas de texte, on veut la data définie quand on a rempli la combobox (cf. l54)
         # contrôles checkboxes : méthode isChecked renvoie un booléen. on transforme en chaîne (str), ce qui donne True ou False.
         # Or, on veut true ou false pour que PostGreSQl puisse les interprêter. D'où laméthode Python .lower, qui change la casse des chaînes.
         # contrôles "jours_chan" et "comm" : ce qont des QTextEdit. Ils prennent donc le texte saisi au format HTML. 
@@ -223,7 +222,7 @@ class BdTravauxDialog(QtGui.QDialog):
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
         ok = query.exec_(querySortie)
-        print querySortie
+        print "quersortie="+str(querySortie)
         while query.next():
             self.ui.cbx_exsortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int (query.value(0)))
         # 1er paramètre = ce qu'on affiche, 
@@ -232,17 +231,26 @@ class BdTravauxDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
 
 
+
     def imprimExSort(self):
         #Récupérer l'id_sortie à partir de la combobox cbx_exsortie (cf. RecupDonnSortie)
         self.sourceAffiche='ModSortie' # Pour indiquer au nouveau module "composeur.py" qu'on vient du module "Sortie" (peut-être pus nécessaire si on récupère id_sortie ici, et qu'on le passe en paramètre du composeur => le module composeur se fiche d'où vient l'info, tant qu'elle lui arrive)
         print self.sourceAffiche
         id_sortie = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex())
         print "id_sortie="+str(id_sortie)
-        #lancement de la fonction composeur dans le module composeur avec le paramètre id_sortie
-        obj_compo=Composer()
-        obj_compo.composeur(id_sortie)
+        #lancement de la fonction Composeur dans le module composerClass avec le paramètre id_sortie
+        self.obj_compo=composerClass()
+        self.obj_compo.Composer(id_sortie)
+        # Afficher le formulaire "bdtravauxdialog.py" devant iface, et l'activer.
+        self.obj_compo.composerView.composerViewHide.connect(self.raiseModule)
+        #lancement de la fonction afterComposeurClose dans le module composerClass pour effacer les couches ayant servi au composeur, et réafficher les autres.
+        self.obj_compo.composerView.composerViewHide.connect(self.obj_compo.afterComposerClose)
 
 
+
+    def raiseModule(self):
+        self.raise_()
+        self.activateWindow()
 
 
 

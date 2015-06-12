@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>806</width>
-    <height>553</height>
+    <height>668</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>615</x>
-     <y>517</y>
+     <y>630</y>
      <width>176</width>
      <height>27</height>
     </rect>
@@ -35,7 +35,7 @@
      <x>10</x>
      <y>0</y>
      <width>781</width>
-     <height>510</height>
+     <height>623</height>
     </rect>
    </property>
    <property name="focusPolicy">
@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -137,13 +137,13 @@
     <widget class="QWidget" name="verticalLayoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>370</x>
-       <y>20</y>
-       <width>391</width>
-       <height>321</height>
+       <x>404</x>
+       <y>21</y>
+       <width>349</width>
+       <height>261</height>
       </rect>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="vertlayout_date">
       <item>
        <widget class="QLabel" name="lbl_date">
         <property name="text">
@@ -287,6 +287,75 @@
      <attribute name="buttonGroup">
       <string notr="true">objetvisite</string>
      </attribute>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>403</x>
+       <y>310</y>
+       <width>360</width>
+       <height>260</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="vertlayout_datefin">
+      <item>
+       <widget class="QLabel" name="lbl_datefin">
+        <property name="text">
+         <string>Date de fin de sortie sur le terrain (si plusieurs jours)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCalendarWidget" name="datefin">
+        <property name="baseSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Date de début de l'opération</string>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="firstDayOfWeek">
+         <enum>Qt::Monday</enum>
+        </property>
+        <property name="verticalHeaderFormat">
+         <enum>QCalendarWidget::ISOWeekNumbers</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>484</y>
+       <width>364</width>
+       <height>89</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="vlayout_plsrsdates">
+      <item>
+       <widget class="QLabel" name="lbl_plsrsdates">
+        <property name="text">
+         <string>Dates de la sortie, si plusieurs. Format : jj/mm/aaaa</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="plsrsdates"/>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_comm">

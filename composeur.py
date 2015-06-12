@@ -27,9 +27,10 @@ import sys
 import re
 import random
 
-class Composer:
+class composerClass (QtGui.QDialog):
     def __init__(self):
 
+        QtGui.QDialog.__init__(self)
         #Référencement de iface dans l'interface
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
@@ -52,7 +53,7 @@ class Composer:
 
 
 
-    def composeur(self, idsortie):
+    def Composer(self, idsortie):
         print 'dans composeur, id_sortie='+str(idsortie)
         #Affichage des contours du site
         #Récupération des données de la table "sortie" pour affichage du site et utilisation dans les étiquettes du composeur
@@ -110,9 +111,6 @@ class Composer:
         #Intégration du composeur dans le QgsComposerView et création du QgsComposition
         self.composerView = diffList[0]
         self.composition = self.composerView.composition()
-        #afterComposerClose() : afficher le form "operation.py" devant QGIS qd le composeur est fermé + supprimer les couches de gestion saisir et de contour du site + rendre visibles les couches qui l'étaient avant l'ouverture du composeur
-        self.composerView.composerViewHide.connect(self.afterComposerClose)
-        print 'après afterclose'
         # Adaptation de la composition : 2 pages A3
         self.composition.setPaperSize(420, 297)
         self.composition.setNumPages(2)
@@ -192,6 +190,14 @@ class Composer:
                 plac_date=label.displayText().find("$date")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_date]+self.datesortie+texte[plac_date+5:])
+            if label.displayText().find("$datefin")>-1:
+                plac_date=label.displayText().find("$datefin")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_date]+self.datefin+texte[plac_date+8:])
+            if label.displayText().find("$jourschan")>-1:
+                plac_date=label.displayText().find("$jourschan")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_date]+self.jourschan+texte[plac_date+10:])
             if label.displayText().find("$commsortie")>-1:
                 plac_commsortie=label.displayText().find("$commsortie")
                 texte=unicode(label.displayText())
@@ -313,10 +319,10 @@ class Composer:
 
     def recupDonnSortie(self, idsortie):
         print 'dans recupDonnSortie, id_sortie='+str(idsortie)
-        #recup de données en fction de l'Id de la sortie. Pr afficher le site et les txts des étiqu dans composeur() et mettre à jour "opprev" et "chx_opechvol" au lancement du module, et qd une nouvelle sortie est sélectionnée.
+        #recup de données en fction de l'Id de la sortie. Pr afficher le site et les txts des étiqu dans composeur()
         querycodesite = QtSql.QSqlQuery(self.db)
         qcodesite = u"""select sor.codesite, 
-(select nomsite from sites_cen.t_sitescen sit where sit.codesite=sor.codesite) as nomsite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie sor where sortie_id = {zr_sortie_id}""".format \
+(select nomsite from sites_cen.t_sitescen sit where sit.codesite=sor.codesite) as nomsite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, date_fin, jours_chan, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie sor where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = str(idsortie)) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
@@ -327,13 +333,15 @@ class Composer:
         self.nomdusite=querycodesite.value(1)
         self.salaries=querycodesite.value(2)
         self.datesortie=querycodesite.value(3).toPyDate().strftime("%Y-%m-%d")
-        self.chantvol=querycodesite.value(4)
-        self.sortcom=querycodesite.value(5).replace('\n','<br/>')
-        self.objvisite=querycodesite.value(6)
-        self.objautre=querycodesite.value(7)
-        self.natfaune=querycodesite.value(8).replace('\n','<br/>')
-        self.natflore=querycodesite.value(9).replace('\n','<br/>')
-        self.natautre=querycodesite.value(10).replace('\n','<br/>')
+        self.datefin=querycodesite.value(4).toPyDate().strftime("%Y-%m-%d")
+        self.jourschan=querycodesite.value(5)
+        self.chantvol=querycodesite.value(6)
+        self.sortcom=querycodesite.value(7).replace('\n','<br/>')
+        self.objvisite=querycodesite.value(8)
+        self.objautre=querycodesite.value(9)
+        self.natfaune=querycodesite.value(10).replace('\n','<br/>')
+        self.natflore=querycodesite.value(11).replace('\n','<br/>')
+        self.natautre=querycodesite.value(12).replace('\n','<br/>')
 
 
 
@@ -536,10 +544,6 @@ class Composer:
 
 
     def afterComposerClose(self):
-    # Afficher le formulaire "operationdialog.py" (Qdialog) devant iface (QmainWindow) lorsque l'on ferme le composeur (QgsComposerView)
-        print "on passe dans afterComposerClose"
-        self.raise_()
-        self.activateWindow()
     # les couches de points, lignes et polygones créées pour le compte-rendu ainsi que le contour du site sont supprimées avec le composeur.
         if self.querypoly.size()>0:
             QgsMapLayerRegistry.instance().removeMapLayer( self.gestrealpolys.id() )

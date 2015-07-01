@@ -142,6 +142,7 @@ class BdTravaux:
         self.verif_geom()
         if self.dlg_prev.sansgeom=='True' or self.dlg_prev.sansgeom=='Geom':
             # show the dialog
+            self.dlg_prev.actu_listeOpe() 
             self.dlg_prev.show()
             # Run the dialog event loop
             result = self.dlg_prev.exec_()
@@ -150,6 +151,7 @@ class BdTravaux:
                 # do something useful (delete the line containing pass and
                 # substitute with your code)
                 pass
+
 
 
     def verif_geom(self):

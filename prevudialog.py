@@ -24,6 +24,7 @@ from PyQt4 import QtCore, QtGui, QtSql
 from qgis.core import *
 from qgis.gui import *
 from ui_gestprev import Ui_GestPrev
+from convert_geoms import convert_geometries
 # create the dialog for zoom to point
 
 
@@ -43,7 +44,7 @@ class PrevuDialog(QtGui.QDialog):
         
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -64,35 +65,48 @@ class PrevuDialog(QtGui.QDialog):
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpePrev)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
 
+    def actu_listeOpe(self):
+        self.ui.prevlist_typeope.clear()
+        queryopes = QtSql.QSqlQuery(self.db)
+        if queryopes.exec_('select * from bdtravaux.list_operations_cen order by operations'):
+            while queryopes.next():
+                self.ui.prevlist_typeope.addItem(unicode(queryopes.value(1)))
+
 
     def sauverOpePrev(self):
         # Fonction à lancer quans le bouton "OK" est cliqué
         # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
 
-        if self.iface.activeLayer().geometryType()==0:
-            nom_table='list_gestprev_pts'
-        elif self.iface.activeLayer().geometryType()==1:
-            nom_table='list_gestprev_lgn'
-        elif self.iface.activeLayer().geometryType()==2:
-            nom_table='list_gestprev_surf'
+        coucheactive= self.iface.activeLayer()
 
-        coucheactive=self.iface.activeLayer()
+        if coucheactive.geometryType()==0:
+            nom_table='list_gestprev_pts'
+            typegeom=QGis.Point
+        elif coucheactive.geometryType()==1:
+            nom_table='list_gestprev_lgn'
+            typegeom=QGis.Line
+        elif coucheactive.geometryType()==2:
+            nom_table='list_gestprev_surf'
+            typegeom=QGis.Polygon
+        else: 
+            print "ce ne sont pas des points, des lignes ou des polygones"
+
+        geomprev2=convert_geometries([QgsGeometry(feature.geometry()) for feature in coucheactive.selectedFeatures()], typegeom)
 
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg, the_geom) values ({zr_codesite}, '{zr_codeope}', '{zr_typeope}', '{zr_lblope}', '{zr_annprev}', '{zr_pdg}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154)')""".format (zr_nomtable=nom_table,\
-        zr_codesite = self.ui.prevcbo_codesite.itemData(self.ui.prevcombo_codesite.currentIndex()),\
+        query = u"""insert into bdtravaux.{zr_nomtable} (prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg, the_geom) values (\'{zr_codesite}\', '{zr_codeope}', '{zr_typeope}', '{zr_lblope}', '{zr_annprev}', '{zr_pdg}', st_setsrid(st_geometryfromtext ('{zr_the_geom}'),2154))""".format (zr_nomtable=nom_table,\
+        zr_codesite = self.ui.prevcbo_codesite.itemData(self.ui.prevcbo_codesite.currentIndex()),\
         zr_codeope = self.ui.prevledit_gh.text(),\
-        zr_typeope = self.ui.prevlist_typeope.currentItem().text(),\
-        zr_lblope = self.ui.prevtedit_lblope.toPlainText(),\
+        zr_typeope = self.ui.prevlist_typeope.currentItem().text().replace("\'","\'\'"),\
+        zr_lblope = self.ui.prevtedit_lblope.toPlainText().replace("\'","\'\'"),\
         zr_annprev = self.ui.prevledit_annprev.text(),\
         zr_pdg = self.ui.prevlist_pdg.currentItem().text(),\
-        zr_the_geom = coucheactive.selectedFeatures().exportToWkt())
+        zr_the_geom = geomprev2.exportToWkt())
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
             print query
-        self.iface.setActiveLayer(coucheactive)
         self.close
 
 

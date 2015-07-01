@@ -218,11 +218,11 @@ class BdTravauxDialog(QtGui.QDialog):
 
     def fillExSortieList(self):
         self.ui.cbx_exsortie.clear()
-        # Remplir la QlistWidget "lisetsortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
+        # Remplir la QlistWidget "listesortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
         ok = query.exec_(querySortie)
-        print querySortie
+        print "quersortie="+str(querySortie)
         while query.next():
             self.ui.cbx_exsortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int (query.value(0)))
         # 1er paramètre = ce qu'on affiche, 

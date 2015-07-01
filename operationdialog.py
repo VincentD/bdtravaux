@@ -86,6 +86,7 @@ class OperationDialog(QtGui.QDialog):
         # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
         if not ok :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
+            print querySortie
         self.blocActuGestPrev='0'
 
 

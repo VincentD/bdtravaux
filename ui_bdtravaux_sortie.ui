@@ -291,8 +291,8 @@
     <widget class="QWidget" name="verticalLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>403</x>
-       <y>310</y>
+       <x>405</x>
+       <y>327</y>
        <width>360</width>
        <height>260</height>
       </rect>
@@ -300,13 +300,19 @@
      <layout class="QVBoxLayout" name="vertlayout_datefin">
       <item>
        <widget class="QLabel" name="lbl_datefin">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
-         <string>Date de fin de sortie sur le terrain (si plusieurs jours)</string>
+         <string>Date de fin de sortie sur le terrain</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCalendarWidget" name="datefin">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="baseSize">
          <size>
           <width>0</width>
@@ -331,31 +337,54 @@
         <property name="verticalHeaderFormat">
          <enum>QCalendarWidget::ISOWeekNumbers</enum>
         </property>
+        <property name="dateEditEnabled">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>9</x>
        <y>484</y>
        <width>364</width>
-       <height>89</height>
+       <height>103</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="vlayout_plsrsdates">
       <item>
        <widget class="QLabel" name="lbl_plsrsdates">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Dates de la sortie, si plusieurs. Format : jj/mm/aaaa</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="plsrsdates"/>
+       <widget class="QTextEdit" name="plsrsdates">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
      </layout>
+    </widget>
+    <widget class="QCheckBox" name="chbox_plsrsjrs">
+     <property name="geometry">
+      <rect>
+       <x>406</x>
+       <y>293</y>
+       <width>210</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Sortie sur plusieurs jours ?</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_comm">

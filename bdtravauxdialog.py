@@ -57,21 +57,25 @@ class BdTravauxDialog(QtGui.QDialog):
             # *Voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
 
-        #Initialisations pour objetVisiText (récup "objectif de la visite") et l'onglet "Chantier de volontaire : self.chantvol
-        # et onglet désactivé
+        #Initialisations pour :
+        # - objetVisiText (récup "objectif de la visite") 
         self.objetVisiText=str(self.ui.obj_travaux.text())
         print self.objetVisiText
+        # - self.chantvol et l'activation (ou pas) de l'onglet "Chantier de volontaire
         self.chantvol=False
         self.ui.tab_chantvol.setEnabled(0)
+        # - gestion des chantiers de volontaire si aucun partenaire n'est sélectionné
         aucunpart=self.ui.ch_partenaire.findItems('Aucun',QtCore.Qt.MatchExactly)
         # findItems nécessite 2 arguments : la chaine à trouver et un QT.matchFlags qui correspond à la façon de chercher (chaine exacte, regex...) cf. http://qt-project.org/doc/qt-4.8/qt.html#MatchFlag-enum
         for item in aucunpart:
             item.setSelected(True)
             print item.text()
+        # - chbox_plsrsjours et l'activation (oupas) du calendrier "datefin" et de la zone de texte "plsrsdates"
+        self.ui.chbox_plsrsjrs.setChecked(0)
+        self.date_fin='NULL'
+        self.jourschan=""
 
-
-        # On connecte les signaux des boutons a nos methodes definies ci dessous
-        # connexion du signal du bouton OK
+        ## Connexions signaux-slots
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.objetvisite, QtCore.SIGNAL('buttonClicked(QAbstractButton*)'), self.objetVisiClicked)
@@ -79,6 +83,7 @@ class BdTravauxDialog(QtGui.QDialog):
         #Connexion du signal "chagement d'onglet" à la fonction qui active / désactive les bouton "OK" et "Annuler"
         self.connect(self.ui.tab_widget, QtCore.SIGNAL('currentChanged(int)'), self.masqueBoutons)
         self.connect(self.ui.btn_imp_exsortie, QtCore.SIGNAL('clicked()'), self.imprimExSort)
+        self.connect(self.ui.chbox_plsrsjrs, QtCore.SIGNAL('stateChanged(int)'), self.enablePlsrsJours)
 
 
 
@@ -97,18 +102,40 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.tab_chantvol.setEnabled(0)
         if self.ui.obj_autre.isChecked()==True:
             self.objetVisiText='Autre...'
-        print self.objetVisiText
         return
+
+
+
+    def enablePlsrsJours(self):
+        if self.ui.chbox_plsrsjrs.isChecked()==True:
+            self.ui.datefin.setEnabled(1)
+            self.ui.lbl_datefin.setEnabled(1)
+            self.ui.plsrsdates.setEnabled(1)
+            self.ui.lbl_plsrsdates.setEnabled(1)
+        else:
+            self.ui.datefin.setEnabled(0)
+            self.ui.lbl_datefin.setEnabled(0)
+            self.ui.plsrsdates.setEnabled(0)
+            self.ui.lbl_plsrsdates.setEnabled(0)
+            
+
 
 
     def sauverInfos(self):
         self.objetVisiClicked()
+        # S'il y a plusieurs dates, alors lire les données dans "datefin" et "plsrsdates". Sinon, la date de fin = la date de début et les jours ne sont pas renseignés
+        if self.ui.chbox_plsrsjrs.isChecked()==True:
+            self.date_fin=self.ui.datefin.selectedDate().toPyDate().strftime("%Y-%m-%d")
+            self.jourschan=self.ui.plsrsdates.toPlainText().replace("\'","\'\'")
+        else : 
+            self.date_fin=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d")
+            self.jourschan=""
         #Insertion en base des données saisies par l'utilisateur dans le module "sortie".
         query_save = QtSql.QSqlQuery(self.db)
         query = u'INSERT INTO bdtravaux.sortie (date_sortie, date_fin, jours_chan, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_date_fin}\'::date,\'{zr_jourschan}\',\'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
-        zr_date_fin=self.ui.datefin.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
-        zr_jourschan=self.ui.plsrsdates.toPlainText().replace("\'","\'\'"),\
+        zr_date_fin=self.date_fin,\
+        zr_jourschan=self.jourschan,\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_chantier_vol=self.chantvol,\
         zr_sort_com=self.ui.comm.toPlainText().replace("\'","\'\'"),\

@@ -47,13 +47,14 @@ class BdTravauxDialog(QtGui.QDialog):
         ok = self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
-        # Remplir la combobox "site" avec les codes et noms de sites 
+        # Remplir les comboboxs "site" avec les codes et noms de sites 
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
             while query.next():
                 self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(1) )
+                self.ui.cbx_edcodesite.addItem(query.value(1) + " " + query.value(2), query.value(1) )
             # *Voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
 
@@ -84,6 +85,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.connect(self.ui.tab_widget, QtCore.SIGNAL('currentChanged(int)'), self.masqueBoutons)
         self.connect(self.ui.btn_imp_exsortie, QtCore.SIGNAL('clicked()'), self.imprimExSort)
         self.connect(self.ui.chbox_plsrsjrs, QtCore.SIGNAL('stateChanged(int)'), self.enablePlsrsJours)
+        self.connect(self.ui.cbx_exsortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.fillEditControls)
 
 
 
@@ -249,13 +251,45 @@ class BdTravauxDialog(QtGui.QDialog):
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
         ok = query.exec_(querySortie)
-        print "quersortie="+str(querySortie)
         while query.next():
             self.ui.cbx_exsortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int (query.value(0)))
         # 1er paramètre = ce qu'on affiche, 
         # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
         if not ok :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
+
+
+    def fillEditControls(self):
+        #dans le tab "exsortie", réinitialise les contrôles contenant les données de la sortie à modifier.
+        self.ui.dat_eddatdeb.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
+        self.ui.dat_eddatfin.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
+        self.ui.txt_edjourschan.setText('')
+        self.ui.cbx_edcodesite.setCurrentIndex(0)
+        self.ui.txt_edsortcom.setText('')
+        self.ui.lst_edobjvisit.setCurrentRow(1)
+        self.ui.txt_edobjvisautre.setText('')
+        self.ui.txt_ednatfaune.setText('')
+        self.ui.txt_ednatflor.setText('')
+        self.ui.txt_ednatautr.setText('')
+        
+        #dans le tab "exsortie", remplit les contrôles contenant les données de la sortie à modifier.
+        queryidsortie = QtSql.QSqlQuery(self.db)
+        qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, redacteur, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+        print "queryidsortie="+str(qidsort)
+        ok2=queryidsortie.exec_(qidsort)
+        queryidsortie.next()
+        if not ok2:
+            QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé la sortie à modifier')
+        print queryidsortie.value(4)
+        self.ui.dat_eddatdeb.setDate(queryidsortie.value(1))
+        self.ui.dat_eddatfin.setDate(queryidsortie.value(2))
+        self.ui.txt_edjourschan.setText(unicode(queryidsortie.value(3)))
+        self.ui.cbx_edcodesite.setCurrentIndex(self.ui.cbx_edcodesite.findText(queryidsortie.value(4), QtCore.Qt.MatchStartsWith))
+        self.ui.txt_edsortcom.setText(unicode(queryidsortie.value(7)))
+       # self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(8), QtCore.Qt.MatchStartsWith))
+        self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(10)))
+        self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(11)))
+        self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(12)))
 
 
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>806</width>
-    <height>668</height>
+    <width>809</width>
+    <height>676</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -922,7 +922,7 @@
    </widget>
    <widget class="QWidget" name="tab_exsortie">
     <attribute name="title">
-     <string>Réimprimer une sortie</string>
+     <string>Réimprimer/modifier une sortie</string>
     </attribute>
     <widget class="QLabel" name="lbl_exsortiechx">
      <property name="geometry">
@@ -934,14 +934,14 @@
       </rect>
      </property>
      <property name="text">
-      <string>Sélectionner une sortie à réimprimer :</string>
+      <string>Sélectionner une sortie à modifier/ réimprimer :</string>
      </property>
     </widget>
     <widget class="QPushButton" name="btn_imp_exsortie">
      <property name="geometry">
       <rect>
-       <x>316</x>
-       <y>51</y>
+       <x>414</x>
+       <y>50</y>
        <width>98</width>
        <height>27</height>
       </rect>
@@ -961,6 +961,146 @@
      </property>
      <property name="maxVisibleItems">
       <number>50</number>
+     </property>
+    </widget>
+    <widget class="QDateEdit" name="dat_eddatdeb">
+     <property name="geometry">
+      <rect>
+       <x>423</x>
+       <y>128</y>
+       <width>110</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QDateEdit" name="dat_eddatfin">
+     <property name="geometry">
+      <rect>
+       <x>423</x>
+       <y>161</y>
+       <width>110</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="txt_edjourschan">
+     <property name="geometry">
+      <rect>
+       <x>422</x>
+       <y>194</y>
+       <width>238</width>
+       <height>53</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cbx_edcodesite">
+     <property name="geometry">
+      <rect>
+       <x>17</x>
+       <y>125</y>
+       <width>239</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="list_edredac">
+     <property name="geometry">
+      <rect>
+       <x>19</x>
+       <y>160</y>
+       <width>244</width>
+       <height>62</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="txt_edsortcom">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>240</y>
+       <width>244</width>
+       <height>56</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="lst_edobjvisit">
+     <property name="geometry">
+      <rect>
+       <x>21</x>
+       <y>306</y>
+       <width>244</width>
+       <height>75</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Travaux sur site (hors chantiers de volontaires)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Chantier de volontaires</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Sortie ou animation encadrée</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Suivi scientifique</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Surveillance</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Autre</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QTextEdit" name="txt_edobjvisautre">
+     <property name="geometry">
+      <rect>
+       <x>22</x>
+       <y>387</y>
+       <width>242</width>
+       <height>62</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="txt_ednatfaune">
+     <property name="geometry">
+      <rect>
+       <x>423</x>
+       <y>265</y>
+       <width>236</width>
+       <height>42</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="txt_ednatflor">
+     <property name="geometry">
+      <rect>
+       <x>423</x>
+       <y>312</y>
+       <width>236</width>
+       <height>42</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="txt_ednatautr">
+     <property name="geometry">
+      <rect>
+       <x>423</x>
+       <y>361</y>
+       <width>236</width>
+       <height>42</height>
+      </rect>
      </property>
     </widget>
    </widget>

@@ -81,11 +81,12 @@ class BdTravauxDialog(QtGui.QDialog):
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.objetvisite, QtCore.SIGNAL('buttonClicked(QAbstractButton*)'), self.objetVisiClicked)
         #http://www.qtcentre.org/archive/index.php/t-15687.html pour l'emploi de QAbstractButton
-        #Connexion du signal "chagement d'onglet" à la fonction qui active / désactive les bouton "OK" et "Annuler"
+        #Connexion du signal "changement d'onglet" à la fonction qui active / désactive les bouton "OK" et "Annuler"
         self.connect(self.ui.tab_widget, QtCore.SIGNAL('currentChanged(int)'), self.masqueBoutons)
         self.connect(self.ui.btn_imp_exsortie, QtCore.SIGNAL('clicked()'), self.imprimExSort)
         self.connect(self.ui.chbox_plsrsjrs, QtCore.SIGNAL('stateChanged(int)'), self.enablePlsrsJours)
         self.connect(self.ui.cbx_exsortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.fillEditControls)
+        self.connect(self.ui.pbt_savemodifs, QtCore.SIGNAL('clicked()'), self.saveModifsSortie)
 
 
 
@@ -159,8 +160,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
         # contrôle "date" : on utilise la méthode SelectedDate des calendriers : self.ui.date.selectedDate(), toPyDate() pour
         # transformer l'objet QDate en objet "date " de Python, et la méthode Python strftime pour définir le format de sortie.
-        # contrôle "obsv" : on utilise la méthode CurrentText d'une combobox
-        # contrôle "site" : c'est aussi une combobox, mais on ne veut pas de texte, on veut la data définie quand on a rempli la combobox (cf. l54)
+        # contrôle "site" : c'est une combobox, mais on ne veut pas de texte, on veut la data définie quand on a rempli la combobox (cf. l54)
         # contrôles checkboxes : méthode isChecked renvoie un booléen. on transforme en chaîne (str), ce qui donne True ou False.
         # Or, on veut true ou false pour que PostGreSQl puisse les interprêter. D'où laméthode Python .lower, qui change la casse des chaînes.
         # contrôles "jours_chan" et "comm" : ce qont des QTextEdit. Ils prennent donc le texte saisi au format HTML. 
@@ -183,7 +183,7 @@ class BdTravauxDialog(QtGui.QDialog):
             querysalarie = QtSql.QSqlQuery(self.db)
             qsalarie = u"""insert into bdtravaux.join_salaries (id_joinsal, salaries, sal_initia) values ({zr_idjoinsal}, '{zr_salarie}','{zr_initiales}')""".format (\
             zr_idjoinsal = self.sortie_id,\
-            zr_salarie = self.ui.obsv.selectedItems()[item].text().split("/")[0].replace("\'","\'\'"),\
+            zr_salarie = self.ui.obsv.selectedItems()[item].text().split(" /")[0].replace("\'","\'\'"),\
             zr_initiales=self.ui.obsv.selectedItems()[item].text().split("/")[1])
             ok3 = querysalarie.exec_(qsalarie)
             if not ok3:
@@ -265,6 +265,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.ui.dat_eddatfin.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
         self.ui.txt_edjourschan.setText('')
         self.ui.cbx_edcodesite.setCurrentIndex(0)
+        self.ui.lst_edredac.clearSelection()
         self.ui.txt_edsortcom.setText('')
         self.ui.lst_edobjvisit.setCurrentRow(1)
         self.ui.txt_edobjvisautre.setText('')
@@ -272,24 +273,33 @@ class BdTravauxDialog(QtGui.QDialog):
         self.ui.txt_ednatflor.setText('')
         self.ui.txt_ednatautr.setText('')
         
+        
         #dans le tab "exsortie", remplit les contrôles contenant les données de la sortie à modifier.
         queryidsortie = QtSql.QSqlQuery(self.db)
-        qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, redacteur, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
-        print "queryidsortie="+str(qidsort)
+        qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+        print "remplitcontroles"+qidsort
         ok2=queryidsortie.exec_(qidsort)
         queryidsortie.next()
         if not ok2:
-            QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé la sortie à modifier')
-        print queryidsortie.value(4)
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé la sortie à modifier')
         self.ui.dat_eddatdeb.setDate(queryidsortie.value(1))
         self.ui.dat_eddatfin.setDate(queryidsortie.value(2))
         self.ui.txt_edjourschan.setText(unicode(queryidsortie.value(3)))
         self.ui.cbx_edcodesite.setCurrentIndex(self.ui.cbx_edcodesite.findText(queryidsortie.value(4), QtCore.Qt.MatchStartsWith))
         self.ui.txt_edsortcom.setText(unicode(queryidsortie.value(7)))
-       # self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(8), QtCore.Qt.MatchStartsWith))
+        self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(8), QtCore.Qt.MatchExactly) [0])
+        self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(9)))
         self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(10)))
         self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(11)))
         self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(12)))
+        
+        #cas à part : sélection d'items dans une liste (salariés présents lors de la sortie)
+        list_sal = queryidsortie.value(5).split("; ")
+        for y in xrange (self.ui.lst_edredac.count()):
+            salarie=self.ui.lst_edredac.item(y)
+            for x in list_sal:
+                if unicode(salarie.text())==x:
+                    salarie.setSelected(True) 
 
 
 
@@ -306,6 +316,29 @@ class BdTravauxDialog(QtGui.QDialog):
         self.obj_compo.composerView.composerViewHide.connect(self.raiseModule)
         #lancement de la fonction afterComposeurClose dans le module composerClass pour effacer les couches ayant servi au composeur, et réafficher les autres.
         self.obj_compo.composerView.composerViewHide.connect(self.obj_compo.afterComposerClose)
+
+    def saveModifsSortie(self):
+        # sauvegarde des modifications d'une sortie
+        querysavemodsort = QtSql.QSqlQuery(self.db)
+        qsavmods = u"""UPDATE bdtravaux.sortie SET date_sortie = '{zr_datedeb}'::date , date_fin = '{zr_datefin}'::date , codesite= '{zr_codesite}' , jours_chan='{zr_jourschan}' , sortcom = '{zr_sortcom}' , objvisite = '{zr_objvisite}' , objvi_autr = '{zr_objviautr}' , natfaune = '{zr_natfaune}' , natflore = '{zr_natflore}', natautre = '{zr_natautre}'  WHERE sortie_id={zr_sortie}""".format (\
+        zr_datedeb = self.ui.dat_eddatdeb.date().toPyDate().strftime("%Y-%m-%d"),\
+        zr_datefin = self.ui.dat_eddatfin.date().toPyDate().strftime("%Y-%m-%d"),\
+        zr_codesite = self.ui.cbx_edcodesite.itemData(self.ui.cbx_edcodesite.currentIndex()),\
+        zr_jourschan = self.ui.txt_edjourschan.toPlainText().replace("\'","\'\'"),\
+        zr_sortcom = self.ui.txt_edsortcom.toPlainText().replace("\'","\'\'"),\
+        zr_objvisite = self.ui.lst_edobjvisit.selectedItems()[0].text().replace("\'","\'\'"),\
+        zr_objviautr = self.ui.txt_edobjvisautre.toPlainText().replace("\'","\'\'"),\
+        zr_natfaune = self.ui.txt_ednatfaune.toPlainText().replace("\'","\'\'"),\
+        zr_natflore = self.ui.txt_ednatflor.toPlainText().replace("\'","\'\'"),\
+        zr_natautre = self.ui.txt_ednatautr.toPlainText().replace("\'","\'\'"),\
+        zr_sortie = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+        ok = querysavemodsort.exec_(qsavmods)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour sortie ratée')
+        print "requette modif ="+qsavmods
+        self.db.close()
+        self.db.removeDatabase("sitescsn")
+        self.close
 
 
 

@@ -6,503 +6,741 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>766</width>
-    <height>793</height>
+    <width>791</width>
+    <height>812</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>760</y>
-     <width>181</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="compoButton">
-   <property name="geometry">
-    <rect>
-     <x>590</x>
-     <y>760</y>
-     <width>171</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ouvre le composeur &amp;quot;Compte-rendu d'opérations&amp;quot;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="text">
-    <string>Dernier - Editer CR</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="chantfini">
-   <property name="geometry">
-    <rect>
-     <x>400</x>
-     <y>760</y>
-     <width>171</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Chantier réceptionné</string>
-   </property>
-  </widget>
-  <widget class="QTextEdit" name="descriptio">
-   <property name="geometry">
-    <rect>
-     <x>11</x>
-     <y>650</y>
-     <width>744</width>
-     <height>101</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Arial</family>
-     <pointsize>8</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="mouseTracking">
-    <bool>false</bool>
-   </property>
-   <property name="toolTip">
-    <string>description de l'opération</string>
-   </property>
-   <property name="tabStopWidth">
-    <number>255</number>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="lbl_descr">
-   <property name="geometry">
-    <rect>
-     <x>11</x>
-     <y>620</y>
-     <width>91</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Description</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="layoutWidget_3">
+  <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>90</y>
-     <width>739</width>
-     <height>52</height>
+     <y>5</y>
+     <width>768</width>
+     <height>803</height>
     </rect>
    </property>
-   <layout class="QGridLayout" name="lyt_geom">
-    <item row="0" column="0">
-     <widget class="QLabel" name="lbl_select">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Points, lignes ou polygones sélectionnés</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLabel" name="label">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Type de géométrie à sortir</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="lbl_geom">
-      <property name="text">
-       <string>0 entités sélectionnées, de type inconnu</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QComboBox" name="trsf_geom">
-      <item>
-       <property name="text">
-        <string>Points</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Lignes</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Surfaces</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QLabel" name="lbl_sortie">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>7</y>
-     <width>739</width>
-     <height>17</height>
-    </rect>
+   <property name="currentIndex">
+    <number>0</number>
    </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Sortie</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="sortie">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>30</y>
-     <width>739</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="Line" name="line">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>60</y>
-     <width>731</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="Line" name="line_2">
-   <property name="geometry">
-    <rect>
-     <x>17</x>
-     <y>150</y>
-     <width>731</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="Line" name="line_3">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>330</y>
-     <width>731</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="Line" name="line_4">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>600</y>
-     <width>741</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>170</y>
-     <width>741</width>
-     <height>161</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QGroupBox" name="lbl_opeprev">
-      <property name="title">
-       <string>Opération prévue</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QListWidget" name="opprev">
+   <widget class="QWidget" name="ope_saisie">
+    <attribute name="title">
+     <string>Saisie</string>
+    </attribute>
+    <widget class="Line" name="line_3">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>299</y>
+       <width>731</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>139</y>
+       <width>741</width>
+       <height>161</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <property name="text">
-        <string>000 / NP / Non prévu / Opération non prévue / NP </string>
-       </property>
+       <widget class="QGroupBox" name="lbl_opeprev">
+        <property name="title">
+         <string>Opération prévue</string>
+        </property>
+       </widget>
       </item>
       <item>
-       <property name="text">
-        <string>000 / AvtPdG / Avant le plan de gestion / Opération antérieure au plan de gestion / AvtPdG</string>
-       </property>
+       <widget class="QListWidget" name="opprev">
+        <item>
+         <property name="text">
+          <string>000 / NP / Non prévu / Opération non prévue / NP </string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>000 / AvtPdG / Avant le plan de gestion / Opération antérieure au plan de gestion / AvtPdG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>000 / 0GH / Pas encore de GH / GH non attribué / 0GH</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>319</y>
+       <width>741</width>
+       <height>251</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QGroupBox" name="lbl_opreal">
+        <property name="title">
+         <string>Type d'opération réalisée</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QGroupBox" name="lbl_prestataire">
+        <property name="title">
+         <string>Opérateur</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QListWidget" name="opreal">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+        <item>
+         <property name="text">
+          <string>Abattage d'arbres dangereux</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Coupe des rejets</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Débroussaillage</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Entretien dispositif à batraciens</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Entretien sentier</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Etrépage</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Faucardage</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Fauche</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mise en place d'un mât à cigognes</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mise en tas de produits pour reptiles</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pâturage bovin</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pâturage caprin</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pâturage équin</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pâturage ovin</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pose de matériel assuré : sonde piézométrique</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pose de matériel assuré : sonde limnimétrique</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pose de matériel assuré : écocompteur</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QListWidget" name="prestataire">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+        <item>
+         <property name="text">
+          <string>CEN</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Prestataires</string>
+         </property>
+         <property name="font">
+          <font>
+           <italic>true</italic>
+          </font>
+         </property>
+         <property name="foreground">
+          <brush brushstyle="NoBrush">
+           <color alpha="255">
+            <red>255</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </property>
+         <property name="flags">
+          <set>NoItemFlags</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Ateliers verts</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cipres</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Ecoflandres</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Euréka</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Agriculteurs</string>
+         </property>
+         <property name="font">
+          <font>
+           <italic>true</italic>
+          </font>
+         </property>
+         <property name="foreground">
+          <brush brushstyle="NoBrush">
+           <color alpha="255">
+            <red>255</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </property>
+         <property name="flags">
+          <set>NoItemFlags</set>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>M. Machen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>M. Mahieu</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="compoButton">
+     <property name="geometry">
+      <rect>
+       <x>576</x>
+       <y>726</y>
+       <width>171</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ouvre le composeur &amp;quot;Compte-rendu d'opérations&amp;quot;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Dernier - Editer CR</string>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="descriptio">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>617</y>
+       <width>744</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>8</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>description de l'opération</string>
+     </property>
+     <property name="tabStopWidth">
+      <number>255</number>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="lbl_descr">
+     <property name="geometry">
+      <rect>
+       <x>7</x>
+       <y>588</y>
+       <width>91</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Description</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chantfini">
+     <property name="geometry">
+      <rect>
+       <x>399</x>
+       <y>729</y>
+       <width>171</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>opération terminée</string>
+     </property>
+    </widget>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="geometry">
+      <rect>
+       <x>6</x>
+       <y>727</y>
+       <width>181</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+    <widget class="Line" name="line_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>556</y>
+       <width>741</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>17</x>
+       <y>60</y>
+       <width>739</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="lyt_geom">
+      <item row="0" column="0">
+       <widget class="QLabel" name="lbl_select">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Points, lignes ou polygones sélectionnés</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Type de géométrie à sortir</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="lbl_geom">
+        <property name="text">
+         <string>0 entités sélectionnées, de type inconnu</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="trsf_geom">
+        <item>
+         <property name="text">
+          <string>Points</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Lignes</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Surfaces</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QCheckBox" name="chx_opechvol">
+     <property name="geometry">
+      <rect>
+       <x>564</x>
+       <y>587</y>
+       <width>191</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Chantier de volontaires?</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="Line" name="line_2">
+     <property name="geometry">
+      <rect>
+       <x>21</x>
+       <y>116</y>
+       <width>731</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="Line" name="line">
+     <property name="geometry">
+      <rect>
+       <x>21</x>
+       <y>39</y>
+       <width>731</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="sortie">
+     <property name="geometry">
+      <rect>
+       <x>17</x>
+       <y>17</y>
+       <width>739</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_sortie">
+     <property name="geometry">
+      <rect>
+       <x>19</x>
+       <y>1</y>
+       <width>739</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Sortie</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="ope_modifs">
+    <attribute name="title">
+     <string>Modifications</string>
+    </attribute>
+    <widget class="QComboBox" name="cbx_edsortie">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>6</x>
+       <y>31</y>
+       <width>252</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edsortie">
+     <property name="geometry">
+      <rect>
+       <x>8</x>
+       <y>8</y>
+       <width>247</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Sortie</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cbx_edoperation">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>327</x>
+       <y>31</y>
+       <width>384</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edoperation">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>9</y>
+       <width>247</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Opération</string>
+     </property>
+    </widget>
+    <widget class="Line" name="line_5">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>74</y>
+       <width>734</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="lst_edopeprev">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>115</y>
+       <width>735</width>
+       <height>139</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="txt_eddescr">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>16</x>
+       <y>471</y>
+       <width>733</width>
+       <height>165</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chx_edopeterm">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>17</x>
+       <y>651</y>
+       <width>158</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Opération terminée</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chx_edchantvol">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>193</x>
+       <y>651</y>
+       <width>188</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Chantier de volontaires</string>
+     </property>
+    </widget>
+    <widget class="QDialogButtonBox" name="bbx_edokannul">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>17</x>
+       <y>724</y>
+       <width>176</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pbt_edgeom">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>725</y>
+       <width>126</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Modif graphique</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pbt_supprope">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>588</x>
+       <y>650</y>
+       <width>159</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Supprimer l'opération</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>:/plugins/bdtravaux/icon2.png</normaloff>:/plugins/bdtravaux/icon2.png</iconset>
+     </property>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>15</x>
+       <y>264</y>
+       <width>735</width>
+       <height>194</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QListWidget" name="lst_edtypope">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
       <item>
-       <property name="text">
-        <string>000 / 0GH / Pas encore de GH / GH non attribué / 0GH</string>
-       </property>
+       <widget class="QListWidget" name="lst_edpresta">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>350</y>
-     <width>741</width>
-     <height>251</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QGroupBox" name="lbl_opreal">
-      <property name="title">
-       <string>Type d'opération réalisée</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QGroupBox" name="lbl_prestataire">
-      <property name="title">
-       <string>Opérateur</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QListWidget" name="opreal">
-      <property name="selectionMode">
-       <enum>QAbstractItemView::ExtendedSelection</enum>
-      </property>
-      <item>
-       <property name="text">
-        <string>Abattage d'arbres dangereux</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Coupe des rejets</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Débroussaillage</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Entretien dispositif à batraciens</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Entretien sentier</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Etrépage</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Faucardage</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Fauche</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Mise en place d'un mât à cigognes</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Mise en tas de produits pour reptiles</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pâturage bovin</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pâturage caprin</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pâturage équin</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pâturage ovin</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pose de matériel assuré : sonde piézométrique</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pose de matériel assuré : sonde limnimétrique</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pose de matériel assuré : écocompteur</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QListWidget" name="prestataire">
-      <property name="selectionMode">
-       <enum>QAbstractItemView::ExtendedSelection</enum>
-      </property>
-      <item>
-       <property name="text">
-        <string>CEN</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Prestataires</string>
-       </property>
-       <property name="font">
-        <font>
-         <italic>true</italic>
-        </font>
-       </property>
-       <property name="foreground">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </property>
-       <property name="flags">
-        <set>NoItemFlags</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Ateliers verts</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Cipres</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Ecoflandres</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Euréka</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Agriculteurs</string>
-       </property>
-       <property name="font">
-        <font>
-         <italic>true</italic>
-        </font>
-       </property>
-       <property name="foreground">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </property>
-       <property name="flags">
-        <set>NoItemFlags</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>M. Machen</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>M. Mahieu</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QCheckBox" name="chx_opechvol">
-   <property name="geometry">
-    <rect>
-     <x>557</x>
-     <y>3</y>
-     <width>191</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Chantier de volontaires?</string>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
+     </layout>
+    </widget>
+   </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

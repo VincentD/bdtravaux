@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>809</width>
-    <height>676</height>
+    <width>812</width>
+    <height>695</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox_2">
    <property name="geometry">
     <rect>
-     <x>615</x>
-     <y>630</y>
+     <x>618</x>
+     <y>655</y>
      <width>176</width>
      <height>27</height>
     </rect>
@@ -32,10 +32,10 @@
   <widget class="QTabWidget" name="tab_widget">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>0</y>
+     <x>15</x>
+     <y>5</y>
      <width>781</width>
-     <height>623</height>
+     <height>634</height>
     </rect>
    </property>
    <property name="focusPolicy">
@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -940,8 +940,8 @@
     <widget class="QPushButton" name="btn_imp_exsortie">
      <property name="geometry">
       <rect>
-       <x>414</x>
-       <y>50</y>
+       <x>384</x>
+       <y>41</y>
        <width>98</width>
        <height>27</height>
       </rect>
@@ -953,8 +953,8 @@
     <widget class="QComboBox" name="cbx_exsortie">
      <property name="geometry">
       <rect>
-       <x>24</x>
-       <y>51</y>
+       <x>21</x>
+       <y>41</y>
        <width>278</width>
        <height>27</height>
       </rect>
@@ -966,8 +966,8 @@
     <widget class="QDateEdit" name="dat_eddatdeb">
      <property name="geometry">
       <rect>
-       <x>423</x>
-       <y>128</y>
+       <x>24</x>
+       <y>126</y>
        <width>110</width>
        <height>27</height>
       </rect>
@@ -976,8 +976,8 @@
     <widget class="QDateEdit" name="dat_eddatfin">
      <property name="geometry">
       <rect>
-       <x>423</x>
-       <y>161</y>
+       <x>24</x>
+       <y>159</y>
        <width>110</width>
        <height>27</height>
       </rect>
@@ -986,9 +986,9 @@
     <widget class="QTextEdit" name="txt_edjourschan">
      <property name="geometry">
       <rect>
-       <x>422</x>
-       <y>194</y>
-       <width>238</width>
+       <x>141</x>
+       <y>129</y>
+       <width>205</width>
        <height>53</height>
       </rect>
      </property>
@@ -996,41 +996,84 @@
     <widget class="QComboBox" name="cbx_edcodesite">
      <property name="geometry">
       <rect>
-       <x>17</x>
-       <y>125</y>
+       <x>23</x>
+       <y>203</y>
        <width>239</width>
        <height>27</height>
       </rect>
      </property>
     </widget>
-    <widget class="QListWidget" name="list_edredac">
+    <widget class="QListWidget" name="lst_edredac">
      <property name="geometry">
       <rect>
-       <x>19</x>
-       <y>160</y>
-       <width>244</width>
-       <height>62</height>
+       <x>22</x>
+       <y>246</y>
+       <width>187</width>
+       <height>139</height>
       </rect>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Alexis Thery</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Anthony Vasseux</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Kevin Guaquier</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Matthieu Loquet</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Quentin Vanquelef</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Sandrine Gougaud</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Simon Bezille</string>
+      </property>
+     </item>
     </widget>
     <widget class="QTextEdit" name="txt_edsortcom">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>240</y>
-       <width>244</width>
-       <height>56</height>
+       <x>22</x>
+       <y>389</y>
+       <width>369</width>
+       <height>124</height>
       </rect>
      </property>
     </widget>
     <widget class="QListWidget" name="lst_edobjvisit">
      <property name="geometry">
       <rect>
-       <x>21</x>
-       <y>306</y>
-       <width>244</width>
-       <height>75</height>
+       <x>437</x>
+       <y>337</y>
+       <width>305</width>
+       <height>117</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <item>
       <property name="text">
@@ -1059,49 +1102,66 @@
      </item>
      <item>
       <property name="text">
-       <string>Autre</string>
+       <string>Autre...</string>
       </property>
      </item>
     </widget>
     <widget class="QTextEdit" name="txt_edobjvisautre">
      <property name="geometry">
       <rect>
-       <x>22</x>
-       <y>387</y>
-       <width>242</width>
-       <height>62</height>
+       <x>437</x>
+       <y>461</y>
+       <width>305</width>
+       <height>29</height>
       </rect>
      </property>
     </widget>
-    <widget class="QTextEdit" name="txt_ednatfaune">
+    <widget class="Line" name="line">
      <property name="geometry">
       <rect>
-       <x>423</x>
-       <y>265</y>
-       <width>236</width>
-       <height>42</height>
+       <x>25</x>
+       <y>85</y>
+       <width>730</width>
+       <height>16</height>
       </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
-    <widget class="QTextEdit" name="txt_ednatflor">
+    <widget class="QPushButton" name="pbt_savemodifs">
      <property name="geometry">
       <rect>
-       <x>423</x>
-       <y>312</y>
-       <width>236</width>
-       <height>42</height>
+       <x>646</x>
+       <y>557</y>
+       <width>113</width>
+       <height>27</height>
       </rect>
+     </property>
+     <property name="text">
+      <string>Sauver Modifs</string>
      </property>
     </widget>
-    <widget class="QTextEdit" name="txt_ednatautr">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>423</x>
-       <y>361</y>
-       <width>236</width>
-       <height>42</height>
+       <x>437</x>
+       <y>127</y>
+       <width>307</width>
+       <height>202</height>
       </rect>
      </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QTextEdit" name="txt_ednatfaune"/>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="txt_ednatflor"/>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="txt_ednatautr"/>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>

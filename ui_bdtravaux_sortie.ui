@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -1017,37 +1017,37 @@
      </property>
      <item>
       <property name="text">
-       <string>Alexis Thery</string>
+       <string>Alexis Thery / AT</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Anthony Vasseux</string>
+       <string>Anthony Vasseux / AV</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Kevin Guaquier</string>
+       <string>Kevin Guaquier / KG</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Matthieu Loquet</string>
+       <string>Matthieu Loquet / ML</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Quentin Vanquelef</string>
+       <string>Quentin Vanquelef / QV</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Sandrine Gougaud</string>
+       <string>Sandrine Gougaud / SG</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Simon Bezille</string>
+       <string>Simon Bezille / SB</string>
       </property>
      </item>
     </widget>
@@ -1142,13 +1142,13 @@
       <string>Sauver Modifs</string>
      </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>437</x>
        <y>127</y>
        <width>307</width>
-       <height>202</height>
+       <height>248</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">

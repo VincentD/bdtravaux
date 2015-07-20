@@ -187,8 +187,7 @@ class BdTravauxDialog(QtGui.QDialog):
             zr_initiales=self.ui.obsv.selectedItems()[item].text().split("/")[1])
             ok3 = querysalarie.exec_(qsalarie)
             if not ok3:
-               # QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des salariés en base ratée')
-                print qsalarie
+               QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des salariés en base ratée')
             querysalarie.next()
 
 
@@ -304,7 +303,7 @@ class BdTravauxDialog(QtGui.QDialog):
             for y in xrange (self.ui.lst_edredac.count()):
                 salarie=self.ui.lst_edredac.item(y)
                 for x in list_sal:
-                    if unicode(salarie.text())==x:
+                    if unicode(salarie.text().split(" /")[0])==x:
                         salarie.setSelected(True) 
 
 
@@ -343,7 +342,30 @@ class BdTravauxDialog(QtGui.QDialog):
         ok = querysavemodsort.exec_(qsavmods)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour sortie ratée')
-        print "requette modif ="+qsavmods
+
+        #sauvegarde des modifications de salariés : sortie_id, noms et initiales du (des) salarié(s)
+            #suppression des salariés appartenant à la sortie modifiée
+        querysupprsal = QtSql.QSqlQuery(self.db)
+        qsupprsal = u"""DELETE FROM bdtravaux.join_salaries WHERE id_joinsal={zr_idjoinsal}""".format(\
+        zr_idjoinsal = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+        ok4 = querysupprsal.exec_(qsupprsal)
+        if not ok4 :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des salariés en base ratée')
+        print "salaries en trop supprimes"
+
+            #ajout de la liste de salariés modifiée
+        for item in xrange (len(self.ui.lst_edredac.selectedItems())):
+            querymodifsal = QtSql.QSqlQuery(self.db)
+            qmodsal = u"""insert into bdtravaux.join_salaries (id_joinsal, salaries, sal_initia) values ({zr_idjoinsal}, '{zr_salarie}','{zr_initiales}')""".format (\
+            zr_idjoinsal = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()),\
+            zr_salarie = self.ui.lst_edredac.selectedItems()[item].text().split(" /")[0].replace("\'","\'\'"),\
+            zr_initiales=self.ui.lst_edredac.selectedItems()[item].text().split("/")[1])
+            ok5 = querymodifsal.exec_(qmodsal)
+            if not ok5:
+               QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des salariés en base ratée')
+            querymodifsal.next()
+            print "salaries modifies"
+
         self.db.close()
         self.db.removeDatabase("sitescsn")
         self.close()

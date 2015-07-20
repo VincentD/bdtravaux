@@ -246,6 +246,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
     def fillExSortieList(self):
+        self.blocActuEditControls='1'
         self.ui.cbx_exsortie.clear()
         # Remplir la QlistWidget "listesortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
@@ -257,49 +258,54 @@ class BdTravauxDialog(QtGui.QDialog):
         # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
         if not ok :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
+        self.blocActuEditControls='0'
 
 
     def fillEditControls(self):
-        #dans le tab "exsortie", réinitialise les contrôles contenant les données de la sortie à modifier.
-        self.ui.dat_eddatdeb.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
-        self.ui.dat_eddatfin.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
-        self.ui.txt_edjourschan.setText('')
-        self.ui.cbx_edcodesite.setCurrentIndex(0)
-        self.ui.lst_edredac.clearSelection()
-        self.ui.txt_edsortcom.setText('')
-        self.ui.lst_edobjvisit.setCurrentRow(1)
-        self.ui.txt_edobjvisautre.setText('')
-        self.ui.txt_ednatfaune.setText('')
-        self.ui.txt_ednatflor.setText('')
-        self.ui.txt_ednatautr.setText('')
+        if self.blocActuEditControls=='1':
+            return
+        else:
+            #dans le tab "exsortie", réinitialise les contrôles contenant les données de la sortie à modifier.
+            self.ui.dat_eddatdeb.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
+            self.ui.dat_eddatfin.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
+            self.ui.txt_edjourschan.setText('')
+            self.ui.cbx_edcodesite.setCurrentIndex(0)
+            self.ui.lst_edredac.clearSelection()
+            self.ui.txt_edsortcom.setText('')
+            self.ui.lst_edobjvisit.setCurrentRow(1)
+            self.ui.txt_edobjvisautre.setText('')
+            self.ui.txt_ednatfaune.setText('')
+            self.ui.txt_ednatflor.setText('')
+            self.ui.txt_ednatautr.setText('')
         
         
-        #dans le tab "exsortie", remplit les contrôles contenant les données de la sortie à modifier.
-        queryidsortie = QtSql.QSqlQuery(self.db)
-        qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
-        print "remplitcontroles"+qidsort
-        ok2=queryidsortie.exec_(qidsort)
-        queryidsortie.next()
-        if not ok2:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé la sortie à modifier')
-        self.ui.dat_eddatdeb.setDate(queryidsortie.value(1))
-        self.ui.dat_eddatfin.setDate(queryidsortie.value(2))
-        self.ui.txt_edjourschan.setText(unicode(queryidsortie.value(3)))
-        self.ui.cbx_edcodesite.setCurrentIndex(self.ui.cbx_edcodesite.findText(queryidsortie.value(4), QtCore.Qt.MatchStartsWith))
-        self.ui.txt_edsortcom.setText(unicode(queryidsortie.value(7)))
-        self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(8), QtCore.Qt.MatchExactly) [0])
-        self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(9)))
-        self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(10)))
-        self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(11)))
-        self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(12)))
+            #dans le tab "exsortie", remplit les contrôles contenant les données de la sortie à modifier.
+            queryidsortie = QtSql.QSqlQuery(self.db)
+            qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+            print "data ="+str(self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+            print "remplitcontroles"+qidsort
+            ok2=queryidsortie.exec_(qidsort)
+            queryidsortie.next()
+            if not ok2:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé la sortie à modifier')
+            self.ui.dat_eddatdeb.setDate(queryidsortie.value(1))
+            self.ui.dat_eddatfin.setDate(queryidsortie.value(2))
+            self.ui.txt_edjourschan.setText(unicode(queryidsortie.value(3)))
+            self.ui.cbx_edcodesite.setCurrentIndex(self.ui.cbx_edcodesite.findText(queryidsortie.value(4), QtCore.Qt.MatchStartsWith))
+            self.ui.txt_edsortcom.setText(unicode(queryidsortie.value(7)))
+            self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(8), QtCore.Qt.MatchExactly) [0])
+            self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(9)))
+            self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(10)))
+            self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(11)))
+            self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(12)))
         
-        #cas à part : sélection d'items dans une liste (salariés présents lors de la sortie)
-        list_sal = queryidsortie.value(5).split("; ")
-        for y in xrange (self.ui.lst_edredac.count()):
-            salarie=self.ui.lst_edredac.item(y)
-            for x in list_sal:
-                if unicode(salarie.text())==x:
-                    salarie.setSelected(True) 
+            #cas à part : sélection d'items dans une liste (salariés présents lors de la sortie)
+            list_sal = queryidsortie.value(5).split("; ")
+            for y in xrange (self.ui.lst_edredac.count()):
+                salarie=self.ui.lst_edredac.item(y)
+                for x in list_sal:
+                    if unicode(salarie.text())==x:
+                        salarie.setSelected(True) 
 
 
 
@@ -316,6 +322,8 @@ class BdTravauxDialog(QtGui.QDialog):
         self.obj_compo.composerView.composerViewHide.connect(self.raiseModule)
         #lancement de la fonction afterComposeurClose dans le module composerClass pour effacer les couches ayant servi au composeur, et réafficher les autres.
         self.obj_compo.composerView.composerViewHide.connect(self.obj_compo.afterComposerClose)
+
+
 
     def saveModifsSortie(self):
         # sauvegarde des modifications d'une sortie
@@ -338,7 +346,7 @@ class BdTravauxDialog(QtGui.QDialog):
         print "requette modif ="+qsavmods
         self.db.close()
         self.db.removeDatabase("sitescsn")
-        self.close
+        self.close()
 
 
 

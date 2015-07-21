@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -964,6 +964,9 @@
      </property>
     </widget>
     <widget class="QDateEdit" name="dat_eddatdeb">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>24</x>
@@ -1130,6 +1133,9 @@
      </property>
     </widget>
     <widget class="QPushButton" name="pbt_savemodifs">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>646</x>

@@ -126,7 +126,7 @@ class BdTravaux:
             self.dlg_ope.actu_listeschoix() 
             print 'sansGeom ='+self.dlg_ope.sansgeom
             self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
-            self.dlg_ope.actu_gestprev_chxopechvol()#maj de la QListWidget gestprev selon le site choisi dans la ccbox "sortie"
+            self.dlg_ope.actu_gestprev_opechvol_edope() # maj de plsrs listes et cbbx en fction du choix dans la ccbx "sortie"
             self.dlg_ope.show()
             # Run the dialog event loop
             result = self.dlg_ope.exec_()

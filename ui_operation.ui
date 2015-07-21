@@ -14,12 +14,15 @@
    <string>Dialog</string>
   </property>
   <widget class="QTabWidget" name="tabWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>5</y>
+     <y>21</y>
      <width>768</width>
-     <height>803</height>
+     <height>787</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -32,8 +35,8 @@
     <widget class="Line" name="line_3">
      <property name="geometry">
       <rect>
-       <x>14</x>
-       <y>299</y>
+       <x>11</x>
+       <y>260</y>
        <width>731</width>
        <height>20</height>
       </rect>
@@ -45,8 +48,8 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>14</x>
-       <y>139</y>
+       <x>11</x>
+       <y>100</y>
        <width>741</width>
        <height>161</height>
       </rect>
@@ -83,8 +86,8 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>14</x>
-       <y>319</y>
+       <x>11</x>
+       <y>280</y>
        <width>741</width>
        <height>251</height>
       </rect>
@@ -287,8 +290,8 @@
     <widget class="QPushButton" name="compoButton">
      <property name="geometry">
       <rect>
-       <x>576</x>
-       <y>726</y>
+       <x>573</x>
+       <y>687</y>
        <width>171</width>
        <height>27</height>
       </rect>
@@ -303,8 +306,8 @@
     <widget class="QTextEdit" name="descriptio">
      <property name="geometry">
       <rect>
-       <x>12</x>
-       <y>617</y>
+       <x>9</x>
+       <y>578</y>
        <width>744</width>
        <height>101</height>
       </rect>
@@ -330,8 +333,8 @@
     <widget class="QGroupBox" name="lbl_descr">
      <property name="geometry">
       <rect>
-       <x>7</x>
-       <y>588</y>
+       <x>4</x>
+       <y>549</y>
        <width>91</width>
        <height>28</height>
       </rect>
@@ -343,8 +346,8 @@
     <widget class="QCheckBox" name="chantfini">
      <property name="geometry">
       <rect>
-       <x>399</x>
-       <y>729</y>
+       <x>396</x>
+       <y>690</y>
        <width>171</width>
        <height>22</height>
       </rect>
@@ -356,8 +359,8 @@
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="geometry">
       <rect>
-       <x>6</x>
-       <y>727</y>
+       <x>3</x>
+       <y>688</y>
        <width>181</width>
        <height>27</height>
       </rect>
@@ -385,8 +388,8 @@
     <widget class="QWidget" name="layoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>17</x>
-       <y>60</y>
+       <x>14</x>
+       <y>21</y>
        <width>739</width>
        <height>52</height>
       </rect>
@@ -449,8 +452,8 @@
     <widget class="QCheckBox" name="chx_opechvol">
      <property name="geometry">
       <rect>
-       <x>564</x>
-       <y>587</y>
+       <x>561</x>
+       <y>548</y>
        <width>191</width>
        <height>22</height>
       </rect>
@@ -465,56 +468,14 @@
     <widget class="Line" name="line_2">
      <property name="geometry">
       <rect>
-       <x>21</x>
-       <y>116</y>
+       <x>18</x>
+       <y>77</y>
        <width>731</width>
        <height>20</height>
       </rect>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-    <widget class="Line" name="line">
-     <property name="geometry">
-      <rect>
-       <x>21</x>
-       <y>39</y>
-       <width>731</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="sortie">
-     <property name="geometry">
-      <rect>
-       <x>17</x>
-       <y>17</y>
-       <width>739</width>
-       <height>27</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lbl_sortie">
-     <property name="geometry">
-      <rect>
-       <x>19</x>
-       <y>1</y>
-       <width>739</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Sortie</string>
      </property>
     </widget>
    </widget>
@@ -522,57 +483,30 @@
     <attribute name="title">
      <string>Modifications</string>
     </attribute>
-    <widget class="QComboBox" name="cbx_edsortie">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>6</x>
-       <y>31</y>
-       <width>252</width>
-       <height>27</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lbl_edsortie">
-     <property name="geometry">
-      <rect>
-       <x>8</x>
-       <y>8</y>
-       <width>247</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Sortie</string>
-     </property>
-    </widget>
     <widget class="QComboBox" name="cbx_edoperation">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
-       <x>327</x>
-       <y>31</y>
-       <width>384</width>
+       <x>10</x>
+       <y>37</y>
+       <width>725</width>
        <height>27</height>
       </rect>
      </property>
+     <item>
+      <property name="text">
+       <string>Opération vide</string>
+      </property>
+     </item>
     </widget>
     <widget class="QLabel" name="lbl_edoperation">
      <property name="geometry">
       <rect>
-       <x>330</x>
-       <y>9</y>
-       <width>247</width>
+       <x>12</x>
+       <y>13</y>
+       <width>279</width>
        <height>17</height>
       </rect>
      </property>
@@ -583,7 +517,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Opération</string>
+      <string>Sélectionner une opération à modifier</string>
      </property>
     </widget>
     <widget class="Line" name="line_5">
@@ -601,7 +535,7 @@
     </widget>
     <widget class="QListWidget" name="lst_edopeprev">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -614,7 +548,7 @@
     </widget>
     <widget class="QTextEdit" name="txt_eddescr">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -627,7 +561,7 @@
     </widget>
     <widget class="QCheckBox" name="chx_edopeterm">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -639,22 +573,6 @@
      </property>
      <property name="text">
       <string>Opération terminée</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="chx_edchantvol">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>193</x>
-       <y>651</y>
-       <width>188</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Chantier de volontaires</string>
      </property>
     </widget>
     <widget class="QDialogButtonBox" name="bbx_edokannul">
@@ -695,8 +613,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>588</x>
-       <y>650</y>
+       <x>587</x>
+       <y>696</y>
        <width>159</width>
        <height>27</height>
       </rect>
@@ -704,12 +622,8 @@
      <property name="text">
       <string>Supprimer l'opération</string>
      </property>
-     <property name="icon">
-      <iconset>
-       <normaloff>:/plugins/bdtravaux/icon2.png</normaloff>:/plugins/bdtravaux/icon2.png</iconset>
-     </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>15</x>
@@ -722,20 +636,72 @@
       <item>
        <widget class="QListWidget" name="lst_edtypope">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QListWidget" name="lst_edpresta">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>166</x>
+       <y>170</y>
+       <width>427</width>
+       <height>192</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>30</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>EN CONSTRUCTION</string>
+     </property>
+    </widget>
    </widget>
+  </widget>
+  <widget class="QComboBox" name="sortie">
+   <property name="geometry">
+    <rect>
+     <x>531</x>
+     <y>9</y>
+     <width>246</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_sortie">
+   <property name="geometry">
+    <rect>
+     <x>359</x>
+     <y>9</y>
+     <width>170</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Selectionner une sortie</string>
+   </property>
   </widget>
  </widget>
  <resources>

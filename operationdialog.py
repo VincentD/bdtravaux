@@ -63,12 +63,15 @@ class OperationDialog(QtGui.QDialog):
         # Connexions signaux-slots
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
+#        self.connect(self.ui.bbx_edokannul, QtCore.SIGNAL('accepted()'), self.sauverOpeModifs)
+#        self.connect(self.ui.bbx_edokannul, QtCore.SIGNAL('rejected()'), self.close)
         self.connect(self.ui.compoButton, QtCore.SIGNAL('clicked()'), self.creatComposer)
-        self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.actu_gestprev_chxopechvol)
+        self.connect(self.ui.sortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.actu_gestprev_opechvol_edope)
         # Si l'une des listes de choix est cliquée, connexion à la fonction activBoutons, qui vérifie qu'un item est sélectionné dans chaque pour donner accès aux boutons "OK" et "Dernier - Editer CR".
         self.connect(self.ui.opprev, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
         self.connect(self.ui.opreal, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
         self.connect(self.ui.prestataire, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
+        self.connect(self.ui.cbx_edoperation, QtCore.SIGNAL('currentIndexChanged(int)'), self.fillEditOpeControls)
 
 
 
@@ -97,12 +100,14 @@ class OperationDialog(QtGui.QDialog):
         if queryopes.exec_('select * from bdtravaux.list_operations_cen order by operations'):
             while queryopes.next():
                 self.ui.opreal.addItem(unicode(queryopes.value(1)))
+                self.ui.lst_edtypope.addItem(unicode(queryopes.value(1)))
 
         self.ui.prestataire.clear()
         queryoper = QtSql.QSqlQuery(self.db)
         if queryoper.exec_('select * from bdtravaux.list_operateur order by nom_oper'):
             while queryoper.next():
                 self.ui.prestataire.addItem(unicode(queryoper.value(1)))
+                self.ui.lst_edpresta.addItem(unicode(queryoper.value(1)))
 
 
 
@@ -128,19 +133,21 @@ class OperationDialog(QtGui.QDialog):
 
 
 
-    def actu_gestprev_chxopechvol(self):
+    def actu_gestprev_opechvol_edope(self):
+        # Quand l'utilisateur sélectionne une sortie, actualisation des contrôles "opprev", "lst_edopeprev", "cbx_edoperation" et gestion de la case à cocher "chx_opechvol".
         if self.blocActuGestPrev=='1':
             return
         else:
-            # Actualise la liste des opérations de gestion prévues en base de données et filtre selon le code du site
+            # opprev et lst_edopeprev : Actualise les listes des opérations de gestion prévues en base de données (liste de l'onglet "saisie" et liste de 'onglet "modification") et filtre selon le code du site
             self.ui.opprev.clear()
+            self.ui.lst_edopeprev.clear()
             #Récupération du code du site et de chantvol
             querycodesite = QtSql.QSqlQuery(self.db)
             qcodesite = u"""select codesite,chantvol from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
             (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
             ok2 = querycodesite.exec_(qcodesite)
             if not ok2:
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupCodeSite raté')
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupCodeSite ratée')
             querycodesite.next()
             self.codedusite=querycodesite.value(0)
             self.chantvol=querycodesite.value(1)
@@ -149,16 +156,86 @@ class OperationDialog(QtGui.QDialog):
             if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
                 while query.next():
                     self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
-            # Si la sortie contient un chantier de volontaire, la case à cocher "Chantier de volontaire" apparaît pour indiquer si l'opération courante fait partiue ou non du chantier de volontaire. Sinon, la case à cocher est cachée.
+                    self.ui.lst_edopeprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
+
+           
+            # cbx_edoperation : Actualise la combobox de choix de l'opération à modifier. La liste est filtrée selon la sortie sélectionnée.
+            self.blocFillEdOpContr = '0'            
+            self.ui.cbx_edoperation.clear()
+            queryope = QtSql.QSqlQuery(self.db)
+            if queryope.exec_(u"""SELECT operation_id, plangestion, code_gh, CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph, LEFT(array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; '),45)||'...'::text as typope, LEFT(descriptio,45)||'...'::text as descr, chantfini FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE sortie = {zr_sortie} OR operation_id='0'""".format(zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))):
+                while queryope.next():
+                     self.ui.cbx_edoperation.addItem(unicode(queryope.value(1)) + " / " + unicode(queryope.value(2)) + " / "+ unicode(queryope.value(3)) + " / "+ unicode(queryope.value(4)) + " / "+ unicode(queryope.value(5)), int(queryope.value(0)))
+            self.blocFillEdOpContr = '1'
+
+            # chx_opechvol : Si la sortie contient un chantier de volontaire, la case à cocher "Chantier de volontaire" apparaît pour indiquer si l'opération courante fait partie ou non du chantier de volontaire. Sinon, la case à cocher est cachée.
             if self.chantvol == True:
                 self.ui.chx_opechvol.setVisible(True)
                 self.ui.chx_opechvol.setChecked(True)
             else :
                 self.ui.chx_opechvol.setVisible(False)
-                # la liste "opprev" vient de changer. Les boutons "OK - Annuler" et "Dertnier - Editer CR" sont inactifs jusqu'à ce qu'un nouvel item soit sélectionné dans "opprev".
+            # la liste "opprev" vient de changer. Les boutons "OK - Annuler" et "Dernier - Editer CR" sont inactifs jusqu'à ce qu'un nouvel item soit sélectionné dans "opprev".
             self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
             self.ui.compoButton.setEnabled(0)
 
+    def fillEditOpeControls(self):
+        if self.blocFillEdOpContr == '1':
+        # Remplissage des contrôles du Tab "Modifications" du module "Opérations"
+            print 'remplissage des controles'
+            queryfillope = QtSql.QSqlQuery(self.db)
+            qfillope = u"""SELECT array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; ') as typope, array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper), '; ') as presta, descriptio, chantfini, plangestion, code_gh FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE operation_id={zr_ope}""".format(zr_ope = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
+            print 'qfillope ='+qfillope
+            ok6 = queryfillope.exec_(qfillope)
+            if not ok6 :
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Remplissage des contrôles dans le module operations raté')
+            queryfillope.next()
+            self.ui.txt_eddescr.setText(unicode(queryfillope.value(2)))
+            self.ui.chx_edopeterm.setChecked(bool(queryfillope.value(3)))
+
+
+        #cas à part : sélection d'items dans une liste (type d'opération réalisé)
+            list_typope = queryfillope.value(0).split("; ")
+            for y in xrange (self.ui.lst_edtypope.count()):
+                typope=self.ui.lst_edtypope.item(y)
+                for x in list_typope:
+                    if unicode(typope.text())==x:
+                        typope.setSelected(True) 
+
+        #cas à part : sélection d'items dans une liste (prestataires)
+            list_presta = queryfillope.value(1).split("; ")
+            for y in xrange (self.ui.lst_edpresta.count()):
+                presta=self.ui.lst_edpresta.item(y)
+                for x in list_presta:
+                    if unicode(presta.text())==x:
+                        presta.setSelected(True) 
+        
+        #cas à part : sélection d'items dans une liste (opérations prévues)
+            prevu_bd = str(queryfillope.value(4))+str(queryfillope.value(5))
+            for y in xrange (self.ui.lst_edopeprev.count()):
+                prevu_lst=self.ui.lst_edopeprev.item(y).text().split("/")[4]+self.ui.lst_edopeprev.item(y).text().split("/")[1]
+                if prevu_bd==prevu_lst:
+                    self.ui.lst_edopeprev.item(y).setSelected(True)
+
+
+
+#    def sauverOpeModifs(self):
+        # sauvegarde des modifications d'une opération
+#        querysavemodope = QtSql.QSqlQuery(self.db)
+#        qsavmodo = u"""UPDATE bdtravaux.sortie SET date_sortie = '{zr_datedeb}'::date , date_fin = '{zr_datefin}'::date , codesite= '{zr_codesite}' , jours_chan='{zr_jourschan}' , sortcom = '{zr_sortcom}' , objvisite = '{zr_objvisite}' , objvi_autr = '{zr_objviautr}' , natfaune = '{zr_natfaune}' , natflore = '{zr_natflore}', natautre = '{zr_natautre}'  WHERE sortie_id={zr_sortie}""".format (\
+#        zr_datedeb = self.ui.dat_eddatdeb.date().toPyDate().strftime("%Y-%m-%d"),\
+#        zr_datefin = self.ui.dat_eddatfin.date().toPyDate().strftime("%Y-%m-%d"),\
+#        zr_codesite = self.ui.cbx_edcodesite.itemData(self.ui.cbx_edcodesite.currentIndex()),\
+#        zr_jourschan = self.ui.txt_edjourschan.toPlainText().replace("\'","\'\'"),\
+#        zr_sortcom = self.ui.txt_edsortcom.toPlainText().replace("\'","\'\'"),\
+#        zr_objvisite = self.ui.lst_edobjvisit.selectedItems()[0].text().replace("\'","\'\'"),\
+#        zr_objviautr = self.ui.txt_edobjvisautre.toPlainText().replace("\'","\'\'"),\
+#        zr_natfaune = self.ui.txt_ednatfaune.toPlainText().replace("\'","\'\'"),\
+#        zr_natflore = self.ui.txt_ednatflor.toPlainText().replace("\'","\'\'"),\
+#        zr_natautre = self.ui.txt_ednatautr.toPlainText().replace("\'","\'\'"),\
+#        zr_sortie = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+#        ok = querysavemodope.exec_(qsavmodo)
+#        if not ok:
+#            QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour sortie ratée')
 
 
     def activBoutons(self):
@@ -292,6 +369,7 @@ class OperationDialog(QtGui.QDialog):
         #geom2.exportToWkt(),\
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
         zr_opechvol = self.id_opechvol)
+        print query
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')

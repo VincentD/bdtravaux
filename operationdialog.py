@@ -166,6 +166,7 @@ class OperationDialog(QtGui.QDialog):
             if queryope.exec_(u"""SELECT operation_id, plangestion, code_gh, CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph, LEFT(array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; '),45)||'...'::text as typope, LEFT(descriptio,45)||'...'::text as descr, chantfini FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE sortie = {zr_sortie} OR operation_id='0'""".format(zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))):
                 while queryope.next():
                      self.ui.cbx_edoperation.addItem(unicode(queryope.value(1)) + " / " + unicode(queryope.value(2)) + " / "+ unicode(queryope.value(3)) + " / "+ unicode(queryope.value(4)) + " / "+ unicode(queryope.value(5)), int(queryope.value(0)))
+            self.typgeom = queryope.value(3)
             self.blocFillEdOpContr = '1'
 
             # chx_opechvol : Si la sortie contient un chantier de volontaire, la case à cocher "Chantier de volontaire" apparaît pour indiquer si l'opération courante fait partie ou non du chantier de volontaire. Sinon, la case à cocher est cachée.
@@ -218,24 +219,44 @@ class OperationDialog(QtGui.QDialog):
 
 
 
-#    def sauverOpeModifs(self):
-        # sauvegarde des modifications d'une opération
-#        querysavemodope = QtSql.QSqlQuery(self.db)
-#        qsavmodo = u"""UPDATE bdtravaux.sortie SET date_sortie = '{zr_datedeb}'::date , date_fin = '{zr_datefin}'::date , codesite= '{zr_codesite}' , jours_chan='{zr_jourschan}' , sortcom = '{zr_sortcom}' , objvisite = '{zr_objvisite}' , objvi_autr = '{zr_objviautr}' , natfaune = '{zr_natfaune}' , natflore = '{zr_natflore}', natautre = '{zr_natautre}'  WHERE sortie_id={zr_sortie}""".format (\
-#        zr_datedeb = self.ui.dat_eddatdeb.date().toPyDate().strftime("%Y-%m-%d"),\
-#        zr_datefin = self.ui.dat_eddatfin.date().toPyDate().strftime("%Y-%m-%d"),\
-#        zr_codesite = self.ui.cbx_edcodesite.itemData(self.ui.cbx_edcodesite.currentIndex()),\
-#        zr_jourschan = self.ui.txt_edjourschan.toPlainText().replace("\'","\'\'"),\
-#        zr_sortcom = self.ui.txt_edsortcom.toPlainText().replace("\'","\'\'"),\
-#        zr_objvisite = self.ui.lst_edobjvisit.selectedItems()[0].text().replace("\'","\'\'"),\
-#        zr_objviautr = self.ui.txt_edobjvisautre.toPlainText().replace("\'","\'\'"),\
-#        zr_natfaune = self.ui.txt_ednatfaune.toPlainText().replace("\'","\'\'"),\
-#        zr_natflore = self.ui.txt_ednatflor.toPlainText().replace("\'","\'\'"),\
-#        zr_natautre = self.ui.txt_ednatautr.toPlainText().replace("\'","\'\'"),\
-#        zr_sortie = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
-#        ok = querysavemodope.exec_(qsavmodo)
-#        if not ok:
-#            QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour sortie ratée')
+    def sauverOpeModifs(self):
+    # sauvegarde des modifications d'une opération
+
+        # définit la table à remplir en fonction de la géométrie de l'entité (récupérée dans la fonction actu_gestprev_opechvol_edope)
+        if self.typgeom == 'pts':
+            self.tablemodif = 'operation_pts'
+        elif self.typgeom == 'lgn'
+            self.tablemodif = 'operation_lgn'
+        elif self.typgeom == 'surf'
+            self.tablemodif = 'operation_poly'
+
+        # mise à jour de la table "operation_xxx"
+        querysavemodope = QtSql.QSqlQuery(self.db)
+        qsavmodo = u"""UPDATE bdtravaux.{zr_table} SET descriptio = '{zr_descr}' , plangestion = '{zr_plangestion}' , code_gh = '{zr_codegh}' , chantfini='{zr_chanfini}' WHERE operation_id={zr_opeid}""".format (\
+        zr_table = self.tablemodif,\
+        zr_descr = self.ui.txt_eddescr.text().replace("\'","\'\'"),\,\
+        zr_plangestion = self.ui.lst_edopeprev.text().split("/")[4],\
+        zr_codegh = self.ui.lst_edopeprev.text().split("/")[1],\
+        zr_chantfini = str(self.ui.chx_edopeterm.isChecked()).lower(),\
+        zr_opeid = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
+        ok = querysavemodope.exec_(qsavmodo)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour opération ratée')
+
+        # mise à jour de la table join_typoperation
+        querymodtypope = QtSql.QSqlQuery(self.db)
+        qmodtypope = u"""UPDATE bdtravaux.join_typoperation SET typoperation = '{sr_typope}' WHERE id_jointyp = (SELECT id_oper FROM bdtravaux.{zr_table} ope LEFT JOIN bdtravaux.join_typoperation typ ON (ope.id_oper = typ.id_jointyp) WHERE operation_id = {zr_opeid})""".format(\
+        zr_typope = self.ui.lst_edtypope.currentItem().text().replace("\'","\'\'"),
+        zr_table = self.tablemodif,
+        zr_opeid = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
+
+        # mise à jour de la table join_operateur
+        querymodpresta = QtSql.QSqlQuery(self.db)
+        qmodpresta = u"""UPDATE bdtravaux.join_operateurs SET operateurs = '{sr_presta}' WHERE id_joinop = (SELECT id_oper FROM bdtravaux.{zr_table} ope LEFT JOIN bdtravaux.join_operateurs typ ON (ope.id_oper = typ.id_joinop) WHERE operation_id = {zr_opeid})""".format(\
+        zr_typope = self.ui.lst_edtypope.currentItem().text().replace("\'","\'\'"),
+        zr_table = self.tablemodif,
+        zr_opeid = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
+
 
 
     def activBoutons(self):

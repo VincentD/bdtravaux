@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="ope_saisie">
     <attribute name="title">
@@ -577,7 +577,7 @@
     </widget>
     <widget class="QDialogButtonBox" name="bbx_edokannul">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -593,7 +593,7 @@
     </widget>
     <widget class="QPushButton" name="pbt_edgeom">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -609,7 +609,7 @@
     </widget>
     <widget class="QPushButton" name="pbt_supprope">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -648,29 +648,6 @@
        </widget>
       </item>
      </layout>
-    </widget>
-    <widget class="QLabel" name="label_2">
-     <property name="geometry">
-      <rect>
-       <x>166</x>
-       <y>170</y>
-       <width>427</width>
-       <height>192</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>30</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>EN CONSTRUCTION</string>
-     </property>
     </widget>
    </widget>
   </widget>

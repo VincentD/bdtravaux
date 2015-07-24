@@ -1138,8 +1138,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>646</x>
-       <y>557</y>
+       <x>655</x>
+       <y>566</y>
        <width>113</width>
        <height>27</height>
       </rect>
@@ -1168,6 +1168,19 @@
        <widget class="QTextEdit" name="txt_ednatautr"/>
       </item>
      </layout>
+    </widget>
+    <widget class="QPushButton" name="pbt_supprsort">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>564</y>
+       <width>147</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Supprimer la sortie</string>
+     </property>
     </widget>
    </widget>
   </widget>

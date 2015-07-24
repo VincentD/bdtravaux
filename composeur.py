@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -353,29 +353,28 @@ class composerClass (QtGui.QDialog):
         root = QgsProject.instance().layerTreeRoot()
 
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
-        reqwhere="""sortie_id="""+str(idsortie)+""" and the_geom IS NOT NULL"""  #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
-        print reqwhere
+        reqwhere="""sortie_id="""+str(idsortie)+""" and the_geom IS NOT NULL""" 
+                                    # idsortie = id de la sortie, entrée comme paramètre de la fonction
 
+        # SURFACES : Import de la couche de polygones si des surfaces sont saisies pour cette sortie
         self.querypoly = QtSql.QSqlQuery(self.db)
-        qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = idsortie) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+        qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie={zr_sortie} order by operation_id limit 1""".format (zr_sortie = idsortie)
         okpoly = self.querypoly.exec_(qpoly)
         if not okpoly:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence polygones ratée')
         if self.querypoly.size()>0:
             print 'taille requete'+str(self.querypoly.size)
-        # SURFACES : Import de la couche de polygoness si des surfaces sont saisies pour cette sortie
         # Configure le schéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
             self.uri.setDataSource("bdtravaux", "v_bdtravaux_surfaces", "the_geom", reqwhere, "operation_id")
         # Instanciation de la couche dans qgis 
             self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
-#        if self.gestrealpolys.featureCount()>0:     #si la couche importée n'est pas vide...
-            # Intégration dans le Map Layer Registry pour pouvoir l'utiliser, MAIS sans l'importer dans l'arborescence (d'où le False)
+            # Intégration dans le MapLayerRegistry pour pouvoir l'utiliser, MAIS sans l'importer dans l'arbo (d'où le False)
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys, False)
             # Intégration de la couche dans l'arboresecnce, à l'index 0 (c'est à dire en haut de l'arborescence)
             root.insertLayer(0, self.gestrealpolys)
             ## Attribution de COULEURS différentes aux opérations
             # Récupération des valeurs uniques du champ qui servira de base à la symbologie
-            layer=self.gestrealpolys
+            layer = self.gestrealpolys
             field_index = layer.dataProvider().fieldNameIndex('typ_operat')
             unique_values = layer.uniqueValues(field_index)
             # Définit une correspondance: valeur -> (couleur) au moyen d'un dictionnaire et de la fonction clr_hasard
@@ -386,7 +385,7 @@ class composerClass (QtGui.QDialog):
             for nom_opera, couleur in operations.items():
                 symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
                 symbol.setColor(QtGui.QColor(couleur))
-                #création de la catégorie. 1er param : l'attribut / 2ème : le symbole à appliquer / 3ème : l'étiquet ds tble matières
+                #création de la catég. 1er param : l'attribut / 2ème : le symbole à appliquer / 3ème : l'étiquet ds tble matières
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
             # Crée le renderer et l'assigne à la couche

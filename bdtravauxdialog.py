@@ -282,8 +282,6 @@ class BdTravauxDialog(QtGui.QDialog):
             #dans le tab "exsortie", remplit les contrôles contenant les données de la sortie à modifier.
             queryidsortie = QtSql.QSqlQuery(self.db)
             qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
-            print "data ="+str(self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
-            print "remplitcontroles"+qidsort
             ok2=queryidsortie.exec_(qidsort)
             queryidsortie.next()
             if not ok2:
@@ -372,7 +370,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.close()
 
 ######################
-# Suppression de sorties et données afférentes
+# Suppression de sorties et données liées
 
     def supprSort(self):
 
@@ -387,11 +385,10 @@ class BdTravauxDialog(QtGui.QDialog):
         ok1 = queryidopesuppr.exec_(qidopesuppr)
         if not ok1:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Sélection operations à supprimer ratée')
-        print qidopesuppr
         while queryidopesuppr.next():
-            print queryidopesuppr.value(0)
             self.opesuppr.append(queryidopesuppr.value(0))
-        print str(self.opesuppr)
+
+
 
 
         # suppression des données dans la table "join_operateurs"        
@@ -413,11 +410,11 @@ class BdTravauxDialog(QtGui.QDialog):
 
         # suppression des données dans les tables "operation_xxx"        
         for couche in ['operation_poly','operation_pts','operation_lgn']:
-            print couche
-#            querysupprsope = QtSql.QSqlQuery(self.db)
-#            qsupprsope = u"""DELETE FROM bdtravaux.'{zr_table}' WHERE operation_id={zr_opeid}""".format(\
-#            zr_table = couche,
-#            zr_opeid = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
+            querysupprsope = QtSql.QSqlQuery(self.db)
+            qsupprsope = u"""DELETE FROM bdtravaux.{zr_table} WHERE operation_id in ({zr_opeid})""".format(\
+            zr_table = couche,\
+            zr_opeid = ','.join(map(str,self.opesuppr)))
+            print qsupprsope
 #            ok3 = querysupprsope.exec_(qsupprsope)
 #            if not ok3:
 #                QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression opération ratée')
@@ -426,6 +423,9 @@ class BdTravauxDialog(QtGui.QDialog):
 #        querysupprssort = QtSql.QSqlQuery(self.db)
 #        qsupprssort = u"""DELETE FROM bdtravaux.sortie WHERE sortie_id = {zr_sortie}""".format(\
 #        zr_sortie = self.sortiesuppr)
+#        ok4 = querysupprssort.exec_(qsupprssort)
+#        if not ok4:
+#           QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression sortie ratée')
 
 
         self.db.close()

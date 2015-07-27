@@ -411,7 +411,7 @@ class OperationDialog(QtGui.QDialog):
             querytypope = QtSql.QSqlQuery(self.db)
             qtypope = u"""insert into bdtravaux.join_typoperation (id_jointyp, typoperation) values ({zr_idjointyp}, '{zr_typoperation}')""".format (zr_idjointyp = self.id_oper, zr_typoperation = self.ui.opreal.selectedItems()[item].text().replace("\'","\'\'"))
             ok4 = querytypope.exec_(qtypope)
-            # print qtypope
+            print qtypope
             if not ok4:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des types d opérations en base ratée')
                 querytypope.next()

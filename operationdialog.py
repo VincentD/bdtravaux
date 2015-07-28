@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,12 +53,18 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
+
+        #Mise à jour du label "lbl_futopeid", affichant l'id de la future opération.
+        queryfutopeid = QtSql.QSqlQuery(self.db)
+        if queryfutopeid.exec_(u"""select last_value+1 from bdtravaux.operation_lgnpolypts_operation_id_seq"""):
+            while queryfutopeid.next():
+                self.ui.lbl_futopeid.setText(str(queryfutopeid.value(0)))
 
         # Connexions signaux-slots
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
@@ -73,6 +79,8 @@ class OperationDialog(QtGui.QDialog):
         self.connect(self.ui.prestataire, QtCore.SIGNAL('itemSelectionChanged()'), self.activBoutons)
         self.connect(self.ui.cbx_edoperation, QtCore.SIGNAL('currentIndexChanged(int)'), self.fillEditOpeControls)
         self.connect(self.ui.pbt_supprope, QtCore.SIGNAL('clicked()'), self.supprOpe)
+        self.connect(self.ui.pbt_edgeom, QtCore.SIGNAL('clicked()'), self.modifGeom)
+
 
 
 #####################
@@ -134,6 +142,18 @@ class OperationDialog(QtGui.QDialog):
             self.ui.lbl_geom.setText(u"{nb_geom} {typ_geom}(s) sélectionné(s)".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
             typ_geom=geometrie))
 
+
+
+    def activBoutons(self):
+        opprevlist = self.ui.opprev.selectedItems()
+        opreallist = self.ui.opreal.selectedItems()
+        prestalist = self.ui.prestataire.selectedItems()
+        if len(opprevlist)!=0 and len(opreallist)!=0 and len(prestalist)!=0 :
+            self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(1)
+            self.ui.compoButton.setEnabled(1)
+
+
+
 ######################"
 # Actualisation des combobox et listes de choix lorsque l'utilisateur choisit une sortie
 
@@ -162,7 +182,10 @@ class OperationDialog(QtGui.QDialog):
                     self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
                     self.ui.lst_edopeprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
 
-           
+
+            # mise à jour du label "lbl_idsortiesel", affichant l'id de la sortie sélectionnée
+            self.ui.lbl_idsortiesel.setText(str(self.ui.sortie.itemData(self.ui.sortie.currentIndex())))
+
             # cbx_edoperation : Actualise la combobox de choix de l'opération à modifier. La liste est filtrée selon la sortie sélectionnée.
             self.blocFillEdOpContr = '0'            
             self.ui.cbx_edoperation.clear()
@@ -182,14 +205,19 @@ class OperationDialog(QtGui.QDialog):
             self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
             self.ui.compoButton.setEnabled(0)
 
+
+
 ######################"
 # Actualisation des combobox et listes de choix lorsque l'utilisateur choisit une opération (Tab "modification")
 
 
     def fillEditOpeControls(self):
         if self.blocFillEdOpContr == '1':
+
+        # Mise à jour du label "lbl_opeid", affichant l'id de l'opération sélectionnée
+            self.ui.lbl_opeid.setText(str(self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex())))
+
         # Remplissage des contrôles du Tab "Modifications" du module "Opérations"
-            print 'remplissage des controles'
             queryfillope = QtSql.QSqlQuery(self.db)
             qfillope = u"""SELECT array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; ') as typope, array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper), '; ') as presta, descriptio, chantfini, plangestion, code_gh, CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE operation_id={zr_ope}""".format(zr_ope = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
             ok6 = queryfillope.exec_(qfillope)
@@ -199,7 +227,6 @@ class OperationDialog(QtGui.QDialog):
             self.ui.txt_eddescr.setText(unicode(queryfillope.value(2)))
             print bool(queryfillope.value(3))
             self.ui.chx_edopeterm.setChecked(bool(queryfillope.value(3)))
-
 
         #Sélection d'items dans une liste (type d'opération réalisé)
             list_typope = queryfillope.value(0).split("; ")
@@ -224,9 +251,8 @@ class OperationDialog(QtGui.QDialog):
                 if prevu_bd==prevu_lst:
                     self.ui.lst_edopeprev.item(y).setSelected(True)
 
-
         # désignation de la table dans laquelle on va modifier / supprimer des données
-            self.typgeom = str(queryfillope.value(6))       
+            self.typgeom = str(queryfillope.value(6))
             if self.typgeom == 'pts':
                 self.tablemodif = 'operation_pts'
             elif self.typgeom == 'lgn':
@@ -249,6 +275,7 @@ class OperationDialog(QtGui.QDialog):
             self.id_oper_modif = queryjoinid.value(0)
 
 
+
 ######################"
 # Sauvegarde en base des nouvelles données saisies par l'utilisateur (Tab "saisie")
 
@@ -266,8 +293,8 @@ class OperationDialog(QtGui.QDialog):
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u'insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, ope_chvol) values ({zr_sortie}, \'{zr_plangestion}\', \'{zr_code_gh}\', \'{zr_ope_typ}\', \'{zr_libelle}\', \'{zr_chantfini}\',{zr_opechvol})'.format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
-        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
+        zr_plangestion = self.ui.opprev.currentItem().text().split(" / ")[-1],\
+        zr_code_gh = self.ui.opprev.currentItem().text().split(" / ")[1],\
         zr_ope_typ= self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
         zr_libelle= self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
@@ -275,6 +302,7 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sansgeom ratée')
+        print query
         self.nom_table='operation_poly'
         self.rempliJoinOpe()
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -365,8 +393,8 @@ class OperationDialog(QtGui.QDialog):
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
         zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.ui.opprev.currentItem().text().split("/")[-1],\
-        zr_code_gh = self.ui.opprev.currentItem().text().split("/")[1],\
+        zr_plangestion = self.ui.opprev.currentItem().text().split(" / ")[-1],\
+        zr_code_gh = self.ui.opprev.currentItem().text().split(" / ")[1],\
         zr_libelle = self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = thegeom,\
@@ -505,14 +533,59 @@ class OperationDialog(QtGui.QDialog):
         self.close()
 
 
+    def modifGeom(self):
+        root = QgsProject.instance().layerTreeRoot()
+        reqwhere="""operation_id="""+str(self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))+""" and the_geom IS NOT NULL""" 
+        print reqwhere
+        self.uri.setDataSource("bdtravaux", str(self.tablemodif), "the_geom", reqwhere, "operation_id") # schéma, table, col géom , requête, pkey
+        self.opeModif=QgsVectorLayer(self.uri.uri(), u'modifications', "postgres") # nom qui sera affiché ds QGIS, type de base
+        # Intégration dans le MapLayerRegistry pour pouvoir l'utiliser, MAIS sans l'importer dans l'arbo (d'où le False)
+        QgsMapLayerRegistry.instance().addMapLayer(self.opeModif, False)
+        # Intégration de la couche dans l'arboresecnce, à l'index 0 (c'est à dire en haut de l'arborescence)
+        root.insertLayer(0, self.opeModif)
+        self.iface.setActiveLayer(self.opeModif) # couche active
+        symbols = self.opeModif.rendererV2().symbols() # définit la symbologie de la couche
+        symbol = symbols[0]
+        symbol.setColor(QtGui.QColor.fromRgb(255,0,0))
+        if self.tablemodif == 'operation_poly': # si polygon, alors transparence
+            self.opeModif.setLayerTransparency(50)
+        self.iface.legendInterface().refreshLayerSymbology(self.opeModif)
+        self.iface.actionZoomToLayer().trigger() # zoome sur la couche
+        self.lower() # le module "opération" passe en arrière-plan
+        self.connect(self.opeModif, QtCore.SIGNAL('editingStopped()'), self.sauvModifGeom) # quand modifs sauvées, lancer la suite 
 
-    def activBoutons(self):
-        opprevlist = self.ui.opprev.selectedItems()
-        opreallist = self.ui.opreal.selectedItems()
-        prestalist = self.ui.prestataire.selectedItems()
-        if len(opprevlist)!=0 and len(opreallist)!=0 and len(prestalist)!=0 :
-            self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(1)
-            self.ui.compoButton.setEnabled(1)
+    def sauvModifGeom(self):
+        print u'layer sauvegardé'
+        self.raise_() # le formulaire "opérations" passe en avant-plan
+        self.timeoutTimer = QtCore.QTimer() # attendre une seconde (pour que QGIS ait le temps d'enregistrer la couche), puis la supprimer.
+        self.timeoutTimer.singleShot(1000, self.removeModifiedLayer)
+
+    def removeModifiedLayer(self):
+        QgsMapLayerRegistry.instance().removeMapLayer(self.opeModif.id()) # retrait de la couche
+
+
+
+        ## Attribution de COULEURS différentes aux opérations
+        # Récupération des valeurs uniques du champ qui servira de base à la symbologie
+#        layer = self.gestrealpolys
+#        field_index = layer.dataProvider().fieldNameIndex('typ_operat')
+#        unique_values = layer.uniqueValues(field_index)
+        # Définit une correspondance: valeur -> (couleur) au moyen d'un dictionnaire et de la fonction clr_hasard
+        # Création du dictionnaire au moyen d'une compréhension de dictionnaire
+#        operations={valeurunique : self.clr_hasard() for valeurunique in unique_values}
+        # Crée une catégorie pour chaque item dans operations, puis les groupe en une liste (operations)
+#        categories = []
+#        for nom_opera, couleur in operations.items():
+#            symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
+#            symbol.setColor(QtGui.QColor(couleur))
+            #création de la catég. 1er param : l'attribut / 2ème : le symbole à appliquer / 3ème : l'étiquette ds la table des matières
+#            category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
+#            categories.append(category)
+        # Crée le renderer et l'assigne à la couche
+#        expression = 'typ_operat' # nom du champ
+#        renderer = QgsCategorizedSymbolRendererV2(expression, categories)
+#        layer.setRendererV2(renderer)
+#        layer.setLayerTransparency(50)
 
 
 
@@ -549,6 +622,8 @@ class OperationDialog(QtGui.QDialog):
         self.db.close()
         self.db.removeDatabase("sitescsn")
         self.close()
+
+
 
 
 ######################"

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>812</width>
-    <height>695</height>
+    <height>691</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -137,8 +137,8 @@
     <widget class="QWidget" name="verticalLayoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>404</x>
-       <y>21</y>
+       <x>402</x>
+       <y>35</y>
        <width>349</width>
        <height>261</height>
       </rect>
@@ -291,10 +291,10 @@
     <widget class="QWidget" name="verticalLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>405</x>
-       <y>327</y>
-       <width>360</width>
-       <height>260</height>
+       <x>403</x>
+       <y>339</y>
+       <width>350</width>
+       <height>248</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="vertlayout_datefin">
@@ -376,14 +376,52 @@
     <widget class="QCheckBox" name="chbox_plsrsjrs">
      <property name="geometry">
       <rect>
-       <x>406</x>
-       <y>293</y>
+       <x>400</x>
+       <y>309</y>
        <width>210</width>
        <height>22</height>
       </rect>
      </property>
      <property name="text">
       <string>Sortie sur plusieurs jours ?</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_idfutsortielabel">
+     <property name="geometry">
+      <rect>
+       <x>624</x>
+       <y>8</y>
+       <width>109</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Id de la future sortie :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_idfutsortie">
+     <property name="geometry">
+      <rect>
+       <x>734</x>
+       <y>9</y>
+       <width>30</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
      </property>
     </widget>
    </widget>
@@ -940,7 +978,7 @@
     <widget class="QPushButton" name="btn_imp_exsortie">
      <property name="geometry">
       <rect>
-       <x>384</x>
+       <x>314</x>
        <y>41</y>
        <width>98</width>
        <height>27</height>
@@ -1180,6 +1218,44 @@
      </property>
      <property name="text">
       <string>Supprimer la sortie</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_idsortielabel">
+     <property name="geometry">
+      <rect>
+       <x>660</x>
+       <y>10</y>
+       <width>72</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Id de la sortie :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_idsortie">
+     <property name="geometry">
+      <rect>
+       <x>736</x>
+       <y>10</y>
+       <width>30</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
      </property>
     </widget>
    </widget>

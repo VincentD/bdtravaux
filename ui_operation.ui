@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>791</width>
-    <height>812</height>
+    <height>789</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,13 +20,13 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>21</y>
+     <y>29</y>
      <width>768</width>
-     <height>787</height>
+     <height>753</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="ope_saisie">
     <attribute name="title">
@@ -35,8 +35,8 @@
     <widget class="Line" name="line_3">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>260</y>
+       <x>20</x>
+       <y>256</y>
        <width>731</width>
        <height>20</height>
       </rect>
@@ -48,8 +48,8 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>100</y>
+       <x>15</x>
+       <y>99</y>
        <width>741</width>
        <height>161</height>
       </rect>
@@ -86,8 +86,8 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>280</y>
+       <x>15</x>
+       <y>273</y>
        <width>741</width>
        <height>251</height>
       </rect>
@@ -290,8 +290,8 @@
     <widget class="QPushButton" name="compoButton">
      <property name="geometry">
       <rect>
-       <x>573</x>
-       <y>687</y>
+       <x>577</x>
+       <y>680</y>
        <width>171</width>
        <height>27</height>
       </rect>
@@ -306,8 +306,8 @@
     <widget class="QTextEdit" name="descriptio">
      <property name="geometry">
       <rect>
-       <x>9</x>
-       <y>578</y>
+       <x>13</x>
+       <y>571</y>
        <width>744</width>
        <height>101</height>
       </rect>
@@ -333,8 +333,8 @@
     <widget class="QGroupBox" name="lbl_descr">
      <property name="geometry">
       <rect>
-       <x>4</x>
-       <y>549</y>
+       <x>15</x>
+       <y>544</y>
        <width>91</width>
        <height>28</height>
       </rect>
@@ -346,8 +346,8 @@
     <widget class="QCheckBox" name="chantfini">
      <property name="geometry">
       <rect>
-       <x>396</x>
-       <y>690</y>
+       <x>400</x>
+       <y>683</y>
        <width>171</width>
        <height>22</height>
       </rect>
@@ -359,8 +359,8 @@
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="geometry">
       <rect>
-       <x>3</x>
-       <y>688</y>
+       <x>7</x>
+       <y>681</y>
        <width>181</width>
        <height>27</height>
       </rect>
@@ -372,24 +372,11 @@
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
-    <widget class="Line" name="line_4">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>556</y>
-       <width>741</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
     <widget class="QWidget" name="layoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>14</x>
-       <y>21</y>
+       <x>16</x>
+       <y>29</y>
        <width>739</width>
        <height>52</height>
       </rect>
@@ -452,8 +439,8 @@
     <widget class="QCheckBox" name="chx_opechvol">
      <property name="geometry">
       <rect>
-       <x>561</x>
-       <y>548</y>
+       <x>565</x>
+       <y>541</y>
        <width>191</width>
        <height>22</height>
       </rect>
@@ -468,14 +455,52 @@
     <widget class="Line" name="line_2">
      <property name="geometry">
       <rect>
-       <x>18</x>
-       <y>77</y>
+       <x>20</x>
+       <y>81</y>
        <width>731</width>
        <height>20</height>
       </rect>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_futopeid_label">
+     <property name="geometry">
+      <rect>
+       <x>617</x>
+       <y>5</y>
+       <width>101</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Id future opération :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_futopeid">
+     <property name="geometry">
+      <rect>
+       <x>722</x>
+       <y>6</y>
+       <width>29</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>lbl_futopeid</string>
      </property>
     </widget>
    </widget>
@@ -489,10 +514,10 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>37</y>
+       <x>20</x>
+       <y>48</y>
        <width>725</width>
-       <height>27</height>
+       <height>45</height>
       </rect>
      </property>
      <item>
@@ -505,7 +530,7 @@
      <property name="geometry">
       <rect>
        <x>12</x>
-       <y>13</y>
+       <y>20</y>
        <width>279</width>
        <height>17</height>
       </rect>
@@ -523,8 +548,8 @@
     <widget class="Line" name="line_5">
      <property name="geometry">
       <rect>
-       <x>9</x>
-       <y>74</y>
+       <x>15</x>
+       <y>100</y>
        <width>734</width>
        <height>16</height>
       </rect>
@@ -540,7 +565,7 @@
      <property name="geometry">
       <rect>
        <x>14</x>
-       <y>115</y>
+       <y>130</y>
        <width>735</width>
        <height>139</height>
       </rect>
@@ -553,9 +578,9 @@
      <property name="geometry">
       <rect>
        <x>16</x>
-       <y>471</y>
+       <y>480</y>
        <width>733</width>
-       <height>165</height>
+       <height>156</height>
       </rect>
      </property>
     </widget>
@@ -582,7 +607,7 @@
      <property name="geometry">
       <rect>
        <x>17</x>
-       <y>724</y>
+       <y>690</y>
        <width>176</width>
        <height>27</height>
       </rect>
@@ -598,7 +623,7 @@
      <property name="geometry">
       <rect>
        <x>210</x>
-       <y>725</y>
+       <y>691</y>
        <width>126</width>
        <height>27</height>
       </rect>
@@ -614,7 +639,7 @@
      <property name="geometry">
       <rect>
        <x>587</x>
-       <y>696</y>
+       <y>690</y>
        <width>159</width>
        <height>27</height>
       </rect>
@@ -627,7 +652,7 @@
      <property name="geometry">
       <rect>
        <x>15</x>
-       <y>264</y>
+       <y>280</y>
        <width>735</width>
        <height>194</height>
       </rect>
@@ -649,13 +674,51 @@
       </item>
      </layout>
     </widget>
+    <widget class="QLabel" name="lbl_opeid">
+     <property name="geometry">
+      <rect>
+       <x>725</x>
+       <y>9</y>
+       <width>29</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>lbl_opeid</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_opeid_label">
+     <property name="geometry">
+      <rect>
+       <x>651</x>
+       <y>8</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Id opération :</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QComboBox" name="sortie">
    <property name="geometry">
     <rect>
-     <x>531</x>
-     <y>9</y>
+     <x>491</x>
+     <y>14</y>
      <width>246</width>
      <height>27</height>
     </rect>
@@ -664,8 +727,8 @@
   <widget class="QLabel" name="lbl_sortie">
    <property name="geometry">
     <rect>
-     <x>359</x>
-     <y>9</y>
+     <x>319</x>
+     <y>13</y>
      <width>170</width>
      <height>27</height>
     </rect>
@@ -678,6 +741,44 @@
    </property>
    <property name="text">
     <string>Selectionner une sortie</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_idsortiesel_label">
+   <property name="geometry">
+    <rect>
+     <x>744</x>
+     <y>1</y>
+     <width>50</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Id sortie :</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_idsortiesel">
+   <property name="geometry">
+    <rect>
+     <x>758</x>
+     <y>17</y>
+     <width>29</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>lbl_idsortiesel</string>
    </property>
   </widget>
  </widget>

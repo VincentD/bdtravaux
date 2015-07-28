@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -364,7 +364,7 @@ class composerClass (QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence polygones ratée')
         if self.querypoly.size()>0:
             print 'taille requete'+str(self.querypoly.size)
-        # Configure le schéma, le nom de la table, la colonne géométrique, et un sous-jeu de données (clause WHERE facultative)
+        # Configure le schéma, le nom de la table, la colonne géométrique, un sous-jeu de données (clause WHERE facultative), et une clé primaire.
             self.uri.setDataSource("bdtravaux", "v_bdtravaux_surfaces", "the_geom", reqwhere, "operation_id")
         # Instanciation de la couche dans qgis 
             self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")

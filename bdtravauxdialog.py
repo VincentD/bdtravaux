@@ -40,13 +40,14 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
         ok = self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
+
         # Remplir les comboboxs "site" avec les codes et noms de sites 
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
@@ -75,6 +76,12 @@ class BdTravauxDialog(QtGui.QDialog):
         self.ui.chbox_plsrsjrs.setChecked(0)
         self.date_fin='NULL'
         self.jourschan=""
+
+        # Mise à jour du label "Id de la future sortie"
+        queryidfutsort = QtSql.QSqlQuery(self.db)
+        if queryidfutsort.exec_('SELECT sortie_id+1 FROM bdtravaux.sortie ORDER BY sortie_id DESC LIMIT 1'):
+            while queryidfutsort.next():
+                self.ui.lbl_idfutsortie.setText(str(queryidfutsort.value(0)))
 
         ## Connexions signaux-slots
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
@@ -296,7 +303,8 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(10)))
             self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(11)))
             self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(12)))
-        
+            self.ui.lbl_idsortie.setText(unicode(queryidsortie.value(0)))
+
             #cas à part : sélection d'items dans une liste (salariés présents lors de la sortie)
             list_sal = queryidsortie.value(5).split("; ")
             for y in xrange (self.ui.lst_edredac.count()):
@@ -377,35 +385,35 @@ class BdTravauxDialog(QtGui.QDialog):
         #récupération de l'identifiant de la sortie à supprimer
         self.sortieSuppr = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex())
 
-        # récupération de la liste des id des opérations à supprimer
-        self.opesuppr = []
+        # récupération de la liste des id des opérations à supprimer, et des id_oper (id des opérateurs et des types d'opérations à supprimer)
+        self.opesuppr , self.idopersuppr = [] , []
         queryidopesuppr = QtSql.QSqlQuery(self.db)
-        qidopesuppr = u"""SELECT operation_id from (SELECT operation_id, sortie FROM bdtravaux.operation_lgn UNION SELECT operation_id, sortie FROM bdtravaux.operation_poly UNION SELECT operation_id, sortie FROM bdtravaux.operation_pts) as tabope WHERE sortie = {zr_sortie}""".format (\
+        qidopesuppr = u"""SELECT operation_id, id_oper from (SELECT operation_id, id_oper, sortie FROM bdtravaux.operation_lgn UNION SELECT operation_id, id_oper, sortie FROM bdtravaux.operation_poly UNION SELECT operation_id, id_oper, sortie FROM bdtravaux.operation_pts) as tabope WHERE sortie = {zr_sortie}""".format (\
         zr_sortie = self.sortieSuppr)
         ok1 = queryidopesuppr.exec_(qidopesuppr)
         if not ok1:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Sélection operations à supprimer ratée')
         while queryidopesuppr.next():
             self.opesuppr.append(queryidopesuppr.value(0))
-
-
-
+            self.idopersuppr.append(queryidopesuppr.value(1))
 
         # suppression des données dans la table "join_operateurs"        
-#        querysupprsprest = QtSql.QSqlQuery(self.db)
-#        qsupprsprest = u"""DELETE FROM bdtravaux.join_operateurs WHERE id_joinop = {zr_idjoinop}""".format(\
-#        zr_idjoinop = self.id_oper_modif)
-#        ok1 = querysupprsprest.exec_(qsupprsprest)
-#        if not ok1:
-#            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression prestataires ratée')
+        querysupprsprest = QtSql.QSqlQuery(self.db)
+        qsupprsprest = u"""DELETE FROM bdtravaux.join_operateurs WHERE id_joinop in ({zr_idjoinop})""".format(\
+        zr_idjoinop = ','.join(map(str,self.idopersuppr)))
+        print qsupprsprest
+        ok2 = querysupprsprest.exec_(qsupprsprest)
+        if not ok2:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression prestataires ratée')
 
-#        # suppression des données dans la table "join_typoperation"        
-#        querysupprstyp = QtSql.QSqlQuery(self.db)
-#        qsupprstyp = u"""DELETE FROM bdtravaux.join_typoperation WHERE id_jointyp = {zr_idjointyp}""".format(\
-#        zr_idjointyp = self.id_oper_modif)
-#        ok2 = querysupprstyp.exec_(qsupprstyp)
-#        if not ok2:
-#            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression types opération ratée')
+        # suppression des données dans la table "join_typoperation"        
+        querysupprstyp = QtSql.QSqlQuery(self.db)
+        qsupprstyp = u"""DELETE FROM bdtravaux.join_typoperation WHERE id_jointyp in ({zr_idjointyp})""".format(\
+        zr_idjointyp = ','.join(map(str,self.idopersuppr)))
+        print qsupprstyp
+        ok3 = querysupprstyp.exec_(qsupprstyp)
+        if not ok3:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression types opération ratée')
 
 
         # suppression des données dans les tables "operation_xxx"        
@@ -415,22 +423,24 @@ class BdTravauxDialog(QtGui.QDialog):
             zr_table = couche,\
             zr_opeid = ','.join(map(str,self.opesuppr)))
             print qsupprsope
-#            ok3 = querysupprsope.exec_(qsupprsope)
-#            if not ok3:
-#                QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression opération ratée')
+            ok4 = querysupprsope.exec_(qsupprsope)
+            if not ok4:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression opération ratée')
 
         # suppression des données dans la table "sortie"
-#        querysupprssort = QtSql.QSqlQuery(self.db)
-#        qsupprssort = u"""DELETE FROM bdtravaux.sortie WHERE sortie_id = {zr_sortie}""".format(\
-#        zr_sortie = self.sortiesuppr)
-#        ok4 = querysupprssort.exec_(qsupprssort)
-#        if not ok4:
-#           QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression sortie ratée')
-
+        querysupprssort = QtSql.QSqlQuery(self.db)
+        qsupprssort = u"""DELETE FROM bdtravaux.sortie WHERE sortie_id = {zr_sortie}""".format(\
+        zr_sortie = self.sortieSuppr)
+        print qsupprssort
+        ok5 = querysupprssort.exec_(qsupprssort)
+        if not ok5:
+           QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression sortie ratée')
 
         self.db.close()
         self.db.removeDatabase("sitescsn")
         self.close()
+
+
 
     def raiseModule(self):
         self.raise_()

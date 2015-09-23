@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -91,7 +91,7 @@ class OperationDialog(QtGui.QDialog):
         self.ui.sortie.clear()
         # Remplir la combobox "sortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by sortie_id DESC LIMIT 30"""
+        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC"""
         ok = query.exec_(querySortie)
         while query.next():
             self.ui.sortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int(query.value(0)))
@@ -100,7 +100,6 @@ class OperationDialog(QtGui.QDialog):
         # query.value(0) = le 1er élément renvoyé par le "select" d'une requête SQL. Et ainsi de suite...
         if not ok :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage sortie ratée')
-            print querySortie
         self.blocActuGestPrev='0'
 
 
@@ -302,7 +301,6 @@ class OperationDialog(QtGui.QDialog):
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sansgeom ratée')
-        print query
         self.nom_table='operation_poly'
         self.rempliJoinOpe()
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -401,7 +399,6 @@ class OperationDialog(QtGui.QDialog):
         #geom2.exportToWkt(),\
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
         zr_opechvol = self.id_opechvol)
-        print query
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
@@ -439,7 +436,6 @@ class OperationDialog(QtGui.QDialog):
             querytypope = QtSql.QSqlQuery(self.db)
             qtypope = u"""insert into bdtravaux.join_typoperation (id_jointyp, typoperation) values ({zr_idjointyp}, '{zr_typoperation}')""".format (zr_idjointyp = self.id_oper, zr_typoperation = self.ui.opreal.selectedItems()[item].text().replace("\'","\'\'"))
             ok4 = querytypope.exec_(qtypope)
-            print qtypope
             if not ok4:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des types d opérations en base ratée')
                 querytypope.next()
@@ -502,7 +498,6 @@ class OperationDialog(QtGui.QDialog):
             if not ok4:
                QtGui.QMessageBox.warning(self, 'Alerte', u'Ajout des nvx types d opés en base ratée')
             querymodiftyp.next()
-            print qmodtyp
             print "types opés ajoutés"       
 
         # mise à jour de la table join_operateur
@@ -525,7 +520,6 @@ class OperationDialog(QtGui.QDialog):
             if not ok6:
                QtGui.QMessageBox.warning(self, 'Alerte', u'Ajout des nvx opéretaurs en base ratée')
             querymodifprest.next()
-            print qmodprest
             print "opérateurs ajoutés"       
 
         self.db.close()
@@ -536,7 +530,6 @@ class OperationDialog(QtGui.QDialog):
     def modifGeom(self):
         root = QgsProject.instance().layerTreeRoot()
         reqwhere="""operation_id="""+str(self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))+""" and the_geom IS NOT NULL""" 
-        print reqwhere
         self.uri.setDataSource("bdtravaux", str(self.tablemodif), "the_geom", reqwhere, "operation_id") # schéma, table, col géom , requête, pkey
         self.opeModif=QgsVectorLayer(self.uri.uri(), u'modifications', "postgres") # nom qui sera affiché ds QGIS, type de base
         # Intégration dans le MapLayerRegistry pour pouvoir l'utiliser, MAIS sans l'importer dans l'arbo (d'où le False)
@@ -555,7 +548,6 @@ class OperationDialog(QtGui.QDialog):
         self.connect(self.opeModif, QtCore.SIGNAL('editingStopped()'), self.sauvModifGeom) # quand modifs sauvées, lancer la suite 
 
     def sauvModifGeom(self):
-        print u'layer sauvegardé'
         self.raise_() # le formulaire "opérations" passe en avant-plan
         self.timeoutTimer = QtCore.QTimer() # attendre une seconde (pour que QGIS ait le temps d'enregistrer la couche), puis la supprimer.
         self.timeoutTimer.singleShot(1000, self.removeModifiedLayer)

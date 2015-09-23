@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -62,7 +62,6 @@ class BdTravauxDialog(QtGui.QDialog):
         #Initialisations pour :
         # - objetVisiText (récup "objectif de la visite") 
         self.objetVisiText=str(self.ui.obj_travaux.text())
-        print self.objetVisiText
         # - self.chantvol et l'activation (ou pas) de l'onglet "Chantier de volontaire
         self.chantvol=False
         self.ui.tab_chantvol.setEnabled(0)
@@ -71,7 +70,7 @@ class BdTravauxDialog(QtGui.QDialog):
         # findItems nécessite 2 arguments : la chaine à trouver et un QT.matchFlags qui correspond à la façon de chercher (chaine exacte, regex...) cf. http://qt-project.org/doc/qt-4.8/qt.html#MatchFlag-enum
         for item in aucunpart:
             item.setSelected(True)
-            print item.text()
+
         # - chbox_plsrsjours et l'activation (oupas) du calendrier "datefin" et de la zone de texte "plsrsdates"
         self.ui.chbox_plsrsjrs.setChecked(0)
         self.date_fin='NULL'
@@ -155,7 +154,6 @@ class BdTravauxDialog(QtGui.QDialog):
         zr_natfaune=self.ui.natfaune.toPlainText().replace("\'","\'\'"),\
         zr_natflore=self.ui.natflore.toPlainText().replace("\'","\'\'"),\
         zr_natautre=self.ui.natfaune.toPlainText().replace("\'","\'\'")).encode("latin1")
-        print query
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
@@ -257,7 +255,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.ui.cbx_exsortie.clear()
         # Remplir la QlistWidget "listesortie" avec les champs date_sortie+site de la table "sortie" et le champ sal_initia de la table "join_salaries"
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC LIMIT 30"""
+        querySortie=u"""select sortie_id, date_sortie, codesite, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie order by date_sortie DESC """
         ok = query.exec_(querySortie)
         while query.next():
             self.ui.cbx_exsortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3)), int (query.value(0)))

@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,7 +49,7 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
 
 
@@ -135,7 +135,6 @@ class composerClass (QtGui.QDialog):
         #Taille définie pour la carte
         x, y, w, h, mode, frame, page = 5, 15, 408, 270, QgsComposerItem.UpperLeft, False, 1
         self.composerMap.setItemPosition(x, y, w, h, mode, frame, page)
-#        print self.composerMap.page()
         #Crée la bbox autour du site pour la carte en cours (fonction mapItemSetBBox l 293)
         #self.contours_sites est défini dans la fonction affiche()
         self.margin=10
@@ -154,7 +153,6 @@ class composerClass (QtGui.QDialog):
         querycomope = QtSql.QSqlQuery(self.db)
         qcomope=u"""select operation_id, (select distinct array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper order by typoperation),'; ')) as typope, descriptio, code_gh, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, (select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper order by operateurs),'; ')) as operateurs from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
         (zr_sortie = idsortie) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
-        #print unicode(qcomope)
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête operations ratée')
@@ -240,7 +238,6 @@ class composerClass (QtGui.QDialog):
                     plac_partenair=label.displayText().find("$partenair")
                     texte=unicode(label.displayText())
                     label.setText(texte[0:plac_partenair]+self.cv_partenaire+texte[plac_partenair+10:])
-#                    print unicode(texte)
                 if label.displayText().find("$heberg")>-1:
                     plac_heberg=label.displayText().find("$heberg")
                     texte=unicode(label.displayText())
@@ -326,7 +323,6 @@ class composerClass (QtGui.QDialog):
         (zr_sortie_id = str(idsortie)) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:
-            print qcodesite
             print u'Requête recupDonnSortie ratée'
         querycodesite.next()
         self.codedusite=querycodesite.value(0)

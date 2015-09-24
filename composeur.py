@@ -196,6 +196,10 @@ class composerClass (QtGui.QDialog):
                 plac_date=label.displayText().find("$jourschan")
                 texte=unicode(label.displayText())
                 label.setText(texte[0:plac_date]+self.jourschan+texte[plac_date+10:])
+            if label.displayText().find("$idsortie")>-1:
+                plac_date=label.displayText().find("$idsortie")
+                texte=unicode(label.displayText())
+                label.setText(texte[0:plac_date]+self.idsortie+texte[plac_date+9:])
             if label.displayText().find("$commsortie")>-1:
                 plac_commsortie=label.displayText().find("$commsortie")
                 texte=unicode(label.displayText())

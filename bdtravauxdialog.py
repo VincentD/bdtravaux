@@ -275,7 +275,7 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.dat_eddatfin.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
             self.ui.txt_edjourschan.setText('')
             self.ui.cbx_edcodesite.setCurrentIndex(0)
-            self.ui.lst_edredac.clearSelection()
+            self.ui.lst_edsalaries.clearSelection()
             self.ui.txt_edsortcom.setText('')
             self.ui.lst_edobjvisit.setCurrentRow(1)
             self.ui.txt_edobjvisautre.setText('')
@@ -305,8 +305,8 @@ class BdTravauxDialog(QtGui.QDialog):
 
             #cas à part : sélection d'items dans une liste (salariés présents lors de la sortie)
             list_sal = queryidsortie.value(5).split("; ")
-            for y in xrange (self.ui.lst_edredac.count()):
-                salarie=self.ui.lst_edredac.item(y)
+            for y in xrange (self.ui.lst_edsalaries.count()):
+                salarie=self.ui.lst_edsalaries.item(y)
                 for x in list_sal:
                     if unicode(salarie.text().split(" /")[0])==x:
                         salarie.setSelected(True) 
@@ -322,9 +322,9 @@ class BdTravauxDialog(QtGui.QDialog):
         #lancement de la fonction Composeur dans le module composerClass avec le paramètre id_sortie
         self.obj_compo=composerClass()
         self.obj_compo.Composer(id_sortie)
-        # Afficher le formulaire "bdtravauxdialog.py" devant iface, et l'activer.
+        # Après fermeture du composeur, afficher le formulaire "bdtravauxdialog.py" devant iface, et l'activer.
         self.obj_compo.composerView.composerViewHide.connect(self.raiseModule)
-        #lancement de la fonction afterComposeurClose dans le module composerClass pour effacer les couches ayant servi au composeur, et réafficher les autres.
+        #Après fermeture du composeur, lancement de la fonction afterComposeurClose dans le module composerClass pour effacer les couches ayant servi au composeur, et réafficher les autres.
         self.obj_compo.composerView.composerViewHide.connect(self.obj_compo.afterComposerClose)
 
 
@@ -359,12 +359,12 @@ class BdTravauxDialog(QtGui.QDialog):
         print "salaries en trop supprimes"
 
             #ajout de la liste de salariés modifiée
-        for item in xrange (len(self.ui.lst_edredac.selectedItems())):
+        for item in xrange (len(self.ui.lst_edsalaries.selectedItems())):
             querymodifsal = QtSql.QSqlQuery(self.db)
             qmodsal = u"""insert into bdtravaux.join_salaries (id_joinsal, salaries, sal_initia) values ({zr_idjoinsal}, '{zr_salarie}','{zr_initiales}')""".format (\
             zr_idjoinsal = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()),\
-            zr_salarie = self.ui.lst_edredac.selectedItems()[item].text().split(" /")[0].replace("\'","\'\'"),\
-            zr_initiales=self.ui.lst_edredac.selectedItems()[item].text().split("/")[1])
+            zr_salarie = self.ui.lst_edsalaries.selectedItems()[item].text().split(" /")[0].replace("\'","\'\'"),\
+            zr_initiales=self.ui.lst_edsalaries.selectedItems()[item].text().split("/")[1])
             ok5 = querymodifsal.exec_(qmodsal)
             if not ok5:
                QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des salariés en base ratée')

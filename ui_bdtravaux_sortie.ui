@@ -76,7 +76,7 @@
       <item>
        <widget class="QLabel" name="lbl_obsv">
         <property name="text">
-         <string>Rédacteur du CR</string>
+         <string>Salariés présents</string>
         </property>
        </widget>
       </item>
@@ -965,7 +965,7 @@
     <widget class="QLabel" name="lbl_exsortiechx">
      <property name="geometry">
       <rect>
-       <x>29</x>
+       <x>23</x>
        <y>15</y>
        <width>340</width>
        <height>17</height>
@@ -1008,7 +1008,7 @@
      <property name="geometry">
       <rect>
        <x>24</x>
-       <y>126</y>
+       <y>113</y>
        <width>110</width>
        <height>27</height>
       </rect>
@@ -1018,7 +1018,7 @@
      <property name="geometry">
       <rect>
        <x>24</x>
-       <y>159</y>
+       <y>146</y>
        <width>110</width>
        <height>27</height>
       </rect>
@@ -1028,7 +1028,7 @@
      <property name="geometry">
       <rect>
        <x>141</x>
-       <y>129</y>
+       <y>116</y>
        <width>205</width>
        <height>53</height>
       </rect>
@@ -1037,18 +1037,18 @@
     <widget class="QComboBox" name="cbx_edcodesite">
      <property name="geometry">
       <rect>
-       <x>23</x>
-       <y>203</y>
+       <x>24</x>
+       <y>207</y>
        <width>239</width>
        <height>27</height>
       </rect>
      </property>
     </widget>
-    <widget class="QListWidget" name="lst_edredac">
+    <widget class="QListWidget" name="lst_edsalaries">
      <property name="geometry">
       <rect>
-       <x>22</x>
-       <y>246</y>
+       <x>23</x>
+       <y>270</y>
        <width>187</width>
        <height>139</height>
       </rect>
@@ -1095,18 +1095,18 @@
     <widget class="QTextEdit" name="txt_edsortcom">
      <property name="geometry">
       <rect>
-       <x>22</x>
-       <y>389</y>
+       <x>23</x>
+       <y>440</y>
        <width>369</width>
-       <height>124</height>
+       <height>113</height>
       </rect>
      </property>
     </widget>
     <widget class="QListWidget" name="lst_edobjvisit">
      <property name="geometry">
       <rect>
-       <x>437</x>
-       <y>337</y>
+       <x>438</x>
+       <y>396</y>
        <width>305</width>
        <height>117</height>
       </rect>
@@ -1150,8 +1150,8 @@
     <widget class="QTextEdit" name="txt_edobjvisautre">
      <property name="geometry">
       <rect>
-       <x>437</x>
-       <y>461</y>
+       <x>438</x>
+       <y>520</y>
        <width>305</width>
        <height>29</height>
       </rect>
@@ -1160,8 +1160,8 @@
     <widget class="Line" name="line">
      <property name="geometry">
       <rect>
-       <x>25</x>
-       <y>85</y>
+       <x>22</x>
+       <y>74</y>
        <width>730</width>
        <height>16</height>
       </rect>
@@ -1189,8 +1189,8 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>437</x>
-       <y>127</y>
+       <x>436</x>
+       <y>112</y>
        <width>307</width>
        <height>248</height>
       </rect>
@@ -1258,8 +1258,90 @@
       <string>TextLabel</string>
      </property>
     </widget>
+    <widget class="QLabel" name="lbl_eddates">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>89</y>
+       <width>125</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Dates de la sortie :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edcodesite">
+     <property name="geometry">
+      <rect>
+       <x>24</x>
+       <y>184</y>
+       <width>125</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Site visité :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edsalaries">
+     <property name="geometry">
+      <rect>
+       <x>23</x>
+       <y>247</y>
+       <width>125</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Salariés présents :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edsortcom">
+     <property name="geometry">
+      <rect>
+       <x>24</x>
+       <y>416</y>
+       <width>205</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Commentaires pour la sortie :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_ednat">
+     <property name="geometry">
+      <rect>
+       <x>438</x>
+       <y>90</y>
+       <width>205</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Faune / flore / autres :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edobjvisit">
+     <property name="geometry">
+      <rect>
+       <x>439</x>
+       <y>373</y>
+       <width>205</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Objet de la visite</string>
+     </property>
+    </widget>
    </widget>
   </widget>
+  <zorder>buttonBox_2</zorder>
+  <zorder>tab_widget</zorder>
+  <zorder>txt_edobjvisautre</zorder>
+  <zorder>lst_edobjvisit</zorder>
  </widget>
  <resources/>
  <connections/>

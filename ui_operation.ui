@@ -514,8 +514,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>48</y>
+       <x>18</x>
+       <y>33</y>
        <width>725</width>
        <height>45</height>
       </rect>
@@ -529,8 +529,8 @@
     <widget class="QLabel" name="lbl_edoperation">
      <property name="geometry">
       <rect>
-       <x>12</x>
-       <y>20</y>
+       <x>15</x>
+       <y>11</y>
        <width>279</width>
        <height>17</height>
       </rect>
@@ -548,8 +548,8 @@
     <widget class="Line" name="line_5">
      <property name="geometry">
       <rect>
-       <x>15</x>
-       <y>100</y>
+       <x>12</x>
+       <y>86</y>
        <width>734</width>
        <height>16</height>
       </rect>
@@ -564,10 +564,10 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>14</x>
-       <y>130</y>
+       <x>13</x>
+       <y>127</y>
        <width>735</width>
-       <height>139</height>
+       <height>132</height>
       </rect>
      </property>
     </widget>
@@ -577,10 +577,10 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>16</x>
-       <y>480</y>
+       <x>12</x>
+       <y>505</y>
        <width>733</width>
-       <height>156</height>
+       <height>139</height>
       </rect>
      </property>
     </widget>
@@ -590,8 +590,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>17</x>
-       <y>651</y>
+       <x>16</x>
+       <y>657</y>
        <width>158</width>
        <height>22</height>
       </rect>
@@ -651,10 +651,10 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>15</x>
-       <y>280</y>
+       <x>13</x>
+       <y>297</y>
        <width>735</width>
-       <height>194</height>
+       <height>177</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -710,6 +710,58 @@
      </property>
      <property name="text">
       <string>Id opération :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edopeprev">
+     <property name="geometry">
+      <rect>
+       <x>17</x>
+       <y>104</y>
+       <width>243</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Opération prévue :</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edtypope">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>272</y>
+       <width>243</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Type(s) d'opération(s)  : </string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edpresta">
+     <property name="geometry">
+      <rect>
+       <x>385</x>
+       <y>273</y>
+       <width>243</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Opérateur(s)</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_eddescr">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>482</y>
+       <width>243</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Commentaire pour l'opération :</string>
      </property>
     </widget>
    </widget>

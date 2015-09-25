@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,7 +49,7 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
 
 
@@ -199,7 +199,7 @@ class composerClass (QtGui.QDialog):
             if label.displayText().find("$idsortie")>-1:
                 plac_date=label.displayText().find("$idsortie")
                 texte=unicode(label.displayText())
-                label.setText(texte[0:plac_date]+self.idsortie+texte[plac_date+9:])
+                label.setText(texte[0:plac_date]+str(idsortie)+texte[plac_date+9:])
             if label.displayText().find("$commsortie")>-1:
                 plac_commsortie=label.displayText().find("$commsortie")
                 texte=unicode(label.displayText())

@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -1338,10 +1338,6 @@
     </widget>
    </widget>
   </widget>
-  <zorder>buttonBox_2</zorder>
-  <zorder>tab_widget</zorder>
-  <zorder>txt_edobjvisautre</zorder>
-  <zorder>lst_edobjvisit</zorder>
  </widget>
  <resources/>
  <connections/>

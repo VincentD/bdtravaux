@@ -268,9 +268,11 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
     def fillEditControls(self):
-        if self.ui.cbx_exsortie.currentIndex() :
+        if self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex())==None :
+            print 'vide'
             return
         else :
+            print 'plein'
             #dans le tab "exsortie", réinitialise les contrôles contenant les données de la sortie à modifier.
             self.ui.dat_eddatdeb.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
             self.ui.dat_eddatfin.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))

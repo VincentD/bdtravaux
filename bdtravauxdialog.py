@@ -62,7 +62,7 @@ class BdTravauxDialog(QtGui.QDialog):
         #Initialisations pour :
         # - objetVisiText (récup "objectif de la visite") 
         self.objetVisiText=str(self.ui.obj_travaux.text())
-        # - self.chantvol et l'activation (ou pas) de l'onglet "Chantier de volontaire
+        # - self.chantvol et l'activation (ou pas) de l'onglet "Chantier de volontaire"
         self.chantvol=False
         self.ui.tab_chantvol.setEnabled(0)
         # - gestion des chantiers de volontaire si aucun partenaire n'est sélectionné
@@ -463,7 +463,7 @@ class BdTravauxDialog(QtGui.QDialog):
        for child in self.findChildren((QtGui.QTextEdit)):
             child.clear()
        for child in self.findChildren((QtGui.QTableWidget)):
-            child.clear()
+            child.clearContents()
        for child in self.findChildren((QtGui.QCalendarWidget)):
             aujourdhui=QtCore.QDate.currentDate()
             child.setSelectedDate(aujourdhui)

@@ -159,49 +159,56 @@ class OperationDialog(QtGui.QDialog):
 # Actualisation des combobox et listes de choix lorsque l'utilisateur choisit une sortie
 
     def actu_gestprev_opechvol_edope(self):
-        # Quand l'utilisateur sélectionne une sortie, actualisation des contrôles "opprev", "lst_edopeprev", "cbx_edoperation" et gestion de la case à cocher "chx_opechvol".
-        # opprev et lst_edopeprev : Actualise les listes des opérations de gestion prévues en base de données (liste de l'onglet "saisie" et liste de 'onglet "modification") et filtre selon le code du site
-        self.ui.opprev.clear()
-        self.ui.lst_edopeprev.clear()
-        #Récupération du code du site et de chantvol
-        querycodesite = QtSql.QSqlQuery(self.db)
-        qcodesite = u"""select codesite,chantvol from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
-        (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-        ok2 = querycodesite.exec_(qcodesite)
-        if not ok2:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupCodeSite ratée')
-        querycodesite.next()
-        self.codedusite=querycodesite.value(0)
-        self.chantvol=querycodesite.value(1)
-
-        query = QtSql.QSqlQuery(self.db)
-        if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
-            while query.next():
-                self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
-                self.ui.lst_edopeprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
-
-
-        # mise à jour du label "lbl_idsortiesel", affichant l'id de la sortie sélectionnée
-        self.ui.lbl_idsortiesel.setText(str(self.ui.sortie.itemData(self.ui.sortie.currentIndex())))
-
-        # cbx_edoperation : Actualise la combobox de choix de l'opération à modifier. La liste est filtrée selon la sortie sélectionnée.
-        self.blocFillEdOpContr = '0'            
-        self.ui.cbx_edoperation.clear()
-        queryope = QtSql.QSqlQuery(self.db)
-        if queryope.exec_(u"""SELECT operation_id, plangestion, code_gh, CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph, LEFT(array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; '),45)||'...'::text as typope, LEFT(descriptio,45)||'...'::text as descr, chantfini FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE sortie = {zr_sortie} OR operation_id='0' ORDER BY operation_id""".format(zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))):
-            while queryope.next():
-                 self.ui.cbx_edoperation.addItem(unicode(queryope.value(1)) + " / " + unicode(queryope.value(2)) + " / "+ unicode(queryope.value(3)) + " / "+ unicode(queryope.value(4)) + " / "+ unicode(queryope.value(5)), int(queryope.value(0)))
-        self.blocFillEdOpContr = '1'
-
-        # chx_opechvol : Si la sortie contient un chantier de volontaire, la case à cocher "Chantier de volontaire" apparaît pour indiquer si l'opération courante fait partie ou non du chantier de volontaire. Sinon, la case à cocher est cachée.
-        if self.chantvol == True:
-            self.ui.chx_opechvol.setVisible(True)
-            self.ui.chx_opechvol.setChecked(True)
+        if self.ui.sortie.itemData(self.ui.sortie.currentIndex())==None :
+            print 'vide'
+            return
         else :
-            self.ui.chx_opechvol.setVisible(False)
-        # la liste "opprev" vient de changer. Les boutons "OK - Annuler" et "Dernier - Editer CR" sont inactifs jusqu'à ce qu'un nouvel item soit sélectionné dans "opprev".
-        self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
-        self.ui.compoButton.setEnabled(0)
+            print 'plein'
+            print "entree dans la 4ème diemnsion"
+            # Quand l'utilisateur sélectionne une sortie, actualisation des contrôles "opprev", "lst_edopeprev", "cbx_edoperation" et gestion de la case à cocher "chx_opechvol".
+            # opprev et lst_edopeprev : Actualise les listes des opérations de gestion prévues en base de données (liste de l'onglet "saisie" et liste de l'onglet "modification") et filtre selon le code du site
+            self.ui.opprev.clear()
+            self.ui.lst_edopeprev.clear()
+            #Récupération du code du site et de chantvol
+            querycodesite = QtSql.QSqlQuery(self.db)
+            qcodesite = u"""select codesite,chantvol from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
+            (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+            print unicode(qcodesite)
+            ok2 = querycodesite.exec_(qcodesite)
+            if not ok2:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupCodeSite ratée')
+            querycodesite.next()
+            self.codedusite=querycodesite.value(0)
+            self.chantvol=querycodesite.value(1)
+
+            query = QtSql.QSqlQuery(self.db)
+            if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
+                while query.next():
+                    self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
+                    self.ui.lst_edopeprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
+
+
+            # mise à jour du label "lbl_idsortiesel", affichant l'id de la sortie sélectionnée
+            self.ui.lbl_idsortiesel.setText(str(self.ui.sortie.itemData(self.ui.sortie.currentIndex())))
+
+            # cbx_edoperation : Actualise la combobox de choix de l'opération à modifier. La liste est filtrée selon la sortie sélectionnée.
+            self.blocFillEdOpContr = '0'            
+            self.ui.cbx_edoperation.clear()
+            queryope = QtSql.QSqlQuery(self.db)
+            if queryope.exec_(u"""SELECT operation_id, plangestion, code_gh, CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph, LEFT(array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; '),45)||'...'::text as typope, LEFT(descriptio,45)||'...'::text as descr, chantfini FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE sortie = {zr_sortie} OR operation_id='0' ORDER BY operation_id""".format(zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))):
+                while queryope.next():
+                     self.ui.cbx_edoperation.addItem(unicode(queryope.value(1)) + " / " + unicode(queryope.value(2)) + " / "+ unicode(queryope.value(3)) + " / "+ unicode(queryope.value(4)) + " / "+ unicode(queryope.value(5)), int(queryope.value(0)))
+            self.blocFillEdOpContr = '1'
+
+            # chx_opechvol : Si la sortie contient un chantier de volontaire, la case à cocher "Chantier de volontaire" apparaît pour indiquer si l'opération courante fait partie ou non du chantier de volontaire. Sinon, la case à cocher est cachée.
+            if self.chantvol == True:
+                self.ui.chx_opechvol.setVisible(True)
+                self.ui.chx_opechvol.setChecked(True)
+            else :
+                self.ui.chx_opechvol.setVisible(False)
+            # la liste "opprev" vient de changer. Les boutons "OK - Annuler" et "Dernier - Editer CR" sont inactifs jusqu'à ce qu'un nouvel item    soit sélectionné dans "opprev".
+            self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
+            self.ui.compoButton.setEnabled(0)
 
 
 

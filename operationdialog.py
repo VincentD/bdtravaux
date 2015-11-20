@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -357,7 +357,8 @@ class OperationDialog(QtGui.QDialog):
             typegeom='Polygon'
         else: 
             print "ce ne sont pas des points, des lignes ou des polygones"
-        self.iface.actionCopyFeatures().trigger()
+
+        # Création de la couche memlayer et début de la session d'édition
         if self.iface.activeLayer().crs().authid() == u'EPSG:4326':
            memlayer=QgsVectorLayer("{zr_typegeom}?crs=epsg:4326".format(zr_typegeom = typegeom), "memlayer", "memory")
         if self.iface.activeLayer().crs().authid() == u'EPSG:2154':
@@ -368,14 +369,37 @@ class OperationDialog(QtGui.QDialog):
         root.insertChildNode(0, memlayerNode)
         self.iface.setActiveLayer(memlayer)
         memlayer.startEditing()
-        self.iface.actionPasteFeatures().trigger()
+
+        # Pour chaque entité sélectionnée, si elle est multipartie, on ajoute chacune de ses parties individuellement à la couche memlayer. Sinon, on l'ajoute directement à "memlayer". Puis, on clot la session d'édition et on sélectionne toutes les entités de memlayer.
+        for feature in coucheactive.selectedFeatures() :
+            geom = feature.geometry()
+            temp_feature = QgsFeature(feature)
+            # check if feature geometry is multipart
+            if geom.isMultipart():
+                # if feature is multipart creates a new feature using the geometry of each part
+                for part in geom.asGeometryCollection ():
+                    temp_feature.setGeometry(part)
+                    memlayer.dataProvider().addFeatures([temp_feature])
+                    memlayer.updateExtents()
+                # if feature is singlepart, simply adds it to the layer memory
+            else :
+                temp_feature.setGeometry(geom)
+                memlayer.dataProvider().addFeatures([temp_feature])
+                memlayer.updateExtents()
         memlayer.commitChanges()
+        print "memlayercount="+str(memlayer.featureCount())
+        memlayer.commitChanges()
+        memlayer.selectAll()
+
+#        self.iface.actionCopyFeatures().trigger()
+#        self.iface.actionPasteFeatures().trigger()
+
 
         #lancement de convert_geoms.py pour transformer les entités sélectionnées dans le type d'entités choisi.
 
                                 #compréhension de liste : [fonction for x in liste]
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in memlayer.selectedFeatures()],geom_output)
-
+        print geom2
         #export de la géométrie en WKT et transformation de la projection si les données ne sont pas saisies en Lambert 93
         if memlayer.crs().authid() == u'EPSG:2154':
             thegeom='st_setsrid(st_geometryfromtext (\'{zr_geom2}\'), 2154)'.format(zr_geom2=geom2.exportToWkt())

@@ -59,6 +59,9 @@ class OperationDialog(QtGui.QDialog):
         self.ui.chx_opechvol.setVisible(False)
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
+        self.ui.pbt_supprope.setEnabled(0)
+        self.ui.pbt_edgeom.setEnabled(0)
+        self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
 
         #Mise à jour du label "lbl_futopeid", affichant l'id de la future opération.
         queryfutopeid = QtSql.QSqlQuery(self.db)
@@ -155,6 +158,7 @@ class OperationDialog(QtGui.QDialog):
 
 
 
+
 ######################"
 # Actualisation des combobox et listes de choix lorsque l'utilisateur choisit une sortie
 
@@ -217,7 +221,13 @@ class OperationDialog(QtGui.QDialog):
 
 
     def fillEditOpeControls(self):
+
         if self.blocFillEdOpContr == '1':
+
+        # activation des boutons "supprimer", "OK" et "modif graphique" pour suppression ou modification de l'opération sélectionnée
+            self.ui.pbt_supprope.setEnabled(1)
+            self.ui.pbt_edgeom.setEnabled(1)
+            self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(1)
 
         # Mise à jour du label "lbl_opeid", affichant l'id de l'opération sélectionnée
             self.ui.lbl_opeid.setText(str(self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex())))
@@ -278,6 +288,7 @@ class OperationDialog(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Récup id_oper ratée')
             queryjoinid.next()
             self.id_oper_modif = queryjoinid.value(0)
+
 
 
 
@@ -552,6 +563,11 @@ class OperationDialog(QtGui.QDialog):
             querymodifprest.next()
             print "opérateurs ajoutés"       
 
+        # Désactivation des bouton "OK", "modif Geom" et "Supprimer" jusqu'à la prochaine sélection d'une opération
+        self.ui.pbt_supprope.setEnabled(0)
+        self.ui.pbt_edgeom.setEnabled(0)
+        self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
+
         self.db.close()
         self.db.removeDatabase("sitescsn")
         self.close()
@@ -579,6 +595,10 @@ class OperationDialog(QtGui.QDialog):
 
     def sauvModifGeom(self):
         self.raise_() # le formulaire "opérations" passe en avant-plan
+        # Désactivation des bouton "OK", "modif Geom" et "Supprimer" jusqu'à la prochaine sélection d'une opération
+        self.ui.pbt_supprope.setEnabled(0)
+        self.ui.pbt_edgeom.setEnabled(0)
+        self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.timeoutTimer = QtCore.QTimer() # attendre une seconde (pour que QGIS ait le temps d'enregistrer la couche), puis la supprimer.
         self.timeoutTimer.singleShot(1000, self.removeModifiedLayer)
 
@@ -586,28 +606,6 @@ class OperationDialog(QtGui.QDialog):
         QgsMapLayerRegistry.instance().removeMapLayer(self.opeModif.id()) # retrait de la couche
 
 
-
-        ## Attribution de COULEURS différentes aux opérations
-        # Récupération des valeurs uniques du champ qui servira de base à la symbologie
-#        layer = self.gestrealpolys
-#        field_index = layer.dataProvider().fieldNameIndex('typ_operat')
-#        unique_values = layer.uniqueValues(field_index)
-        # Définit une correspondance: valeur -> (couleur) au moyen d'un dictionnaire et de la fonction clr_hasard
-        # Création du dictionnaire au moyen d'une compréhension de dictionnaire
-#        operations={valeurunique : self.clr_hasard() for valeurunique in unique_values}
-        # Crée une catégorie pour chaque item dans operations, puis les groupe en une liste (operations)
-#        categories = []
-#        for nom_opera, couleur in operations.items():
-#            symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
-#            symbol.setColor(QtGui.QColor(couleur))
-            #création de la catég. 1er param : l'attribut / 2ème : le symbole à appliquer / 3ème : l'étiquette ds la table des matières
-#            category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
-#            categories.append(category)
-        # Crée le renderer et l'assigne à la couche
-#        expression = 'typ_operat' # nom du champ
-#        renderer = QgsCategorizedSymbolRendererV2(expression, categories)
-#        layer.setRendererV2(renderer)
-#        layer.setLayerTransparency(50)
 
 
 
@@ -640,6 +638,11 @@ class OperationDialog(QtGui.QDialog):
         ok3 = querysupprope.exec_(qsupprope)
         if not ok3:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression opération ratée')
+
+        # Désactivation des bouton "OK", "modif Geom" et "Supprimer" jusqu'à la prochaine sélection d'une opération
+        self.ui.pbt_supprope.setEnabled(0)
+        self.ui.pbt_edgeom.setEnabled(0)
+        self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
 
         self.db.close()
         self.db.removeDatabase("sitescsn")

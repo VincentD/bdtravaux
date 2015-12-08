@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -641,7 +641,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>220</y>
+       <y>239</y>
        <width>752</width>
        <height>174</height>
       </rect>
@@ -907,7 +907,7 @@
      <property name="geometry">
       <rect>
        <x>107</x>
-       <y>411</y>
+       <y>430</y>
        <width>141</width>
        <height>17</height>
       </rect>
@@ -920,7 +920,7 @@
      <property name="geometry">
       <rect>
        <x>256</x>
-       <y>408</y>
+       <y>427</y>
        <width>267</width>
        <height>56</height>
       </rect>
@@ -956,6 +956,39 @@
        <string>Ne saisir que des nombres entiers</string>
       </property>
      </item>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>496</y>
+       <width>520</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+       <underline>true</underline>
+      </font>
+     </property>
+     <property name="text">
+      <string>Attention : ne saisir que des nombres entiers dans les cases des tableaux</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>199</y>
+       <width>98</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>(Nb à virgules)</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_exsortie">

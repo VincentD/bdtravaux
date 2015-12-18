@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -164,11 +164,8 @@ class OperationDialog(QtGui.QDialog):
 
     def actu_gestprev_opechvol_edope(self):
         if self.ui.sortie.itemData(self.ui.sortie.currentIndex())==None :
-            print 'vide'
             return
         else :
-            print 'plein'
-            print "entree dans la 4ème diemnsion"
             # Quand l'utilisateur sélectionne une sortie, actualisation des contrôles "opprev", "lst_edopeprev", "cbx_edoperation" et gestion de la case à cocher "chx_opechvol".
             # opprev et lst_edopeprev : Actualise les listes des opérations de gestion prévues en base de données (liste de l'onglet "saisie" et liste de l'onglet "modification") et filtre selon le code du site
             self.ui.opprev.clear()
@@ -177,7 +174,6 @@ class OperationDialog(QtGui.QDialog):
             querycodesite = QtSql.QSqlQuery(self.db)
             qcodesite = u"""select codesite,chantvol from bdtravaux.sortie where sortie_id = {zr_sortie_id}""".format \
             (zr_sortie_id = self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
-            print unicode(qcodesite)
             ok2 = querycodesite.exec_(qcodesite)
             if not ok2:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête recupCodeSite ratée')
@@ -417,7 +413,6 @@ class OperationDialog(QtGui.QDialog):
 
                                 #compréhension de liste : [fonction for x in liste]
         geom2=convert_geometries([QgsGeometry(feature.geometry()) for feature in memlayer.selectedFeatures()],geom_output)
-        print geom2
         #export de la géométrie en WKT et transformation de la projection si les données ne sont pas saisies en Lambert 93
         if memlayer.crs().authid() == u'EPSG:2154':
             thegeom='st_setsrid(st_geometryfromtext (\'{zr_geom2}\'), 2154)'.format(zr_geom2=geom2.exportToWkt())

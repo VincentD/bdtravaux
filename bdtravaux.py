@@ -124,7 +124,6 @@ class BdTravaux:
             # show the dialog
             self.dlg_ope.actu_cbbx()    # mise à jour de la combobox "sortie"
             self.dlg_ope.actu_listeschoix() 
-            print 'sansGeom ='+self.dlg_ope.sansgeom
             self.dlg_ope.actu_lblgeom() # mise à jour du label lbl_geom selon le nb et le type des entités sélectionnées
             self.dlg_ope.actu_gestprev_opechvol_edope() # maj de plsrs listes et cbbx en fction du choix dans la ccbx "sortie"
             self.dlg_ope.show()

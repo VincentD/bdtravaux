@@ -109,21 +109,3 @@ class PrevuDialog(QtGui.QDialog):
         self.close
 
 
-
-#    def reinitialiser(self):
-#       for child in self.findChildren((QtGui.QRadioButton)):
-#            print child.objectName()
-#            child.setAutoExclusive(False)
-#            child.setChecked(False)
-#            child.setAutoExclusive(True)
-#            if child.text()=='Travaux sur site (hors chantiers de volontaires)':
-#                child.setChecked(True)
-#       for child in self.findChildren((QtGui.QLineEdit)):
-#            child.clear()
-#       for child in self.findChildren((QtGui.QTextEdit)):
-#            child.clear()
-#       for child in self.findChildren((QtGui.QTableWidget)):
-#            child.clear()
-#       for child in self.findChildren((QtGui.QCalendarWidget)):
-#            aujourdhui=QtCore.QDate.currentDate()
-#            child.setSelectedDate(aujourdhui)

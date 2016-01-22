@@ -107,6 +107,7 @@ class BdTravaux:
     def run(self):
         # show the dialog
         self.dlg.fillExSortieList()    # mise à jour de la liste de sorties déjà saisies (onglet 4)
+        self.dlg.ui.tab_widget.setCurrentIndex(0)
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()

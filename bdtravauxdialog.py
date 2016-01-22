@@ -97,6 +97,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
 
+
     def objetVisiClicked(self):
         #cette fonction gère les boutons radio indiquant l'objectif de la visite
         #création d'un générateur
@@ -442,19 +443,24 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
     def reinitialiser(self):
-       for child in self.findChildren((QtGui.QRadioButton)):
-            print child.objectName()
+        for child in self.findChildren((QtGui.QRadioButton)):
             child.setAutoExclusive(False)
             child.setChecked(False)
             child.setAutoExclusive(True)
             if child.text()=='Travaux sur site (hors chantiers de volontaires)':
                 child.setChecked(True)
-       for child in self.findChildren((QtGui.QLineEdit)):
+        regex = QtCore.QRegExp("^ch_nb*")
+        for child in self.findChildren((QtGui.QLineEdit), regex):
+            child.setText('0')
+        for child in self.findChildren((QtGui.QTextEdit)):
             child.clear()
-       for child in self.findChildren((QtGui.QTextEdit)):
-            child.clear()
-       for child in self.findChildren((QtGui.QTableWidget)):
-            child.clearContents()
-       for child in self.findChildren((QtGui.QCalendarWidget)):
+        for child in self.findChildren((QtGui.QTableWidget)):
+            for row in xrange(child.rowCount ()):
+                for column in xrange(child.columnCount ()):
+                    item = child.item (row, column )
+                    item.setText('0')
+        self.ui.tab_chantvol.setEnabled(0)
+        self.ui.tab_widget.setCurrentIndex(0)
+        for child in self.findChildren((QtGui.QCalendarWidget)):
             aujourdhui=QtCore.QDate.currentDate()
             child.setSelectedDate(aujourdhui)

@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -921,8 +921,8 @@
       <rect>
        <x>256</x>
        <y>427</y>
-       <width>267</width>
-       <height>56</height>
+       <width>269</width>
+       <height>57</height>
       </rect>
      </property>
      <row>

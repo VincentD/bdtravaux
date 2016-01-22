@@ -303,11 +303,8 @@ class OperationDialog(QtGui.QDialog):
     def sauvOpeSansGeom(self):
         self.recupIdChantvol()
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u'insert into bdtravaux.operation_poly (sortie, plangestion, code_gh, typ_operat, descriptio, chantfini, ope_chvol) values ({zr_sortie}, \'{zr_plangestion}\', \'{zr_code_gh}\', \'{zr_ope_typ}\', \'{zr_libelle}\', \'{zr_chantfini}\',{zr_opechvol})'.format (\
+        query = u'insert into bdtravaux.operation_poly (sortie, descriptio, chantfini, ope_chvol) values ({zr_sortie}, \'{zr_libelle}\', \'{zr_chantfini}\',{zr_opechvol})'.format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.ui.opprev.currentItem().text().split(" / ")[-1],\
-        zr_code_gh = self.ui.opprev.currentItem().text().split(" / ")[1],\
-        zr_ope_typ= self.ui.opreal.currentItem().text().replace("\'","\'\'"),\
         zr_libelle= self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
         zr_opechvol = self.id_opechvol)
@@ -433,7 +430,6 @@ class OperationDialog(QtGui.QDialog):
         #geom2.exportToWkt(),\
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
         zr_opechvol = self.id_opechvol)
-        print unicode(query)
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')

@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -182,10 +182,10 @@ class OperationDialog(QtGui.QDialog):
             self.chantvol=querycodesite.value(1)
 
             query = QtSql.QSqlQuery(self.db)
-            if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
+            if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
                 while query.next():
-                    self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
-                    self.ui.lst_edopeprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)))
+                    self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)) + " / " + unicode(query.value(5)))
+                    self.ui.lst_edopeprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)) + " / " + unicode(query.value(5)))
 
 
             # mise à jour du label "lbl_idsortiesel", affichant l'id de la sortie sélectionnée
@@ -315,7 +315,7 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sansgeom ratée')
         self.nom_table='operation_poly'
-        self.rempliJoinOpe()
+        self.rempliJoin()
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
         self.close
@@ -425,20 +425,19 @@ class OperationDialog(QtGui.QDialog):
         self.recupIdChantvol()
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, plangestion, code_gh, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_plangestion}', '{zr_code_gh}', '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
+        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
         zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
-        zr_plangestion = self.ui.opprev.currentItem().text().split(" / ")[-1],\
-        zr_code_gh = self.ui.opprev.currentItem().text().split(" / ")[1],\
         zr_libelle = self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = thegeom,\
         #geom2.exportToWkt(),\
         #st_transform(st_setsrid(st_geometryfromtext ('{zr_the_geom}'),4326), 2154) si besoin de transformer la projection
         zr_opechvol = self.id_opechvol)
+        print unicode(query)
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
-        self.rempliJoinOpe()
+        self.rempliJoin()
         self.iface.setActiveLayer(coucheactive)
         QgsMapLayerRegistry.instance().removeMapLayer(memlayer.id())
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
@@ -447,9 +446,9 @@ class OperationDialog(QtGui.QDialog):
 
 
 
-    def rempliJoinOpe(self):
-    #remplissage des tables join_operateur et join_operations avec les prestataires et eles types d'opés sélectionnés par l'utilisateur
-        #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs et join_operations
+    def rempliJoin(self):
+    #remplissage des tables join_operateur, join_operations et join_opeprevues avec les prestas, les types d'opés et les GH sélect par l'utilisateur
+        #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs, join_operations et join_opeprevues
         queryidoper = QtSql.QSqlQuery(self.db)
         qidoper = u"""select id_oper from bdtravaux.{zr_nomtable} order by id_oper desc limit 1""".format (zr_nomtable=self.nom_table)
         ok2=queryidoper.exec_(qidoper)
@@ -465,7 +464,6 @@ class OperationDialog(QtGui.QDialog):
             ok3 = querypresta.exec_(qpresta)
             if not ok3:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des prestas en base ratée')
-                querypresta.next()
 
         #remplissage de la table join_operation : id_oper et noms du (des) type(s) d'opération
         for item in xrange (len(self.ui.opreal.selectedItems())):
@@ -474,7 +472,20 @@ class OperationDialog(QtGui.QDialog):
             ok4 = querytypope.exec_(qtypope)
             if not ok4:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des types d opérations en base ratée')
-                querytypope.next()
+
+        #remplissage de la table join_opeprevues : id_oper, code GH, ype d'opé, libelle de l'opé, année prévue et pdg où l'opé est rpévue
+        for item in xrange (len(self.ui.opprev.selectedItems())):
+            queryopeprev = QtSql.QSqlQuery(self.db)
+            qopeprev = u"""insert into bdtravaux.join_opeprevues (id_joinprev, codeope, typeope, lblope, anneeprev, pdg) values ({zr_idjoinprev}, '{zr_codeope}', '{zr_typeope}', '{zr_lblope}', '{zr_anneeprev}', '{zr_pdg}')""".format (\
+            zr_idjoinprev = self.id_oper,\
+            zr_codeope = self.ui.opprev.selectedItems()[item].text().split(" / ")[1].replace("\'","\'\'"),\
+            zr_typeope = self.ui.opprev.selectedItems()[item].text().split(" / ")[2].replace("\'","\'\'"),\
+            zr_lblope = self.ui.opprev.selectedItems()[item].text().split(" / ")[3].replace("\'","\'\'"),\
+            zr_anneeprev = self.ui.opprev.selectedItems()[item].text().split(" / ")[4].replace("\'","\'\'"),\
+            zr_pdg = self.ui.opprev.selectedItems()[item].text().split(" / ")[5].replace("\'","\'\'"))
+            ok5 = queryopeprev.exec_(qopeprev)
+            if not ok5:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie en base des opérations prévues ratée')
 
 
 

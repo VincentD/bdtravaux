@@ -35,8 +35,8 @@
     <widget class="Line" name="line_3">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>256</y>
+       <x>18</x>
+       <y>266</y>
        <width>731</width>
        <height>20</height>
       </rect>
@@ -48,46 +48,8 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>15</x>
-       <y>99</y>
-       <width>741</width>
-       <height>161</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QGroupBox" name="lbl_opeprev">
-        <property name="title">
-         <string>Opération prévue</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QListWidget" name="opprev">
-        <item>
-         <property name="text">
-          <string>000 / NP / Non prévu / Opération non prévue / NP </string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>000 / AvtPdG / Avant le plan de gestion / Opération antérieure au plan de gestion / AvtPdG</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>000 / 0GH / Pas encore de GH / GH non attribué / 0GH</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>15</x>
-       <y>273</y>
+       <x>14</x>
+       <y>284</y>
        <width>741</width>
        <height>251</height>
       </rect>
@@ -502,6 +464,70 @@
      <property name="text">
       <string>lbl_futopeid</string>
      </property>
+    </widget>
+    <widget class="QListWidget" name="opprev">
+     <property name="geometry">
+      <rect>
+       <x>17</x>
+       <y>120</y>
+       <width>736</width>
+       <height>148</height>
+      </rect>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>000 / NP / Non prévu / Opération non prévue / NP </string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>000 / AvtPdG / Avant le plan de gestion / Opération antérieure au plan de gestion / AvtPdG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>000 / 0GH / Pas encore de GH / GH non attribué / 0GH</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>90</y>
+       <width>468</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QGroupBox" name="lbl_opeprev">
+        <property name="title">
+         <string>Opération prévue </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>(Site / CodeOpé / TypOpé / LibelléOpé / AnnéePrev / PdG)</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="ope_modifs">

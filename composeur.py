@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,7 +49,7 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
 
 
@@ -355,7 +355,6 @@ class composerClass (QtGui.QDialog):
 
         # Requête qui sera intégrée dans uri.setDataSource() (cf. paragraphe ci-dessous)
         reqwhere="""sortie_id="""+str(idsortie)+""" and the_geom IS NOT NULL""" 
-                                    # idsortie = id de la sortie, entrée comme paramètre de la fonction
 
         # SURFACES : Import de la couche de polygones si des surfaces sont saisies pour cette sortie
         self.querypoly = QtSql.QSqlQuery(self.db)
@@ -376,7 +375,7 @@ class composerClass (QtGui.QDialog):
             ## Attribution de COULEURS différentes aux opérations
             # Récupération des valeurs uniques du champ qui servira de base à la symbologie
             layer = self.gestrealpolys
-            field_index = layer.dataProvider().fieldNameIndex('typ_operat')
+            field_index = layer.dataProvider().fieldNameIndex('lblope')
             unique_values = layer.uniqueValues(field_index)
             # Définit une correspondance: valeur -> (couleur) au moyen d'un dictionnaire et de la fonction clr_hasard
             # Création du dictionnaire au moyen d'une compréhension de dictionnaire
@@ -390,7 +389,7 @@ class composerClass (QtGui.QDialog):
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
             # Crée le renderer et l'assigne à la couche
-            expression = 'typ_operat' # nom du champ
+            expression = 'lblope' # nom du champ
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
             layer.setLayerTransparency(50)
@@ -410,7 +409,7 @@ class composerClass (QtGui.QDialog):
             QgsMapLayerRegistry.instance().addMapLayer(self.gestreallgn, False)
             root.insertLayer(0, self.gestreallgn)
             layer=self.gestreallgn
-            field_index = layer.dataProvider().fieldNameIndex('typ_operat')
+            field_index = layer.dataProvider().fieldNameIndex('lblope')
             unique_values = layer.uniqueValues(field_index)
             operations={valeurunique : self.clr_hasard() for valeurunique in unique_values}
             categories = []
@@ -419,7 +418,7 @@ class composerClass (QtGui.QDialog):
                 symbol.setColor(QtGui.QColor(couleur))
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
-            expression = 'typ_operat'
+            expression = 'lblope'
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
         else :
@@ -438,7 +437,7 @@ class composerClass (QtGui.QDialog):
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpts, False)
             root.insertLayer(0, self.gestrealpts)
             layer=self.gestrealpts
-            field_index = layer.dataProvider().fieldNameIndex('typ_operat')
+            field_index = layer.dataProvider().fieldNameIndex('lblope')
             unique_values = layer.uniqueValues(field_index)
             operations={valeurunique : self.clr_hasard() for valeurunique in unique_values}
             categories = []
@@ -447,7 +446,7 @@ class composerClass (QtGui.QDialog):
                 symbol.setColor(QtGui.QColor(couleur))
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
-            expression = 'typ_operat'
+            expression = 'lblope'
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
         else :

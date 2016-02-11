@@ -24,7 +24,7 @@ from PyQt4 import QtCore, QtGui, QtSql
 from ui_bdtravaux_sortie import Ui_BdTravaux
 from composeur import composerClass
 
-# create the dialog for zoom to point
+# create the dialog 
 class BdTravauxDialog(QtGui.QDialog):
     def __init__(self):
         
@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -134,6 +134,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
     def sauverInfos(self):
         self.objetVisiClicked()
+        self.erreurSaisieSortie = '0'
         # S'il y a plusieurs dates, alors lire les données dans "datefin" et "plsrsdates". Sinon, la date de fin = la date de début et les jours ne sont pas renseignés
         if self.ui.chbox_plsrsjrs.isChecked()==True:
             self.date_fin=self.ui.datefin.selectedDate().toPyDate().strftime("%Y-%m-%d")
@@ -158,10 +159,15 @@ class BdTravauxDialog(QtGui.QDialog):
         ok = query_save.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
+            self.erreurSaisieSortie = '1'
         self.rempliJoinSalarie()
         self.chantVol()
         self.db.close()
         self.db.removeDatabase("sitescsn")
+        if self.erreurSaisieSortie == '0':
+            QtGui.QMessageBox.information(self, 'Information', u'Données intégrées dans la base.')
+        else :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Données partiellement ou non intégrées dans la base')
         self.reinitialiser()
         self.close()
 
@@ -182,6 +188,7 @@ class BdTravauxDialog(QtGui.QDialog):
         ok2=queryidsal.exec_(qidsal)
         if not ok2:
             QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id du salarie')
+            self.erreurSaisieSortie ='1'
         queryidsal.next()
         self.sortie_id = queryidsal.value(0)
         print str(self.sortie_id)
@@ -195,6 +202,7 @@ class BdTravauxDialog(QtGui.QDialog):
             ok3 = querysalarie.exec_(qsalarie)
             if not ok3:
                QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des salariés en base ratée')
+               self.erreurSaisieSortie ='1'
             querysalarie.next()
 
 
@@ -239,6 +247,7 @@ class BdTravauxDialog(QtGui.QDialog):
             ok_chvol = querychantvol.exec_(querych)
             if not ok_chvol:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête chantvol ratée')
+                self.erreurSaisieSortie ='1'
 
 
     def masqueBoutons(self, index):
@@ -329,6 +338,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
     def saveModifsSortie(self):
+        self.erreurModifSortie = '0'
         # sauvegarde des modifications d'une sortie
         querysavemodsort = QtSql.QSqlQuery(self.db)
         qsavmods = u"""UPDATE bdtravaux.sortie SET date_sortie = '{zr_datedeb}'::date , date_fin = '{zr_datefin}'::date , codesite= '{zr_codesite}' , jours_chan='{zr_jourschan}' , sortcom = '{zr_sortcom}' , objvisite = '{zr_objvisite}' , objvi_autr = '{zr_objviautr}' , natfaune = '{zr_natfaune}' , natflore = '{zr_natflore}', natautre = '{zr_natautre}'  WHERE sortie_id={zr_sortie}""".format (\
@@ -346,6 +356,7 @@ class BdTravauxDialog(QtGui.QDialog):
         ok = querysavemodsort.exec_(qsavmods)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour sortie ratée')
+            self.erreurModifSortie = '1'
 
         #sauvegarde des modifications de salariés : sortie_id, noms et initiales du (des) salarié(s)
             #suppression des salariés appartenant à la sortie modifiée
@@ -355,6 +366,7 @@ class BdTravauxDialog(QtGui.QDialog):
         ok4 = querysupprsal.exec_(qsupprsal)
         if not ok4 :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des salariés en base ratée')
+            self.erreurModifSortie = '1'
         print "salaries en trop supprimes"
 
             #ajout de la liste de salariés modifiée
@@ -366,10 +378,15 @@ class BdTravauxDialog(QtGui.QDialog):
             zr_initiales=self.ui.lst_edsalaries.selectedItems()[item].text().split("/")[1])
             ok5 = querymodifsal.exec_(qmodsal)
             if not ok5:
-               QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des salariés en base ratée')
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des salariés en base ratée')
+                self.erreurModifSortie = '1'
             querymodifsal.next()
             print "salaries modifies"
 
+        if self.erreurModifSortie == '0':
+            QtGui.QMessageBox.information(self, 'Information', u'Modifications correctement effectuées dans la base')
+        else :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des salariés en base ratée')
         self.db.close()
         self.db.removeDatabase("sitescsn")
         self.close()
@@ -379,6 +396,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
     def supprSort(self):
 
+        self.erreurSupprSortie = '0'
         #récupération de l'identifiant de la sortie à supprimer
         self.sortieSuppr = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex())
 
@@ -390,6 +408,7 @@ class BdTravauxDialog(QtGui.QDialog):
         ok1 = queryidopesuppr.exec_(qidopesuppr)
         if not ok1:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Sélection operations à supprimer ratée')
+            self.erreurSupprSortie = '1'
         while queryidopesuppr.next():
             self.opesuppr.append(queryidopesuppr.value(0))
             self.idopersuppr.append(queryidopesuppr.value(1))
@@ -402,6 +421,7 @@ class BdTravauxDialog(QtGui.QDialog):
             ok2 = querysupprsprest.exec_(qsupprsprest)
             if not ok2:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression prestataires ratée')
+                self.erreurSupprSortie = '1'
 
         # suppression des données dans la table "join_typoperation"        
             querysupprstyp = QtSql.QSqlQuery(self.db)
@@ -410,7 +430,7 @@ class BdTravauxDialog(QtGui.QDialog):
             ok3 = querysupprstyp.exec_(qsupprstyp)
             if not ok3:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression types opération ratée')
-
+                self.erreurSupprSortie = '1'
 
         # suppression des données dans les tables "operation_xxx"        
             for couche in ['operation_poly','operation_pts','operation_lgn']:
@@ -421,6 +441,7 @@ class BdTravauxDialog(QtGui.QDialog):
                 ok4 = querysupprsope.exec_(qsupprsope)
                 if not ok4:
                     QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression opération ratée')
+                    self.erreurSupprSortie = '1'
 
         # suppression des données dans la table "sortie"
         querysupprssort = QtSql.QSqlQuery(self.db)
@@ -428,7 +449,13 @@ class BdTravauxDialog(QtGui.QDialog):
         zr_sortie = self.sortieSuppr)
         ok5 = querysupprssort.exec_(qsupprssort)
         if not ok5:
-           QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression sortie ratée')
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression sortie ratée')
+            self.erreurSupprSortie = '1'
+
+        if self.erreurSupprSortie == '0' :
+            QtGui.QMessageBox.information(self, 'Information', u'Sortie supprimée')
+        else :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Sortie non supprimée')
 
         self.db.close()
         self.db.removeDatabase("sitescsn")

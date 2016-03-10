@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>791</width>
-    <height>789</height>
+    <height>793</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,14 +58,14 @@
       <item row="0" column="0">
        <widget class="QGroupBox" name="lbl_opreal">
         <property name="title">
-         <string>Type d'opération réalisée</string>
+         <string>4. Type d'opération réalisée</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QGroupBox" name="lbl_prestataire">
         <property name="title">
-         <string>Opérateur</string>
+         <string>5. Opérateur</string>
         </property>
        </widget>
       </item>
@@ -163,6 +163,9 @@
       </item>
       <item row="1" column="1">
        <widget class="QListWidget" name="prestataire">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prestataire(s) réalisant l'opération courante.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -259,7 +262,7 @@
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ouvre le composeur &amp;quot;Compte-rendu d'opérations&amp;quot;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enregistre l'opération courante et ouvre le composeur&lt;/p&gt;&lt;p&gt;pour impression du Compte-rendu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Dernier - Editer CR</string>
@@ -292,30 +295,26 @@
       <number>255</number>
      </property>
     </widget>
-    <widget class="QGroupBox" name="lbl_descr">
-     <property name="geometry">
-      <rect>
-       <x>15</x>
-       <y>544</y>
-       <width>91</width>
-       <height>28</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Description</string>
-     </property>
-    </widget>
     <widget class="QCheckBox" name="chantfini">
      <property name="geometry">
       <rect>
-       <x>400</x>
+       <x>386</x>
        <y>683</y>
-       <width>171</width>
+       <width>185</width>
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cocher si l'opération courante est terminée.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
-      <string>opération terminée</string>
+      <string>8. Opération terminée</string>
      </property>
     </widget>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -326,6 +325,9 @@
        <width>181</width>
        <height>27</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;OK pour la saisie?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -340,7 +342,7 @@
        <x>16</x>
        <y>29</y>
        <width>739</width>
-       <height>52</height>
+       <height>55</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="lyt_geom">
@@ -348,8 +350,9 @@
        <widget class="QLabel" name="lbl_select">
         <property name="font">
          <font>
-          <weight>75</weight>
-          <bold>true</bold>
+          <weight>50</weight>
+          <italic>true</italic>
+          <bold>false</bold>
          </font>
         </property>
         <property name="text">
@@ -358,15 +361,30 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="lbl_trsfgeom">
         <property name="font">
          <font>
           <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>5</number>
+        </property>
         <property name="text">
-         <string>Type de géométrie à sortir</string>
+         <string>2. Type de géométrie à sortir</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::AutoText</enum>
         </property>
        </widget>
       </item>
@@ -378,22 +396,57 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="trsf_geom">
-        <item>
-         <property name="text">
-          <string>Points</string>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>GroupBox</string>
+        </property>
+        <widget class="QMdiArea" name="mdi_trsfgeom">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>-2</y>
+           <width>364</width>
+           <height>31</height>
+          </rect>
          </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Lignes</string>
+         <property name="background">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
          </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Surfaces</string>
+        </widget>
+        <widget class="QComboBox" name="trsf_geom">
+         <property name="geometry">
+          <rect>
+           <x>1</x>
+           <y>2</y>
+           <width>362</width>
+           <height>25</height>
+          </rect>
          </property>
-        </item>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type de géométrie qui sera saisie en base.&lt;/p&gt;&lt;p&gt;(exemple : &amp;quot;ligne&amp;quot; pour une clôture, &amp;quot;polygone&amp;quot; pour une fauche...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>Points</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Lignes</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Surfaces</string>
+          </property>
+         </item>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -401,14 +454,23 @@
     <widget class="QCheckBox" name="chx_opechvol">
      <property name="geometry">
       <rect>
-       <x>565</x>
+       <x>539</x>
        <y>541</y>
-       <width>191</width>
+       <width>217</width>
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L'opération courante est-elle accomplie &lt;/p&gt;&lt;p&gt;lors d'un chantier de bénévoles?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
-      <string>Chantier de volontaires?</string>
+      <string>7. Chantier de volontaires?</string>
      </property>
      <property name="checked">
       <bool>false</bool>
@@ -474,6 +536,9 @@
        <height>148</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A quelle opération prévue dans le plan de gestion actuel&lt;/p&gt;&lt;p&gt;se rattache l'opération courante?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
@@ -498,7 +563,7 @@
       <rect>
        <x>20</x>
        <y>90</y>
-       <width>468</width>
+       <width>484</width>
        <height>30</height>
       </rect>
      </property>
@@ -506,7 +571,7 @@
       <item>
        <widget class="QGroupBox" name="lbl_opeprev">
         <property name="title">
-         <string>Opération prévue </string>
+         <string>3. Opération prévue </string>
         </property>
        </widget>
       </item>
@@ -529,6 +594,40 @@
       </item>
      </layout>
     </widget>
+    <widget class="QLabel" name="lbl_descr">
+     <property name="geometry">
+      <rect>
+       <x>15</x>
+       <y>544</y>
+       <width>100</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>6. Description</string>
+     </property>
+    </widget>
+    <zorder>line_3</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>compoButton</zorder>
+    <zorder>descriptio</zorder>
+    <zorder>chantfini</zorder>
+    <zorder>buttonBox</zorder>
+    <zorder>layoutWidget_3</zorder>
+    <zorder>chx_opechvol</zorder>
+    <zorder>line_2</zorder>
+    <zorder>lbl_futopeid_label</zorder>
+    <zorder>lbl_futopeid</zorder>
+    <zorder>opprev</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>lbl_descr</zorder>
+    <zorder>sortie</zorder>
    </widget>
    <widget class="QWidget" name="ope_modifs">
     <attribute name="title">
@@ -545,6 +644,9 @@
        <width>725</width>
        <height>45</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choisir l'opération à modifier.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <item>
       <property name="text">
@@ -568,7 +670,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Sélectionner une opération à modifier</string>
+      <string>2. Sélectionner une opération à modifier</string>
      </property>
     </widget>
     <widget class="Line" name="line_5">
@@ -596,6 +698,9 @@
        <height>132</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choisir la valeur correcte.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
     </widget>
     <widget class="QTextEdit" name="txt_eddescr">
      <property name="enabled">
@@ -609,6 +714,9 @@
        <height>139</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mofifier le commentaire si besoin.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
     </widget>
     <widget class="QCheckBox" name="chx_edopeterm">
      <property name="enabled">
@@ -618,12 +726,21 @@
       <rect>
        <x>16</x>
        <y>657</y>
-       <width>158</width>
+       <width>184</width>
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choisir la valeur correcte.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
-      <string>Opération terminée</string>
+      <string>7. Opération terminée</string>
      </property>
     </widget>
     <widget class="QDialogButtonBox" name="bbx_edokannul">
@@ -638,6 +755,12 @@
        <height>27</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Saisir les modifications effectuées dans la base de données.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
@@ -648,14 +771,17 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>210</x>
-       <y>691</y>
-       <width>126</width>
+       <x>291</x>
+       <y>689</y>
+       <width>186</width>
        <height>27</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Modification de l'entité sur la photo aérienne.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
-      <string>Modif graphique</string>
+      <string>Modifications graphiques</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pbt_supprope">
@@ -664,11 +790,14 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>587</x>
-       <y>690</y>
+       <x>596</x>
+       <y>687</y>
        <width>159</width>
        <height>27</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Supprimer l'opération.&lt;/p&gt;&lt;p&gt;ATTENTION! Cette action Ne peut PAS être annulée!!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Supprimer l'opération</string>
@@ -689,12 +818,18 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choisir la valeur correcte.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QListWidget" name="lst_edpresta">
         <property name="enabled">
          <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choisir la valeur correcte.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -747,8 +882,14 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Opération prévue :</string>
+      <string>3. Opération prévue :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_edtypope">
@@ -760,8 +901,14 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Type(s) d'opération(s)  : </string>
+      <string>4. Type(s) d'opération(s)  : </string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_edpresta">
@@ -773,8 +920,14 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Opérateur(s)</string>
+      <string>5. Opérateur(s)</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_eddescr">
@@ -786,28 +939,24 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Commentaire pour l'opération :</string>
+      <string>6. Commentaire pour l'opération :</string>
      </property>
     </widget>
    </widget>
   </widget>
-  <widget class="QComboBox" name="sortie">
-   <property name="geometry">
-    <rect>
-     <x>491</x>
-     <y>14</y>
-     <width>246</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="lbl_sortie">
    <property name="geometry">
     <rect>
-     <x>319</x>
-     <y>13</y>
-     <width>170</width>
+     <x>282</x>
+     <y>12</y>
+     <width>184</width>
      <height>27</height>
     </rect>
    </property>
@@ -818,7 +967,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Selectionner une sortie</string>
+    <string>1. Selectionner une sortie</string>
    </property>
   </widget>
   <widget class="QLabel" name="lbl_idsortiesel_label">
@@ -859,7 +1008,79 @@
     <string>lbl_idsortiesel</string>
    </property>
   </widget>
+  <widget class="QGroupBox" name="groupbox_2">
+   <property name="geometry">
+    <rect>
+     <x>473</x>
+     <y>5</y>
+     <width>269</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>groupbox</string>
+   </property>
+   <widget class="QMdiArea" name="mdi_sortie">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>5</y>
+      <width>253</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="background">
+     <brush brushstyle="SolidPattern">
+      <color alpha="255">
+       <red>255</red>
+       <green>0</green>
+       <blue>0</blue>
+      </color>
+     </brush>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="sortie">
+    <property name="geometry">
+     <rect>
+      <x>3</x>
+      <y>8</y>
+      <width>247</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Sélectionner une sortie préalablement créée</string>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="maxVisibleItems">
+     <number>20</number>
+    </property>
+   </widget>
+  </widget>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>sortie</tabstop>
+  <tabstop>opprev</tabstop>
+  <tabstop>opreal</tabstop>
+  <tabstop>prestataire</tabstop>
+  <tabstop>chx_opechvol</tabstop>
+  <tabstop>descriptio</tabstop>
+  <tabstop>chantfini</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>compoButton</tabstop>
+  <tabstop>cbx_edoperation</tabstop>
+  <tabstop>lst_edopeprev</tabstop>
+  <tabstop>lst_edtypope</tabstop>
+  <tabstop>lst_edpresta</tabstop>
+  <tabstop>txt_eddescr</tabstop>
+  <tabstop>chx_edopeterm</tabstop>
+  <tabstop>bbx_edokannul</tabstop>
+  <tabstop>pbt_edgeom</tabstop>
+  <tabstop>pbt_supprope</tabstop>
+ </tabstops>
  <resources>
   <include location="resources.qrc"/>
  </resources>

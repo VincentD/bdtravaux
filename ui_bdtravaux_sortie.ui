@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>812</width>
+    <width>811</width>
     <height>691</height>
    </rect>
   </property>
@@ -35,7 +35,7 @@
      <x>15</x>
      <y>5</y>
      <width>781</width>
-     <height>634</height>
+     <height>641</height>
     </rect>
    </property>
    <property name="focusPolicy">
@@ -66,17 +66,75 @@
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>22</y>
+       <x>9</x>
+       <y>18</y>
        <width>311</width>
-       <height>198</height>
+       <height>215</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLabel" name="lbl_obsv">
+       <widget class="QLabel" name="lbl_redact">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Salariés présents</string>
+         <string>1. Rédacteur du CR</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cbx_redact">
+        <item>
+         <property name="text">
+          <string>Alexis Thery / AT</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Anthony Vasseux / AV</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Corentin Lebriez / CL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Matthieu Loquet / ML</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Quentin Vanquelef / QV</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sandrine Gougaud / SG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Simon Bezille / SB</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbl_obsv">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>2. Salariés présents</string>
         </property>
        </widget>
       </item>
@@ -124,8 +182,14 @@
       </item>
       <item>
        <widget class="QLabel" name="lbl_site">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Site visité</string>
+         <string>3. Site visité</string>
         </property>
        </widget>
       </item>
@@ -146,8 +210,14 @@
      <layout class="QVBoxLayout" name="vertlayout_date">
       <item>
        <widget class="QLabel" name="lbl_date">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Date de sortie sur le terrain</string>
+         <string>5. Date de sortie sur le terrain</string>
         </property>
        </widget>
       </item>
@@ -185,20 +255,26 @@
      <property name="geometry">
       <rect>
        <x>11</x>
-       <y>236</y>
+       <y>246</y>
        <width>227</width>
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Objet de la visite</string>
+      <string>4. Objet de la visite</string>
      </property>
     </widget>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>260</y>
+       <y>270</y>
        <width>341</width>
        <height>141</height>
       </rect>
@@ -266,7 +342,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>440</y>
+       <y>450</y>
        <width>301</width>
        <height>27</height>
       </rect>
@@ -276,7 +352,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>410</y>
+       <y>420</y>
        <width>227</width>
        <height>22</height>
       </rect>
@@ -303,8 +379,14 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Date de fin de sortie sur le terrain</string>
+         <string>7. Date de fin de sortie sur le terrain</string>
         </property>
        </widget>
       </item>
@@ -347,10 +429,10 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>9</x>
-       <y>484</y>
-       <width>364</width>
-       <height>103</height>
+       <x>11</x>
+       <y>492</y>
+       <width>361</width>
+       <height>120</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="vlayout_plsrsdates">
@@ -359,8 +441,14 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Dates de la sortie, si plusieurs. Format : jj/mm/aaaa</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;8. Dates de la sortie, si plusieurs. &lt;br/&gt;Format : jj/mm. Dates séparées par &amp;quot;;&amp;quot;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -382,8 +470,14 @@
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Sortie sur plusieurs jours ?</string>
+      <string>6. Sortie sur plusieurs jours ?</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_idfutsortielabel">
@@ -448,8 +542,14 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Commentaires</string>
+      <string>9. Commentaires</string>
      </property>
     </widget>
    </widget>
@@ -469,8 +569,14 @@
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QLabel" name="lbl_natfaune">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Données faune : espèce / sexe / effectifs / comportement</string>
+         <string>10. Données faune : espèce / sexe / effectifs / comportement</string>
         </property>
        </widget>
       </item>
@@ -479,8 +585,14 @@
       </item>
       <item>
        <widget class="QLabel" name="lbl_natflore">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Données flore : espèce / effectifs</string>
+         <string>11. Données flore : espèce / effectifs</string>
         </property>
        </widget>
       </item>
@@ -489,8 +601,14 @@
       </item>
       <item>
        <widget class="QLabel" name="lbl_natautre">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Données autres (mousse, fonge...)</string>
+         <string>12. Données autres (mousse, fonge...)</string>
         </property>
        </widget>
       </item>
@@ -516,8 +634,14 @@
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
        <widget class="QLabel" name="chlbl_partenaire">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Partenaires</string>
+         <string>4. Partenaires</string>
         </property>
        </widget>
       </item>
@@ -570,8 +694,14 @@
       </item>
       <item>
        <widget class="QLabel" name="chlbl_heberg">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Hébergement :</string>
+         <string>5. Hébergement :</string>
         </property>
        </widget>
       </item>
@@ -583,17 +713,23 @@
     <widget class="QWidget" name="layoutWidget_4">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>25</x>
        <y>30</y>
-       <width>157</width>
+       <width>181</width>
        <height>164</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
        <widget class="QLabel" name="chlbl_nbjours">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Nb jours :</string>
+         <string>1. Nb jours :</string>
         </property>
        </widget>
       </item>
@@ -609,8 +745,14 @@
       </item>
       <item>
        <widget class="QLabel" name="chlbl_heurchant">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Nb heures chantier :</string>
+         <string>2. Nb heures chantier :</string>
         </property>
        </widget>
       </item>
@@ -623,8 +765,14 @@
       </item>
       <item>
        <widget class="QLabel" name="chlbl_heurdecouv">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Nb heures découverte :</string>
+         <string>3. Nb heures découverte :</string>
         </property>
        </widget>
       </item>
@@ -651,8 +799,14 @@
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
          <widget class="QLabel" name="chlbl_nbpers_jr1">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Jour 1:</string>
+           <string>6. Jour 1:</string>
           </property>
          </widget>
         </item>
@@ -778,8 +932,14 @@
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <widget class="QLabel" name="chlbl_nbpers_jr2">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Jour 2</string>
+           <string>7. Jour 2</string>
           </property>
          </widget>
         </item>
@@ -906,14 +1066,20 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>107</x>
-       <y>430</y>
-       <width>141</width>
-       <height>17</height>
+       <x>97</x>
+       <y>431</y>
+       <width>145</width>
+       <height>20</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Chantier &quot;semaine&quot;</string>
+      <string>8. Chantier &quot;semaine&quot;</string>
      </property>
     </widget>
     <widget class="QTableWidget" name="chtabsem">
@@ -980,7 +1146,7 @@
     <widget class="QLabel" name="label_4">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>26</x>
        <y>199</y>
        <width>98</width>
        <height>17</height>
@@ -1004,8 +1170,14 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Sélectionner une sortie à modifier/ réimprimer :</string>
+      <string>1. Sélectionner une sortie à modifier/ réimprimer :</string>
      </property>
     </widget>
     <widget class="QPushButton" name="btn_imp_exsortie">
@@ -1296,12 +1468,18 @@
       <rect>
        <x>25</x>
        <y>89</y>
-       <width>125</width>
+       <width>140</width>
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Dates de la sortie :</string>
+      <string>2. Dates de la sortie :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_edcodesite">
@@ -1313,8 +1491,14 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Site visité :</string>
+      <string>3. Site visité :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_edsalaries">
@@ -1322,12 +1506,18 @@
       <rect>
        <x>23</x>
        <y>247</y>
-       <width>125</width>
+       <width>146</width>
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Salariés présents :</string>
+      <string>4. Salariés présents :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_edsortcom">
@@ -1335,12 +1525,18 @@
       <rect>
        <x>24</x>
        <y>416</y>
-       <width>205</width>
+       <width>219</width>
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Commentaires pour la sortie :</string>
+      <string>5. Commentaires pour la sortie :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_ednat">
@@ -1352,8 +1548,14 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Faune / flore / autres :</string>
+      <string>6. Faune / flore / autres :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_edobjvisit">
@@ -1365,13 +1567,62 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Objet de la visite</string>
+      <string>7. Objet de la visite</string>
      </property>
     </widget>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>obsv</tabstop>
+  <tabstop>site</tabstop>
+  <tabstop>obj_travaux</tabstop>
+  <tabstop>obj_chantvol</tabstop>
+  <tabstop>obj_sortie</tabstop>
+  <tabstop>obj_suivi</tabstop>
+  <tabstop>obj_surv</tabstop>
+  <tabstop>obj_autre</tabstop>
+  <tabstop>obj_autre_text</tabstop>
+  <tabstop>date</tabstop>
+  <tabstop>chbox_plsrsjrs</tabstop>
+  <tabstop>datefin</tabstop>
+  <tabstop>plsrsdates</tabstop>
+  <tabstop>buttonBox_2</tabstop>
+  <tabstop>comm</tabstop>
+  <tabstop>natfaune</tabstop>
+  <tabstop>natflore</tabstop>
+  <tabstop>natautre</tabstop>
+  <tabstop>ch_nb_jours</tabstop>
+  <tabstop>ch_nb_heur_ch</tabstop>
+  <tabstop>ch_nb_heur_dec</tabstop>
+  <tabstop>ch_partenaire</tabstop>
+  <tabstop>ch_heberg</tabstop>
+  <tabstop>chtab_nbpers_jr1</tabstop>
+  <tabstop>chtab_nbpers_jr2</tabstop>
+  <tabstop>chtabsem</tabstop>
+  <tabstop>cbx_exsortie</tabstop>
+  <tabstop>btn_imp_exsortie</tabstop>
+  <tabstop>dat_eddatdeb</tabstop>
+  <tabstop>dat_eddatfin</tabstop>
+  <tabstop>txt_edjourschan</tabstop>
+  <tabstop>cbx_edcodesite</tabstop>
+  <tabstop>lst_edsalaries</tabstop>
+  <tabstop>txt_edsortcom</tabstop>
+  <tabstop>txt_ednatfaune</tabstop>
+  <tabstop>txt_ednatflor</tabstop>
+  <tabstop>txt_ednatautr</tabstop>
+  <tabstop>lst_edobjvisit</tabstop>
+  <tabstop>txt_edobjvisautre</tabstop>
+  <tabstop>pbt_savemodifs</tabstop>
+  <tabstop>pbt_supprsort</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
  <designerdata>

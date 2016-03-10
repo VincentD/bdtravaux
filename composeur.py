@@ -385,6 +385,7 @@ class composerClass (QtGui.QDialog):
             for nom_opera, couleur in operations.items():
                 symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
                 symbol.setColor(QtGui.QColor(couleur))
+                symbol.setAlpha(0.5)
                 #création de la catég. 1er param : l'attribut / 2ème : le symbole à appliquer / 3ème : l'étiquet ds tble matières
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
@@ -392,7 +393,7 @@ class composerClass (QtGui.QDialog):
             expression = 'lblope' # nom du champ
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
-            layer.setLayerTransparency(50)
+            #layer.setLayerTransparency(50)
         else:
             print 'couche de surfaces vide'
 
@@ -444,6 +445,7 @@ class composerClass (QtGui.QDialog):
             for nom_opera, couleur in operations.items():
                 symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
                 symbol.setColor(QtGui.QColor(couleur))
+                symbol.setSize(2)
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
             expression = 'lblope'

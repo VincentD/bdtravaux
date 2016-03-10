@@ -61,7 +61,9 @@ class OperationDialog(QtGui.QDialog):
         self.ui.compoButton.setEnabled(0)
         self.ui.pbt_supprope.setEnabled(0)
         self.ui.pbt_edgeom.setEnabled(0)
+        self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setText("OK Modif")
         self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
+
 
         #Mise à jour du label "lbl_futopeid", affichant l'id de la future opération.
         queryfutopeid = QtSql.QSqlQuery(self.db)
@@ -167,7 +169,12 @@ class OperationDialog(QtGui.QDialog):
             return
         else :
             # Quand l'utilisateur sélectionne une sortie, actualisation des contrôles "opprev", "lst_edopeprev", "cbx_edoperation" et gestion de la case à cocher "chx_opechvol".
-            # opprev et lst_edopeprev : Actualise les listes des opérations de gestion prévues en base de données (liste de l'onglet "saisie" et liste de l'onglet "modification") et filtre selon le code du site
+
+            # 0. Mise à jour du label "lbl_opeid", affichant l'id de l'opération sélectionnée
+            self.ui.cbx_edoperation.setCurrentIndex(0)
+            self.ui.lbl_opeid.setText(str(self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex())))
+
+            # 1. opprev et lst_edopeprev : Actualise les listes des opérations de gestion prévues en base de données (liste de l'onglet "saisie" et liste de l'onglet "modification") et filtre selon le code du site
             self.ui.opprev.clear()
             self.ui.lst_edopeprev.clear()
             #Récupération du code du site et de chantvol
@@ -191,7 +198,7 @@ class OperationDialog(QtGui.QDialog):
             # mise à jour du label "lbl_idsortiesel", affichant l'id de la sortie sélectionnée
             self.ui.lbl_idsortiesel.setText(str(self.ui.sortie.itemData(self.ui.sortie.currentIndex())))
 
-            # cbx_edoperation : Actualise la combobox de choix de l'opération à modifier. La liste est filtrée selon la sortie sélectionnée.
+            # 2. cbx_edoperation : Actualise la combobox de choix de l'opération à modifier. La liste est filtrée selon la sortie sélectionnée.
             self.blocFillEdOpContr = '0'            
             self.ui.cbx_edoperation.clear()
             queryope = QtSql.QSqlQuery(self.db)
@@ -246,6 +253,7 @@ class OperationDialog(QtGui.QDialog):
                 for x in list_typope:
                     if unicode(typope.text())==x:
                         typope.setSelected(True) 
+            self.ui.lst_edtypope.scrollTo(self.ui.lst_edtypope.currentIndex())
 
         #Sélection d'items dans une liste (prestataires)
             list_presta = queryfillope.value(1).split("; ")

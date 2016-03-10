@@ -71,7 +71,7 @@ class BdTravauxDialog(QtGui.QDialog):
         for item in aucunpart:
             item.setSelected(True)
 
-        # - chbox_plsrsjours et l'activation (oupas) du calendrier "datefin" et de la zone de texte "plsrsdates"
+        # - chbox_plsrsjours et l'activation (ou pas) du calendrier "datefin" et de la zone de texte "plsrsdates"
         self.ui.chbox_plsrsjrs.setChecked(0)
         self.date_fin='NULL'
         self.jourschan=""

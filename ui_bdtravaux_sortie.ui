@@ -342,7 +342,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>450</y>
+       <y>440</y>
        <width>301</width>
        <height>27</height>
       </rect>
@@ -351,8 +351,8 @@
     <widget class="QRadioButton" name="obj_autre">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>420</y>
+       <x>11</x>
+       <y>416</y>
        <width>227</width>
        <height>22</height>
       </rect>
@@ -430,7 +430,7 @@
      <property name="geometry">
       <rect>
        <x>11</x>
-       <y>492</y>
+       <y>480</y>
        <width>361</width>
        <height>120</height>
       </rect>
@@ -714,9 +714,9 @@
      <property name="geometry">
       <rect>
        <x>25</x>
-       <y>30</y>
+       <y>10</y>
        <width>181</width>
-       <height>164</height>
+       <height>203</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -783,13 +783,31 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Champs 1, 2 et 3 : saisir des nombres entiers ou à virgules)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>239</y>
+       <y>250</y>
        <width>752</width>
        <height>174</height>
       </rect>
@@ -1066,8 +1084,8 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>97</x>
-       <y>431</y>
+       <x>98</x>
+       <y>464</y>
        <width>145</width>
        <height>20</height>
       </rect>
@@ -1085,8 +1103,8 @@
     <widget class="QTableWidget" name="chtabsem">
      <property name="geometry">
       <rect>
-       <x>256</x>
-       <y>427</y>
+       <x>257</x>
+       <y>460</y>
        <width>269</width>
        <height>57</height>
       </rect>
@@ -1126,9 +1144,9 @@
     <widget class="QLabel" name="label_3">
      <property name="geometry">
       <rect>
-       <x>14</x>
-       <y>496</y>
-       <width>520</width>
+       <x>102</x>
+       <y>540</y>
+       <width>564</width>
        <height>27</height>
       </rect>
      </property>
@@ -1140,20 +1158,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Attention : ne saisir que des nombres entiers dans les cases des tableaux</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_4">
-     <property name="geometry">
-      <rect>
-       <x>26</x>
-       <y>199</y>
-       <width>98</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>(Nb à virgules)</string>
+      <string>Champs 6, 7 et 8 : ne saisir que des nombres entiers dans les cases des tableaux</string>
      </property>
     </widget>
    </widget>

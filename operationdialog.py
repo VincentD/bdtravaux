@@ -39,9 +39,9 @@ class OperationDialog(QtGui.QDialog):
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
 
-        # Type de BD, hôte, utilisateur, mot de passe...
+        # Connexion à la base de données. Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -331,7 +331,7 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.information(self, 'Information', u'Données correctement saisies dans la base')
         else : 
             QtGui.QMessageBox.warning(self, 'Alerte', u'Il y a eu une erreur lors de la saisie. Données non saisies en base.')
-        self.close
+        self.close()
 
 
 
@@ -452,7 +452,7 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.information(self, 'Information', u'Données correctement saisies dans la base')
         else : 
             QtGui.QMessageBox.warning(self, 'Alerte', u'Il y a eu une erreur lors de la saisie. Données non saisies en base.')
-        self.close
+        self.close()
 
 
 

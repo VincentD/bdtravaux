@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -90,37 +90,37 @@
        <widget class="QComboBox" name="cbx_redact">
         <item>
          <property name="text">
-          <string>Alexis Thery / AT</string>
+          <string>Alexis Thery</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Anthony Vasseux / AV</string>
+          <string>Anthony Vasseux </string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Corentin Lebriez / CL</string>
+          <string>Corentin Lebriez</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Matthieu Loquet / ML</string>
+          <string>Matthieu Loquet</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Quentin Vanquelef / QV</string>
+          <string>Quentin Vanquelef</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Sandrine Gougaud / SG</string>
+          <string>Sandrine Gougaud</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Simon Bezille / SB</string>
+          <string>Simon Bezille</string>
          </property>
         </item>
        </widget>
@@ -139,7 +139,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="obsv">
+       <widget class="QListWidget" name="lst_salaries">
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -1249,7 +1249,7 @@
       <rect>
        <x>24</x>
        <y>207</y>
-       <width>239</width>
+       <width>372</width>
        <height>27</height>
       </rect>
      </property>
@@ -1257,8 +1257,8 @@
     <widget class="QListWidget" name="lst_edsalaries">
      <property name="geometry">
       <rect>
-       <x>23</x>
-       <y>270</y>
+       <x>204</x>
+       <y>267</y>
        <width>187</width>
        <height>139</height>
       </rect>
@@ -1274,6 +1274,11 @@
      <item>
       <property name="text">
        <string>Anthony Vasseux / AV</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Corentin Lebriez / CL</string>
       </property>
      </item>
      <item>
@@ -1509,9 +1514,9 @@
     <widget class="QLabel" name="lbl_edsalaries">
      <property name="geometry">
       <rect>
-       <x>23</x>
-       <y>247</y>
-       <width>146</width>
+       <x>204</x>
+       <y>244</y>
+       <width>186</width>
        <height>17</height>
       </rect>
      </property>
@@ -1522,7 +1527,7 @@
       </font>
      </property>
      <property name="text">
-      <string>4. Salariés présents :</string>
+      <string>5. Salariés présents :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_edsortcom">
@@ -1541,7 +1546,7 @@
       </font>
      </property>
      <property name="text">
-      <string>5. Commentaires pour la sortie :</string>
+      <string>6. Commentaires pour la sortie :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_ednat">
@@ -1560,7 +1565,7 @@
       </font>
      </property>
      <property name="text">
-      <string>6. Faune / flore / autres :</string>
+      <string>7. Faune / flore / autres :</string>
      </property>
     </widget>
     <widget class="QLabel" name="lbl_edobjvisit">
@@ -1579,14 +1584,78 @@
       </font>
      </property>
      <property name="text">
-      <string>7. Objet de la visite</string>
+      <string>8. Objet de la visite</string>
      </property>
+    </widget>
+    <widget class="QLabel" name="lbl_edredacteur">
+     <property name="geometry">
+      <rect>
+       <x>26</x>
+       <y>245</y>
+       <width>146</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>4. Rédacteur du CR</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cbx_edredact">
+     <property name="geometry">
+      <rect>
+       <x>26</x>
+       <y>268</y>
+       <width>163</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Alexis Thery</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Anthony Vasseux</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Corentin Lebriez</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Matthieu Loquet</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Quentin Vanquelef</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Sandrine Gougaud</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Simon Bezille</string>
+      </property>
+     </item>
     </widget>
    </widget>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>obsv</tabstop>
+  <tabstop>lst_salaries</tabstop>
   <tabstop>site</tabstop>
   <tabstop>obj_travaux</tabstop>
   <tabstop>obj_chantvol</tabstop>

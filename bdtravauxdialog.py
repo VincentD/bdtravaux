@@ -128,7 +128,6 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.lbl_datefin.setEnabled(0)
             self.ui.plsrsdates.setEnabled(0)
             self.ui.lbl_plsrsdates.setEnabled(0)
-            
 
 
 
@@ -144,10 +143,11 @@ class BdTravauxDialog(QtGui.QDialog):
             self.jourschan=""
         #Insertion en base des données saisies par l'utilisateur dans le module "sortie".
         query_save = QtSql.QSqlQuery(self.db)
-        query = u'INSERT INTO bdtravaux.sortie (date_sortie, date_fin, jours_chan, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_date_fin}\'::date,\'{zr_jourschan}\',\'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
+        query = u'INSERT INTO bdtravaux.sortie (date_sortie, date_fin, jours_chan, redacteur, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_date_fin}\'::date,\'{zr_jourschan}\',\'{zr_redacteur}\',\'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
         zr_date_fin=self.date_fin,\
         zr_jourschan=self.jourschan,\
+        zr_redacteur=self.ui.cbx_redact.itemText(self.ui.cbx_redact.currentIndex()),\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_chantier_vol=self.chantvol,\
         zr_sort_com=self.ui.comm.toPlainText().replace("\'","\'\'"),\
@@ -193,12 +193,12 @@ class BdTravauxDialog(QtGui.QDialog):
         self.sortie_id = queryidsal.value(0)
         print str(self.sortie_id)
         #remplissage de la table join_salaries : sortie_id et noms du (des) salarié(s)
-        for item in xrange (len(self.ui.obsv.selectedItems())):
+        for item in xrange (len(self.ui.lst_salaries.selectedItems())):
             querysalarie = QtSql.QSqlQuery(self.db)
             qsalarie = u"""insert into bdtravaux.join_salaries (id_joinsal, salaries, sal_initia) values ({zr_idjoinsal}, '{zr_salarie}','{zr_initiales}')""".format (\
             zr_idjoinsal = self.sortie_id,\
-            zr_salarie = self.ui.obsv.selectedItems()[item].text().split(" /")[0].replace("\'","\'\'"),\
-            zr_initiales=self.ui.obsv.selectedItems()[item].text().split("/")[1])
+            zr_salarie = self.ui.lst_salaries.selectedItems()[item].text().split(" /")[0].replace("\'","\'\'"),\
+            zr_initiales=self.ui.lst_salaries.selectedItems()[item].text().split("/")[1])
             ok3 = querysalarie.exec_(qsalarie)
             if not ok3:
                QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des salariés en base ratée')
@@ -286,6 +286,7 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.dat_eddatfin.setDate(QtCore.QDate.fromString("20000101","yyyyMMdd"))
             self.ui.txt_edjourschan.setText('')
             self.ui.cbx_edcodesite.setCurrentIndex(0)
+            self.ui.cbx_edredact.setCurrentIndex(0)
             self.ui.lst_edsalaries.clearSelection()
             self.ui.txt_edsortcom.setText('')
             self.ui.lst_edobjvisit.setCurrentRow(1)
@@ -297,7 +298,7 @@ class BdTravauxDialog(QtGui.QDialog):
         
             #dans le tab "exsortie", remplit les contrôles contenant les données de la sortie à modifier.
             queryidsortie = QtSql.QSqlQuery(self.db)
-            qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+            qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, redacteur, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
             ok2=queryidsortie.exec_(qidsort)
             queryidsortie.next()
             if not ok2:
@@ -306,16 +307,17 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.dat_eddatfin.setDate(queryidsortie.value(2))
             self.ui.txt_edjourschan.setText(unicode(queryidsortie.value(3)))
             self.ui.cbx_edcodesite.setCurrentIndex(self.ui.cbx_edcodesite.findText(queryidsortie.value(4), QtCore.Qt.MatchStartsWith))
-            self.ui.txt_edsortcom.setText(unicode(queryidsortie.value(7)))
-            self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(8), QtCore.Qt.MatchExactly) [0])
-            self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(9)))
-            self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(10)))
-            self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(11)))
-            self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(12)))
+            self.ui.cbx_edredact.setCurrentIndex(self.ui.cbx_edredact.findText(queryidsortie.value(5), QtCore.Qt.MatchStartsWith))
+            self.ui.txt_edsortcom.setText(unicode(queryidsortie.value(8)))
+            self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(9), QtCore.Qt.MatchExactly) [0])
+            self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(10)))
+            self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(11)))
+            self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(12)))
+            self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(13)))
             self.ui.lbl_idsortie.setText(unicode(queryidsortie.value(0)))
 
             #cas à part : sélection d'items dans une liste (salariés présents lors de la sortie)
-            list_sal = queryidsortie.value(5).split("; ")
+            list_sal = queryidsortie.value(6).split("; ")
             for y in xrange (self.ui.lst_edsalaries.count()):
                 salarie=self.ui.lst_edsalaries.item(y)
                 for x in list_sal:
@@ -342,10 +344,11 @@ class BdTravauxDialog(QtGui.QDialog):
         self.erreurModifSortie = '0'
         # sauvegarde des modifications d'une sortie
         querysavemodsort = QtSql.QSqlQuery(self.db)
-        qsavmods = u"""UPDATE bdtravaux.sortie SET date_sortie = '{zr_datedeb}'::date , date_fin = '{zr_datefin}'::date , codesite= '{zr_codesite}' , jours_chan='{zr_jourschan}' , sortcom = '{zr_sortcom}' , objvisite = '{zr_objvisite}' , objvi_autr = '{zr_objviautr}' , natfaune = '{zr_natfaune}' , natflore = '{zr_natflore}', natautre = '{zr_natautre}'  WHERE sortie_id={zr_sortie}""".format (\
+        qsavmods = u"""UPDATE bdtravaux.sortie SET date_sortie = '{zr_datedeb}'::date , date_fin = '{zr_datefin}'::date , codesite= '{zr_codesite}' , redacteur = '{zr_redact}' , jours_chan='{zr_jourschan}' , sortcom = '{zr_sortcom}' , objvisite = '{zr_objvisite}' , objvi_autr = '{zr_objviautr}' , natfaune = '{zr_natfaune}' , natflore = '{zr_natflore}', natautre = '{zr_natautre}'  WHERE sortie_id={zr_sortie}""".format (\
         zr_datedeb = self.ui.dat_eddatdeb.date().toPyDate().strftime("%Y-%m-%d"),\
         zr_datefin = self.ui.dat_eddatfin.date().toPyDate().strftime("%Y-%m-%d"),\
         zr_codesite = self.ui.cbx_edcodesite.itemData(self.ui.cbx_edcodesite.currentIndex()),\
+        zr_redact = self.ui.cbx_edredact.itemText(self.ui.cbx_edredact.currentIndex()),\
         zr_jourschan = self.ui.txt_edjourschan.toPlainText().replace("\'","\'\'"),\
         zr_sortcom = self.ui.txt_edsortcom.toPlainText().replace("\'","\'\'"),\
         zr_objvisite = self.ui.lst_edobjvisit.selectedItems()[0].text().replace("\'","\'\'"),\

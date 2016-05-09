@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,7 +49,7 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
 
 
@@ -400,7 +400,7 @@ class composerClass (QtGui.QDialog):
             layer.setRendererV2(renderer)
             #layer.setLayerTransparency(50)
         else:
-            print 'couche de surfaces vide'
+            print u'couche de surfaces vide'
 
         # LIGNES : Import de la couche de lignes si des linéaires sont saisis pour cette sortie
         self.querylgn = QtSql.QSqlQuery(self.db)
@@ -428,7 +428,7 @@ class composerClass (QtGui.QDialog):
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
         else :
-            print 'couche de linéaires vide'
+            print u'couche de lineaires vide'
 
         # POINTS : Import de la couche de points si des ponctuels sont saisis pour cette sortie
         self.querypts = QtSql.QSqlQuery(self.db)
@@ -457,7 +457,7 @@ class composerClass (QtGui.QDialog):
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             layer.setRendererV2(renderer)
         else :
-            print 'couche de ponctuels vide'
+            print u'couche de ponctuels vide'
 
 
     def clr_hasard(self):

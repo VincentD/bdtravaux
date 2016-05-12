@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Connexion à la base de données. Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -265,12 +265,14 @@ class OperationDialog(QtGui.QDialog):
         
         #Sélection d'items dans une liste (opérations prévues)
             prevu_bd = " "+queryfillope.value(4)+"  "+queryfillope.value(5)+" "+queryfillope.value(6)+" "
+            numero=1
             print "prevu_bd ="+prevu_bd
             for y in xrange (self.ui.lst_edopeprev.count()):
+                print numero
                 prevu_lst=str(self.ui.lst_edopeprev.item(y).text().split("/")[1]+self.ui.lst_edopeprev.item(y).text().split("/")[5]+self.ui.lst_edopeprev.item(y).text().split("/")[4])
-                print "prevu_lst ="+prevu_lst
                 if prevu_bd==prevu_lst:
                     self.ui.lst_edopeprev.item(y).setSelected(True)
+                numero+=1
 
         # désignation de la table dans laquelle on va modifier / supprimer des données
             self.typgeom = str(queryfillope.value(7))
@@ -497,7 +499,6 @@ class OperationDialog(QtGui.QDialog):
             zr_anneeprev = self.ui.opprev.selectedItems()[item].text().split(" / ")[4].replace("\'","\'\'"),\
             zr_pdg = self.ui.opprev.selectedItems()[item].text().split(" / ")[5].replace("\'","\'\'"))
             ok5 = queryopeprev.exec_(qopeprev)
-            print unicode(qopeprev)
             if not ok5:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie en base des opérations prévues ratée')
                 self.erreurSaisieBase = '1'

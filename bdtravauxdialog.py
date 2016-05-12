@@ -48,7 +48,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
 
-        # Remplir les comboboxs "site" avec les codes et noms de sites 
+        # Remplir les comboboxs "site" (saisie et modification) avec les codes et noms de sites 
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
@@ -61,7 +61,8 @@ class BdTravauxDialog(QtGui.QDialog):
 
         #Initialisations pour :
         # - objetVisiText (récup "objectif de la visite") 
-        self.objetVisiText=str(self.ui.obj_travaux.text())
+        premObjVis = self.ui.lst_objvisit.item(0)
+        premObjVis.setSelected(True)
         # - self.chantvol et l'activation (ou pas) de l'onglet "Chantier de volontaire"
         self.chantvol=False
         self.ui.tab_chantvol.setEnabled(0)
@@ -85,7 +86,7 @@ class BdTravauxDialog(QtGui.QDialog):
         ## Connexions signaux-slots
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('rejected()'), self.close)
-        self.connect(self.ui.objetvisite, QtCore.SIGNAL('buttonClicked(QAbstractButton*)'), self.objetVisiClicked)
+        self.connect(self.ui.lst_objvisit, QtCore.SIGNAL('itemSelectionChanged()'), self.objetVisiClicked)
         #http://www.qtcentre.org/archive/index.php/t-15687.html pour l'emploi de QAbstractButton
         #Connexion du signal "changement d'onglet" à la fonction qui active / désactive les bouton "OK" et "Annuler"
         self.connect(self.ui.tab_widget, QtCore.SIGNAL('currentChanged(int)'), self.masqueBoutons)
@@ -99,21 +100,26 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
     def objetVisiClicked(self):
-        #cette fonction gère les boutons radio indiquant l'objectif de la visite
-        #création d'un générateur
-        childs = (self.ui.obj_layout.itemAt(i) for i in range(self.ui.obj_layout.count())) 
-        for radio in childs:
-            if radio.widget().isChecked()==True:
-                self.objetVisiText=unicode(radio.widget().text())
-        if self.objetVisiText=='Chantier de volontaires':
-            self.chantvol=True
-            self.ui.tab_chantvol.setEnabled(1)
-        else: 
-            self.chantvol=False
-            self.ui.tab_chantvol.setEnabled(0)
-        if self.ui.obj_autre.isChecked()==True:
-            self.objetVisiText='Autre...'
+    # Si un item de la liste est cliqué
+        for ligne in xrange (self.ui.lst_objvisit.count()):
+            y=self.ui.lst_objvisit.item(ligne)
+            if y.isSelected()==True:
+                if unicode(y.text())=='Chantier de volontaires':
+                    self.chantvol=True
+                    self.ui.tab_chantvol.setEnabled(1)
+                    return
+                else: 
+                    self.chantvol=False
+                    self.ui.tab_chantvol.setEnabled(0)
+                if unicode(y.text())=='Autre...':
+                    self.ui.txt_objvisautre.setEnabled(1)
+                    self.ui.lbl_objvisautre.setEnabled(1)
+                    return
+                else:
+                    self.ui.txt_objvisautre.setEnabled(0)
+                    self.ui.lbl_objvisautre.setEnabled(0)
         return
+
 
 
 
@@ -143,7 +149,7 @@ class BdTravauxDialog(QtGui.QDialog):
             self.jourschan=""
         #Insertion en base des données saisies par l'utilisateur dans le module "sortie".
         query_save = QtSql.QSqlQuery(self.db)
-        query = u'INSERT INTO bdtravaux.sortie (date_sortie, date_fin, jours_chan, redacteur, codesite, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_date_fin}\'::date,\'{zr_jourschan}\',\'{zr_redacteur}\',\'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_objvisite}\', \'{zr_objvi_autr}\',\'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
+        query = u'INSERT INTO bdtravaux.sortie (date_sortie, date_fin, jours_chan, redacteur, codesite, chantvol, sortcom, natfaune, natflore, natautre) VALUES (\'{zr_date_sortie}\'::date, \'{zr_date_fin}\'::date,\'{zr_jourschan}\',\'{zr_redacteur}\',\'{zr_site}\', {zr_chantier_vol}, \'{zr_sort_com}\', \'{zr_natfaune}\',\'{zr_natflore}\',\'{zr_natautre}\' )'.format(\
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
         zr_date_fin=self.date_fin,\
         zr_jourschan=self.jourschan,\
@@ -151,8 +157,6 @@ class BdTravauxDialog(QtGui.QDialog):
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_chantier_vol=self.chantvol,\
         zr_sort_com=self.ui.comm.toPlainText().replace("\'","\'\'"),\
-        zr_objvisite=self.objetVisiText,\
-        zr_objvi_autr=self.ui.obj_autre_text.text().replace("\'","\'\'"),\
         zr_natfaune=self.ui.natfaune.toPlainText().replace("\'","\'\'"),\
         zr_natflore=self.ui.natflore.toPlainText().replace("\'","\'\'"),\
         zr_natautre=self.ui.natfaune.toPlainText().replace("\'","\'\'")).encode("latin1")
@@ -160,7 +164,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
             self.erreurSaisieSortie = '1'
-        self.rempliJoinSalarie()
+        self.rempliJoin()
         self.chantVol()
         self.db.close()
         self.db.removeDatabase("sitescsn")
@@ -180,19 +184,20 @@ class BdTravauxDialog(QtGui.QDialog):
         # La méthode toPleinText() renvoie du texte classique
 
 
-    def rempliJoinSalarie(self):
-    #remplissage de la table join_salarie avec les salaries sélectionnés dans la QListWidget "obsv"
-        #récupération de id_oper dans la table "sortie" pour le remettre dans join_salaries
+    def rempliJoin(self):
+    # Remplissage des tables join_salarie et join_objvisit avec les salaries et les objets de la visite sélectionnés dans les QListWidget 
+    # "lst_salaries" et "lst_objvisit"
+        #récupération de id_oper dans la table "sortie" pour le remettre dans join_salaries et join_objvisit
         queryidsal = QtSql.QSqlQuery(self.db)
         qidsal = u"""select sortie_id from bdtravaux.sortie order by sortie_id desc limit 1"""
         ok2=queryidsal.exec_(qidsal)
         if not ok2:
-            QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id du salarie')
+            QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id de la sortie')
             self.erreurSaisieSortie ='1'
         queryidsal.next()
         self.sortie_id = queryidsal.value(0)
-        print str(self.sortie_id)
-        #remplissage de la table join_salaries : sortie_id et noms du (des) salarié(s)
+
+        #remplissage de la table join_salaries : sortie_id, noms du (des) salarié(s) et initiales
         for item in xrange (len(self.ui.lst_salaries.selectedItems())):
             querysalarie = QtSql.QSqlQuery(self.db)
             qsalarie = u"""insert into bdtravaux.join_salaries (id_joinsal, salaries, sal_initia) values ({zr_idjoinsal}, '{zr_salarie}','{zr_initiales}')""".format (\
@@ -204,6 +209,24 @@ class BdTravauxDialog(QtGui.QDialog):
                QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des salariés en base ratée')
                self.erreurSaisieSortie ='1'
             querysalarie.next()
+
+        #remplissage de la table join_objvisite : sortie_id, objet de la visite et complément si "autre"
+        for item in xrange (len(self.ui.lst_objvisit.selectedItems())):
+            if self.ui.lst_objvisit.selectedItems()[item].text() == 'Autre...' :
+                self.objviautr = self.ui.txt_objvisautre.text()
+            else :
+                self.objviautr =''
+            queryobjvisit = QtSql.QSqlQuery(self.db)
+            qobjvis = u"""insert into bdtravaux.join_objvisite (id_joinvis, objvisite, objviautre) values ({zr_idjoinvis}, '{zr_objvisite}', '{zr_objviautr}')""".format(\
+            zr_idjoinvis = self.sortie_id,\
+            zr_objvisite = self.ui.lst_objvisit.selectedItems()[item].text().replace("\'","\'\'"),\
+            zr_objviautr = self.objviautr)
+            ok4 = queryobjvisit.exec_(qobjvis)
+            print unicode(qobjvis)
+            if not ok4 :
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie en base des objectifs de la visite ratée')
+                self.erreurSaisieSortie ='1'
+            queryobjvisit.next()
 
 
     def chantVol(self):
@@ -298,7 +321,7 @@ class BdTravauxDialog(QtGui.QDialog):
         
             #dans le tab "exsortie", remplit les contrôles contenant les données de la sortie à modifier.
             queryidsortie = QtSql.QSqlQuery(self.db)
-            qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, redacteur, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+            qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, redacteur, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, array_to_string(array(select distinct objvisite from bdtravaux.join_objvisite where id_joinvis={zr_sortie}), '; ') as objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
             ok2=queryidsortie.exec_(qidsort)
             queryidsortie.next()
             if not ok2:
@@ -309,20 +332,28 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.cbx_edcodesite.setCurrentIndex(self.ui.cbx_edcodesite.findText(queryidsortie.value(4), QtCore.Qt.MatchStartsWith))
             self.ui.cbx_edredact.setCurrentIndex(self.ui.cbx_edredact.findText(queryidsortie.value(5), QtCore.Qt.MatchStartsWith))
             self.ui.txt_edsortcom.setText(unicode(queryidsortie.value(8)))
-            self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(9), QtCore.Qt.MatchExactly) [0])
+#            self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(9), QtCore.Qt.MatchExactly) [0])
             self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(10)))
             self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(11)))
             self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(12)))
             self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(13)))
             self.ui.lbl_idsortie.setText(unicode(queryidsortie.value(0)))
 
-            #cas à part : sélection d'items dans une liste (salariés présents lors de la sortie)
+            #cas à part : sélection d'items dans une liste (salariés présents lors de la sortie et objets de la visite)
             list_sal = queryidsortie.value(6).split("; ")
             for y in xrange (self.ui.lst_edsalaries.count()):
                 salarie=self.ui.lst_edsalaries.item(y)
                 for x in list_sal:
                     if unicode(salarie.text().split(" /")[0])==x:
                         salarie.setSelected(True) 
+
+            list_vis = queryidsortie.value(9).split("; ")
+            for y in xrange (self.ui.lst_edobjvisit.count()):
+                objvis=self.ui.lst_edobjvisit.item(y)
+                for x in list_vis:
+                    if unicode(objvis.text().split(" /")[0])==x:
+                        objvis.setSelected(True) 
+
 
 
 
@@ -468,18 +499,20 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
     def raiseModule(self):
+    # Passage du module en avant-plan
         self.raise_()
         self.activateWindow()
 
 
 
     def reinitialiser(self):
+    # Réinitialisations après sauvegarde des données en base
+        # Objet de la visite
         for child in self.findChildren((QtGui.QRadioButton)):
-            child.setAutoExclusive(False)
             child.setChecked(False)
-            child.setAutoExclusive(True)
             if child.text()=='Travaux sur site (hors chantiers de volontaires)':
                 child.setChecked(True)
+        # Onglet "chantier de volontaire"
         regex = QtCore.QRegExp("^ch_nb*")
         for child in self.findChildren((QtGui.QLineEdit), regex):
             child.setText('0')
@@ -491,7 +524,9 @@ class BdTravauxDialog(QtGui.QDialog):
                     item = child.item (row, column )
                     item.setText('0')
         self.ui.tab_chantvol.setEnabled(0)
+        # Onglet actif = le premier
         self.ui.tab_widget.setCurrentIndex(0)
+        # Date par défaut dans les calendriers = aujourd'hui
         for child in self.findChildren((QtGui.QCalendarWidget)):
             aujourdhui=QtCore.QDate.currentDate()
             child.setSelectedDate(aujourdhui)

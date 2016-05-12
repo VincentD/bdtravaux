@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>811</width>
-    <height>691</height>
+    <height>681</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox_2">
    <property name="geometry">
     <rect>
-     <x>618</x>
-     <y>655</y>
+     <x>620</x>
+     <y>648</y>
      <width>176</width>
      <height>27</height>
     </rect>
@@ -35,7 +35,7 @@
      <x>15</x>
      <y>5</y>
      <width>781</width>
-     <height>641</height>
+     <height>636</height>
     </rect>
    </property>
    <property name="focusPolicy">
@@ -126,7 +126,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lbl_obsv">
+       <widget class="QLabel" name="lbl_salaries">
         <property name="font">
          <font>
           <weight>75</weight>
@@ -251,7 +251,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="lbl_objvisit">
      <property name="geometry">
       <rect>
        <x>11</x>
@@ -270,99 +270,15 @@
       <string>4. Objet de la visite</string>
      </property>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QLineEdit" name="txt_objvisautre">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>270</y>
-       <width>341</width>
-       <height>141</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="obj_layout">
-      <item>
-       <widget class="QRadioButton" name="obj_travaux">
-        <property name="text">
-         <string>Travaux sur site (hors chantiers de volontaires)</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">objetvisite</string>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="obj_chantvol">
-        <property name="text">
-         <string>Chantier de volontaires</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">objetvisite</string>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="obj_sortie">
-        <property name="text">
-         <string>Sortie ou animation encadrée</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">objetvisite</string>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="obj_suivi">
-        <property name="text">
-         <string>Suivi scientifique</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">objetvisite</string>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="obj_surv">
-        <property name="text">
-         <string>Surveillance</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">objetvisite</string>
-        </attribute>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QLineEdit" name="obj_autre_text">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>440</y>
+       <x>16</x>
+       <y>423</y>
        <width>301</width>
        <height>27</height>
       </rect>
      </property>
-    </widget>
-    <widget class="QRadioButton" name="obj_autre">
-     <property name="geometry">
-      <rect>
-       <x>11</x>
-       <y>416</y>
-       <width>227</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Autre...</string>
-     </property>
-     <attribute name="buttonGroup">
-      <string notr="true">objetvisite</string>
-     </attribute>
     </widget>
     <widget class="QWidget" name="verticalLayoutWidget_3">
      <property name="geometry">
@@ -429,8 +345,8 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>480</y>
+       <x>15</x>
+       <y>466</y>
        <width>361</width>
        <height>120</height>
       </rect>
@@ -516,6 +432,73 @@
      </property>
      <property name="text">
       <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="lst_objvisit">
+     <property name="geometry">
+      <rect>
+       <x>15</x>
+       <y>278</y>
+       <width>305</width>
+       <height>119</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Travaux sur site (hors chantiers de volontaires)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Chantier de volontaires</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Sortie ou animation encadrée</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Suivi scientifique</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Surveillance</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Autre...</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="lbl_objvisautre">
+     <property name="geometry">
+      <rect>
+       <x>19</x>
+       <y>403</y>
+       <width>227</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Objet de la visite (si Autre...)</string>
      </property>
     </widget>
    </widget>
@@ -1283,11 +1266,6 @@
      </item>
      <item>
       <property name="text">
-       <string>Kevin Guaquier / KG</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
        <string>Matthieu Loquet / ML</string>
       </property>
      </item>
@@ -1657,13 +1635,7 @@
  <tabstops>
   <tabstop>lst_salaries</tabstop>
   <tabstop>site</tabstop>
-  <tabstop>obj_travaux</tabstop>
-  <tabstop>obj_chantvol</tabstop>
-  <tabstop>obj_sortie</tabstop>
-  <tabstop>obj_suivi</tabstop>
-  <tabstop>obj_surv</tabstop>
-  <tabstop>obj_autre</tabstop>
-  <tabstop>obj_autre_text</tabstop>
+  <tabstop>txt_objvisautre</tabstop>
   <tabstop>date</tabstop>
   <tabstop>chbox_plsrsjrs</tabstop>
   <tabstop>datefin</tabstop>
@@ -1716,7 +1688,4 @@
    <bool>true</bool>
   </property>
  </designerdata>
- <buttongroups>
-  <buttongroup name="objetvisite"/>
- </buttongroups>
 </ui>

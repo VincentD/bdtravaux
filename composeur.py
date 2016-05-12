@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,7 +49,7 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
 
 
@@ -70,7 +70,7 @@ class composerClass (QtGui.QDialog):
             # create a new single symbol renderer
         symbol = QgsSymbolV2.defaultSymbol(self.contours_site.geometryType())
         renderer = QgsSingleSymbolRendererV2(symbol)
-            # create a new simple marker symbol layer, a white circle with a black border
+            # create a new simple marker symbol layer
         properties = {'color': 'green', 'color_border': 'red'}
         symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
         symbol_layer.setBrushStyle(0) #0 = Qt.NoBrush. Cf doc de QBrush
@@ -118,9 +118,17 @@ class composerClass (QtGui.QDialog):
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
         if sys.platform.startswith('linux'):
-            file1=QtCore.QFile('/home/vincent/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
+            file1=QtCore.QFile('/home/vtravail/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
+            if file1.exists():
+                print 'trouve le modele de composeur'
+            else:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur')
         if sys.platform.startswith('win32'):
             file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
+            if file1.exists():
+                print 'trouve le modele de composeur'
+            else:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         elem=doc.firstChildElement()
@@ -223,7 +231,7 @@ class composerClass (QtGui.QDialog):
                 plac_objautre=label.displayText().find("$objvi_autre")
                 texte=unicode(label.displayText())
                 if self.objautre:
-                    label.setText(texte[0:plac_objautre]+self.objautre+texte[plac_objautre+12:])
+                    label.setText(texte[0:plac_objautre]+self.objautre.strip('; ')+texte[plac_objautre+12:])
                 else:
                     label.setText(texte[0:plac_objautre]+''+texte[plac_objautre+12:])
             if label.displayText().find("$natfaune")>-1:
@@ -328,7 +336,7 @@ class composerClass (QtGui.QDialog):
         #recup de données en fction de l'Id de la sortie. Pr afficher le site et les txts des étiqu dans composeur()
         querycodesite = QtSql.QSqlQuery(self.db)
         qcodesite = u"""select sor.codesite, 
-(select nomsite from sites_cen.t_sitescen sit where sit.codesite=sor.codesite) as nomsite, redacteur , array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, date_fin, jours_chan, chantvol, sortcom, objvisite, objvi_autr, natfaune, natflore, natautre from bdtravaux.sortie sor where sortie_id = {zr_sortie_id}""".format \
+(select nomsite from sites_cen.t_sitescen sit where sit.codesite=sor.codesite) as nomsite, redacteur , array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries, date_sortie, date_fin, jours_chan, chantvol, sortcom, array_to_string(array(select distinct objvisite from bdtravaux.join_objvisite where id_joinvis=sortie_id), '; ') as objvisite, array_to_string(array(select distinct objviautre from bdtravaux.join_objvisite where id_joinvis=sortie_id), '; ') as objviautre, natfaune, natflore, natautre from bdtravaux.sortie sor where sortie_id = {zr_sortie_id}""".format \
         (zr_sortie_id = str(idsortie)) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         ok2 = querycodesite.exec_(qcodesite)
         if not ok2:

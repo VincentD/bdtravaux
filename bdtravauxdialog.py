@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -312,7 +312,7 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.cbx_edredact.setCurrentIndex(0)
             self.ui.lst_edsalaries.clearSelection()
             self.ui.txt_edsortcom.setText('')
-            self.ui.lst_edobjvisit.setCurrentRow(1)
+            self.ui.lst_edobjvisit.clearSelection()
             self.ui.txt_edobjvisautre.setText('')
             self.ui.txt_ednatfaune.setText('')
             self.ui.txt_ednatflor.setText('')
@@ -321,7 +321,7 @@ class BdTravauxDialog(QtGui.QDialog):
         
             #dans le tab "exsortie", remplit les contrôles contenant les données de la sortie à modifier.
             queryidsortie = QtSql.QSqlQuery(self.db)
-            qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, redacteur, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, array_to_string(array(select distinct objvisite from bdtravaux.join_objvisite where id_joinvis={zr_sortie}), '; ') as objvisite, objvi_autr, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+            qidsort = u"""SELECT sortie_id, date_sortie, date_fin, jours_chan, codesite, redacteur, array_to_string(array(select distinct salaries from bdtravaux.join_salaries where id_joinsal={zr_sortie}), '; ') as salaries, chantvol, sortcom, array_to_string(array(select distinct objvisite from bdtravaux.join_objvisite where id_joinvis={zr_sortie}), '; ') as objvisite, array_to_string(array(select distinct objviautre from bdtravaux.join_objvisite where id_joinvis={zr_sortie}), '; ') as objviautre, natfaune, natflore, natautre FROM bdtravaux.sortie WHERE sortie_id={zr_sortie};""".format(zr_sortie=self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
             ok2=queryidsortie.exec_(qidsort)
             queryidsortie.next()
             if not ok2:
@@ -332,8 +332,7 @@ class BdTravauxDialog(QtGui.QDialog):
             self.ui.cbx_edcodesite.setCurrentIndex(self.ui.cbx_edcodesite.findText(queryidsortie.value(4), QtCore.Qt.MatchStartsWith))
             self.ui.cbx_edredact.setCurrentIndex(self.ui.cbx_edredact.findText(queryidsortie.value(5), QtCore.Qt.MatchStartsWith))
             self.ui.txt_edsortcom.setText(unicode(queryidsortie.value(8)))
-#            self.ui.lst_edobjvisit.setCurrentItem(self.ui.lst_edobjvisit.findItems(queryidsortie.value(9), QtCore.Qt.MatchExactly) [0])
-            self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(10)))
+#            self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(10)))
             self.ui.txt_ednatfaune.setText(unicode(queryidsortie.value(11)))
             self.ui.txt_ednatflor.setText(unicode(queryidsortie.value(12)))
             self.ui.txt_ednatautr.setText(unicode(queryidsortie.value(13)))
@@ -354,6 +353,11 @@ class BdTravauxDialog(QtGui.QDialog):
                     if unicode(objvis.text().split(" /")[0])==x:
                         objvis.setSelected(True) 
 
+            list_aut = queryidsortie.value(10).split("; ")
+            for x in list_aut:
+                if x != '':
+                    print 'x different de rien'
+                    self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(10)).strip('; '))
 
 
 
@@ -375,15 +379,13 @@ class BdTravauxDialog(QtGui.QDialog):
         self.erreurModifSortie = '0'
         # sauvegarde des modifications d'une sortie
         querysavemodsort = QtSql.QSqlQuery(self.db)
-        qsavmods = u"""UPDATE bdtravaux.sortie SET date_sortie = '{zr_datedeb}'::date , date_fin = '{zr_datefin}'::date , codesite= '{zr_codesite}' , redacteur = '{zr_redact}' , jours_chan='{zr_jourschan}' , sortcom = '{zr_sortcom}' , objvisite = '{zr_objvisite}' , objvi_autr = '{zr_objviautr}' , natfaune = '{zr_natfaune}' , natflore = '{zr_natflore}', natautre = '{zr_natautre}'  WHERE sortie_id={zr_sortie}""".format (\
+        qsavmods = u"""UPDATE bdtravaux.sortie SET date_sortie = '{zr_datedeb}'::date , date_fin = '{zr_datefin}'::date , codesite= '{zr_codesite}' , redacteur = '{zr_redact}' , jours_chan='{zr_jourschan}' , sortcom = '{zr_sortcom}' , natfaune = '{zr_natfaune}' , natflore = '{zr_natflore}', natautre = '{zr_natautre}'  WHERE sortie_id={zr_sortie}""".format (\
         zr_datedeb = self.ui.dat_eddatdeb.date().toPyDate().strftime("%Y-%m-%d"),\
         zr_datefin = self.ui.dat_eddatfin.date().toPyDate().strftime("%Y-%m-%d"),\
         zr_codesite = self.ui.cbx_edcodesite.itemData(self.ui.cbx_edcodesite.currentIndex()),\
         zr_redact = self.ui.cbx_edredact.itemText(self.ui.cbx_edredact.currentIndex()),\
         zr_jourschan = self.ui.txt_edjourschan.toPlainText().replace("\'","\'\'"),\
         zr_sortcom = self.ui.txt_edsortcom.toPlainText().replace("\'","\'\'"),\
-        zr_objvisite = self.ui.lst_edobjvisit.selectedItems()[0].text().replace("\'","\'\'"),\
-        zr_objviautr = self.ui.txt_edobjvisautre.toPlainText().replace("\'","\'\'"),\
         zr_natfaune = self.ui.txt_ednatfaune.toPlainText().replace("\'","\'\'"),\
         zr_natflore = self.ui.txt_ednatflor.toPlainText().replace("\'","\'\'"),\
         zr_natautre = self.ui.txt_ednatautr.toPlainText().replace("\'","\'\'"),\
@@ -418,10 +420,40 @@ class BdTravauxDialog(QtGui.QDialog):
             querymodifsal.next()
             print "salaries modifies"
 
+        #sauvegarde des modifications des objets de la visite : id_joinvis, objet de la visite
+            #suppression des objets de la visite appartenant à la sortie modifiée
+        querysupprobjvi = QtSql.QSqlQuery(self.db)
+        qsupprobjvi = u"""DELETE FROM bdtravaux.join_objvisite WHERE id_joinvis={zr_idjoinvis}""".format(\
+        zr_idjoinvis = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()))
+        ok5 = querysupprobjvi.exec_(qsupprobjvi)
+        if not ok5 :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des objets de la visite en base ratée')
+            self.erreurModifSortie = '1'
+        print "objets de la visite en trop supprimes"
+
+            #ajout de la liste d'objets de la visite modifiée
+        for item in xrange (len(self.ui.lst_edobjvisit.selectedItems())):
+            if self.ui.lst_edobjvisit.selectedItems()[item].text() == 'Autre...' :
+                self.edobjviautr = self.ui.txt_edobjvisautre.toPlainText().replace("\'","\'\'")
+            else :
+                self.edobjviautr =''
+            querymodifobjvi = QtSql.QSqlQuery(self.db)
+            qmodobjvi = u"""insert into bdtravaux.join_objvisite (id_joinvis, objvisite, objviautre) values ({zr_idjoinvis}, '{zr_objvisite}','{zr_objviautre}')""".format (\
+            zr_idjoinvis = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex()),\
+            zr_objvisite = self.ui.lst_edobjvisit.selectedItems()[item].text().replace("\'","\'\'"),\
+            zr_objviautre=self.edobjviautr)
+            ok6 = querymodifobjvi.exec_(qmodobjvi)
+            print unicode(qmodobjvi)
+            if not ok6:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des objets de la visite en base ratée')
+                self.erreurModifSortie = '1'
+            querymodifobjvi.next()
+            print "objets de la visite modifies"
+
         if self.erreurModifSortie == '0':
             QtGui.QMessageBox.information(self, 'Information', u'Modifications correctement effectuées dans la base')
         else :
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des salariés en base ratée')
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des salariés ou objets de la visite en base ratée')
         self.db.close()
         self.db.removeDatabase("sitescsn")
         self.close()
@@ -478,12 +510,32 @@ class BdTravauxDialog(QtGui.QDialog):
                     QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression opération ratée')
                     self.erreurSupprSortie = '1'
 
+        # suppression des données de la table "join_salaries"
+        querysupprssal = QtSql.QSqlQuery(self.db)
+        qsupprssal = u"""DELETE FROM bdtravaux.join_salaries WHERE id_joinsal= {zr_sortie}""".format(\
+        zr_sortie = self.sortieSuppr)
+        ok5 = querysupprssal.exec_(qsupprssal)
+        if not ok5:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression salariés ratée')
+            self.erreurSupprSortie = '1'
+
+        # suppression des données de la table "join_objvisite"
+        querysupprsobjv = QtSql.QSqlQuery(self.db)
+        qsupprsobjv = u"""DELETE FROM bdtravaux.join_objvisite WHERE id_joinvis = {zr_sortie}""".format(\
+        zr_sortie = self.sortieSuppr)
+        print querysupprsobjv
+        ok6 = querysupprsobjv.exec_(qsupprsobjv)
+        if not ok6:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression objet visite ratée')
+            self.erreurSupprSortie = '1'
+
+
         # suppression des données dans la table "sortie"
         querysupprssort = QtSql.QSqlQuery(self.db)
         qsupprssort = u"""DELETE FROM bdtravaux.sortie WHERE sortie_id = {zr_sortie}""".format(\
         zr_sortie = self.sortieSuppr)
-        ok5 = querysupprssort.exec_(qsupprssort)
-        if not ok5:
+        ok7 = querysupprssort.exec_(qsupprssort)
+        if not ok7:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression sortie ratée')
             self.erreurSupprSortie = '1'
 

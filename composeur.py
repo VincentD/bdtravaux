@@ -118,7 +118,7 @@ class composerClass (QtGui.QDialog):
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
         if sys.platform.startswith('linux'):
-            file1=QtCore.QFile('/home/vtravail/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
+            file1=QtCore.QFile('/home/vincent/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:

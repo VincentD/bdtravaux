@@ -213,7 +213,7 @@ class BdTravauxDialog(QtGui.QDialog):
         #remplissage de la table join_objvisite : sortie_id, objet de la visite et complément si "autre"
         for item in xrange (len(self.ui.lst_objvisit.selectedItems())):
             if self.ui.lst_objvisit.selectedItems()[item].text() == 'Autre...' :
-                self.objviautr = self.ui.txt_objvisautre.text()
+                self.objviautr = self.ui.txt_objvisautre.text().replace("\'","\'\'")
             else :
                 self.objviautr =''
             queryobjvisit = QtSql.QSqlQuery(self.db)

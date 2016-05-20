@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -90,37 +90,37 @@
        <widget class="QComboBox" name="cbx_redact">
         <item>
          <property name="text">
-          <string>Alexis Thery</string>
+          <string>Alexis Thery / AT</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Anthony Vasseux </string>
+          <string>Anthony Vasseux / AV</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Corentin Lebriez</string>
+          <string>Corentin Lebriez / CL</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Matthieu Loquet</string>
+          <string>Matthieu Loquet / ML</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Quentin Vanquelef</string>
+          <string>Quentin Vanquelef / QV</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Sandrine Gougaud</string>
+          <string>Sandrine Gougaud / SG</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Simon Bezille</string>
+          <string>Simon Bezille / SB</string>
          </property>
         </item>
        </widget>

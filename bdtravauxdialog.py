@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -153,7 +153,7 @@ class BdTravauxDialog(QtGui.QDialog):
         zr_date_sortie=self.ui.date.selectedDate().toPyDate().strftime("%Y-%m-%d"),\
         zr_date_fin=self.date_fin,\
         zr_jourschan=self.jourschan,\
-        zr_redacteur=self.ui.cbx_redact.itemText(self.ui.cbx_redact.currentIndex()),\
+        zr_redacteur=self.ui.cbx_redact.itemText(self.ui.cbx_redact.currentIndex()).split(" /")[0],\
         zr_site=self.ui.site.itemData(self.ui.site.currentIndex()),\
         zr_chantier_vol=self.chantvol,\
         zr_sort_com=self.ui.comm.toPlainText().replace("\'","\'\'"),\
@@ -164,6 +164,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
             self.erreurSaisieSortie = '1'
+        #print unicode(query)
         self.rempliJoin()
         self.chantVol()
         self.db.close()
@@ -209,6 +210,16 @@ class BdTravauxDialog(QtGui.QDialog):
                QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des salariés en base ratée')
                self.erreurSaisieSortie ='1'
             querysalarie.next()
+        queryredacteur = QtSql.QSqlQuery(self.db)
+        qredacteur = u"""insert into bdtravaux.join_salaries (id_joinsal, salaries, sal_initia) values ({zr_idjoinsal}, '{zr_redacteur}','{zr_initialrd}')""".format (\
+        zr_idjoinsal = self.sortie_id,\
+        zr_redacteur = self.ui.cbx_redact.itemText(self.ui.cbx_redact.currentIndex()).split(" /")[0].replace("\'","\'\'"),\
+        zr_initialrd=self.ui.cbx_redact.itemText(self.ui.cbx_redact.currentIndex()).split(" /")[1].replace("\'","\'\'"))
+        ok3b = queryredacteur.exec_(qredacteur)
+        if not ok3b:
+           QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie du rédacteur en base ratée')
+           self.erreurSaisieSortie ='1'
+        print qredacteur
 
         #remplissage de la table join_objvisite : sortie_id, objet de la visite et complément si "autre"
         for item in xrange (len(self.ui.lst_objvisit.selectedItems())):

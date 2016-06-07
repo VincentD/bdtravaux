@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -624,14 +624,14 @@
          </font>
         </property>
         <property name="text">
-         <string>4. Partenaires</string>
+         <string>4. Partenaire</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QListWidget" name="ch_partenaire">
         <property name="selectionMode">
-         <enum>QAbstractItemView::MultiSelection</enum>
+         <enum>QAbstractItemView::SingleSelection</enum>
         </property>
         <item>
          <property name="text">

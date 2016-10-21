@@ -164,7 +164,6 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête ratée')
             self.erreurSaisieSortie = '1'
-        #print unicode(query)
         self.rempliJoin()
         self.chantVol()
         self.db.close()
@@ -219,7 +218,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok3b:
            QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie du rédacteur en base ratée')
            self.erreurSaisieSortie ='1'
-        print qredacteur
+
 
         #remplissage de la table join_objvisite : sortie_id, objet de la visite et complément si "autre"
         for item in xrange (len(self.ui.lst_objvisit.selectedItems())):
@@ -233,7 +232,6 @@ class BdTravauxDialog(QtGui.QDialog):
             zr_objvisite = self.ui.lst_objvisit.selectedItems()[item].text().replace("\'","\'\'"),\
             zr_objviautr = self.objviautr)
             ok4 = queryobjvisit.exec_(qobjvis)
-            print unicode(qobjvis)
             if not ok4 :
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie en base des objectifs de la visite ratée')
                 self.erreurSaisieSortie ='1'
@@ -250,7 +248,7 @@ class BdTravauxDialog(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête IdSoertie pour Chvolontaires ratée')
             queryidsortie.next()
             idsortie = queryidsortie.value(0)
-            print "sortie="+str(idsortie)
+            #print "sortie="+str(idsortie)
             
             querychantvol = QtSql.QSqlQuery(self.db)
             querych = u"""insert into bdtravaux.ch_volont (nb_jours, nb_heur_ch, nb_heur_de, partenaire, heberg, j1_enc_am, j1_enc_pm, j1_tot_am, j1_tot_pm, j1adcen_am, j1adcen_pm, j1_blon_am, j1_blon_pm, j2_enc_am, j2_enc_pm, j2_tot_am, j2_tot_pm, j2adcen_am, j2adcen_pm, j2_blon_am, j2_blon_pm, sortie, sem_enc, sem_ben) values ({zr_nb_jours}, {zr_nb_heur_ch}, {zr_nb_heur_de}, '{zr_partenaire}', '{zr_heberg}', {zr_j1_enc_am}, {zr_j1_enc_pm}, {zr_j1_tot_am}, {zr_j1_tot_pm}, {zr_j1adcen_am}, {zr_j1adcen_pm}, {zr_j1_blon_am}, {zr_j1_blon_pm}, {zr_j2_enc_am}, {zr_j2_enc_pm}, {zr_j2_tot_am}, {zr_j2_tot_pm}, {zr_j2adcen_am}, {zr_j2adcen_pm}, {zr_j2_blon_am}, {zr_j2_blon_pm}, {zr_sortie}, {zr_sem_enc}, {zr_sem_ben})""".format (\
@@ -286,7 +284,7 @@ class BdTravauxDialog(QtGui.QDialog):
 
     def masqueBoutons(self, index):
         #si l'onglet actif est "tab_extsortie" (index=4), alors les boutons OK et annuler sont masqués. Sinon ils sont actifs.
-        print 'Boutons à masquer'+str(index)
+        #print 'Boutons à masquer'+str(index)
         if index == 4:
             self.ui.buttonBox_2.setEnabled(False)
         else:
@@ -299,7 +297,6 @@ class BdTravauxDialog(QtGui.QDialog):
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
         querySortie=u"""select sortie_id, date_sortie, codesite, (SELECT string_agg(left(word, 1), '') FROM (select unnest(string_to_array(redacteur, ' ')) FROM bdtravaux.sortie b WHERE b.sortie_id=a.sortie_id) t(word)) as redacinit, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie a order by date_sortie DESC """
         ok = query.exec_(querySortie)
-        print querySortie
         while query.next():
             self.ui.cbx_exsortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3))+ " - "+ str(query.value(4)), int (query.value(0)))
         # 1er paramètre = ce qu'on affiche, 
@@ -367,7 +364,7 @@ class BdTravauxDialog(QtGui.QDialog):
             list_aut = queryidsortie.value(10).split("; ")
             for x in list_aut:
                 if x != '':
-                    print 'x different de rien'
+                    #print 'x different de rien'
                     self.ui.txt_edobjvisautre.setText(unicode(queryidsortie.value(10)).strip('; '))
 
 
@@ -415,7 +412,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok4 :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des salariés en base ratée')
             self.erreurModifSortie = '1'
-        print "salaries en trop supprimes"
+        #print "salaries en trop supprimes"
 
             #ajout de la liste de salariés modifiée
         for item in xrange (len(self.ui.lst_edsalaries.selectedItems())):
@@ -429,7 +426,7 @@ class BdTravauxDialog(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des salariés en base ratée')
                 self.erreurModifSortie = '1'
             querymodifsal.next()
-            print "salaries modifies"
+            #print "salaries modifies"
 
         #sauvegarde des modifications des objets de la visite : id_joinvis, objet de la visite
             #suppression des objets de la visite appartenant à la sortie modifiée
@@ -440,7 +437,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok5 :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des objets de la visite en base ratée')
             self.erreurModifSortie = '1'
-        print "objets de la visite en trop supprimes"
+        #print "objets de la visite en trop supprimes"
 
             #ajout de la liste d'objets de la visite modifiée
         for item in xrange (len(self.ui.lst_edobjvisit.selectedItems())):
@@ -454,12 +451,11 @@ class BdTravauxDialog(QtGui.QDialog):
             zr_objvisite = self.ui.lst_edobjvisit.selectedItems()[item].text().replace("\'","\'\'"),\
             zr_objviautre=self.edobjviautr)
             ok6 = querymodifobjvi.exec_(qmodobjvi)
-            print unicode(qmodobjvi)
             if not ok6:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Modification des objets de la visite en base ratée')
                 self.erreurModifSortie = '1'
             querymodifobjvi.next()
-            print "objets de la visite modifies"
+            #print "objets de la visite modifies"
 
         if self.erreurModifSortie == '0':
             QtGui.QMessageBox.information(self, 'Information', u'Modifications correctement effectuées dans la base')
@@ -534,7 +530,6 @@ class BdTravauxDialog(QtGui.QDialog):
         querysupprsobjv = QtSql.QSqlQuery(self.db)
         qsupprsobjv = u"""DELETE FROM bdtravaux.join_objvisite WHERE id_joinvis = {zr_sortie}""".format(\
         zr_sortie = self.sortieSuppr)
-        print querysupprsobjv
         ok6 = querysupprsobjv.exec_(qsupprsobjv)
         if not ok6:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression objet visite ratée')

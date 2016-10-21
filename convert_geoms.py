@@ -75,8 +75,6 @@ def points_polygon(pointgeoms):
 def polygons_linestring(polygeoms):
     lines = []
     for polygeom in polygeoms:
-        print "polygeom="
-        print polygeom.asPolygon()
         for ring in polygeom.asPolygon():
             lines.append(ring)
             print "ring="

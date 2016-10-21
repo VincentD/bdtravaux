@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -151,6 +151,11 @@
         <item>
          <property name="text">
           <string>Anthony Vasseux / AV</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cédric Bailly / CB</string>
          </property>
         </item>
         <item>
@@ -1252,6 +1257,11 @@
      <item>
       <property name="text">
        <string>Alexis Thery / AT</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Cédric Bailly / CB</string>
       </property>
      </item>
      <item>

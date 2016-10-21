@@ -238,13 +238,12 @@ class OperationDialog(QtGui.QDialog):
 
         # Requête pour le remplissage des contrôles du Tab "Modifications" du module "Opérations"
             queryfillope = QtSql.QSqlQuery(self.db)
-            qfillope = u"""SELECT array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; ') as typope, array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper), '; ') as presta, descriptio, chantfini, array_to_string(array(select distinct codeope from bdtravaux.join_opeprevues where id_joinprev=id_oper), '; ') as codeope,array_to_string(array(select distinct pdg from bdtravaux.join_opeprevues where id_joinprev=id_oper), '; ') as pdg,array_to_string(array(select distinct anneeprev from bdtravaux.join_opeprevues where id_joinprev=id_oper), '; ') as anneeprev,  CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE operation_id={zr_ope}""".format(zr_ope = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
+            qfillope = u"""SELECT array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; ') as typope, array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper), '; ') as presta, descriptio, chantfini, array_to_string(array(select distinct codeope||' '||pdg||' '||anneeprev from bdtravaux.join_opeprevues where id_joinprev=id_oper), ';') as opeprev, CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE operation_id={zr_ope}""".format(zr_ope = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
             ok6 = queryfillope.exec_(qfillope)
             if not ok6 :
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête pour le remplissage des contrôles dans le module operations ratée')
             queryfillope.next()
             self.ui.txt_eddescr.setText(unicode(queryfillope.value(2)))
-            print bool(queryfillope.value(3))
             self.ui.chx_edopeterm.setChecked(bool(queryfillope.value(3)))
 
         #Sélection d'items dans une liste (type d'opération réalisé)
@@ -265,18 +264,16 @@ class OperationDialog(QtGui.QDialog):
                         presta.setSelected(True) 
         
         #Sélection d'items dans une liste (opérations prévues)
-            prevu_bd = " "+queryfillope.value(4)+"  "+queryfillope.value(5)+" "+queryfillope.value(6)+" "
-            numero=1
-            print "prevu_bd ="+prevu_bd
+            list_prevbd = queryfillope.value(4).split(";")
             for y in xrange (self.ui.lst_edopeprev.count()):
-                print numero
-                prevu_lst=str(self.ui.lst_edopeprev.item(y).text().split("/")[1]+self.ui.lst_edopeprev.item(y).text().split("/")[5]+self.ui.lst_edopeprev.item(y).text().split("/")[4])
-                if prevu_bd==prevu_lst:
-                    self.ui.lst_edopeprev.item(y).setSelected(True)
-                numero+=1
+                prevu_lst=str(self.ui.lst_edopeprev.item(y).text().split("/ ")[1]+self.ui.lst_edopeprev.item(y).text().split("/ ")[5]+self.ui.lst_edopeprev.item(y).text().split(" /")[4])
+                for x in list_prevbd:
+                    if unicode(prevu_lst)==x:
+                        self.ui.lst_edopeprev.item(y).setSelected(True)
+
 
         # désignation de la table dans laquelle on va modifier / supprimer des données
-            self.typgeom = str(queryfillope.value(7))
+            self.typgeom = str(queryfillope.value(5))
             if self.typgeom == 'pts':
                 self.tablemodif = 'operation_pts'
             elif self.typgeom == 'lgn':
@@ -285,7 +282,7 @@ class OperationDialog(QtGui.QDialog):
                 self.tablemodif = 'operation_poly'
             else:
                 self.tablemodif = 'operation_poly'
-                print "pas trouvé la géométrie"
+                #print "pas trouve la geometrie"
 
         # récupération de l'identifiant de l'opération "id_oper". Servira à sélectionner les données à modifier / supprimer dans les tables join_typeoperation et join_operateur
             queryjoinid = QtSql.QSqlQuery(self.db)
@@ -430,7 +427,7 @@ class OperationDialog(QtGui.QDialog):
         elif memlayer.crs().authid() == u'EPSG:4326':
             thegeom='st_transform(st_setsrid(st_geometryfromtext (\'{zr_geom2}\'),4326), 2154)'.format(zr_geom2=geom2.exportToWkt())
         else :
-            print u'La projection de la couche active n\'est pas supportée'
+            print u'La projection de la couche active n\'est pas supportee'
 
         #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
         self.recupIdChantvol()
@@ -540,6 +537,7 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour opération ratée')
             self.erreurModifBase = '1'
+        print qsavmodo
 
         # mise à jour de la table join_typoperation
             #suppression des types d'opération appartenant à l'opération modifiée
@@ -550,7 +548,8 @@ class OperationDialog(QtGui.QDialog):
         if not ok3 :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des types d opération en base ratée')
             self.erreurModifBase = '1'
-        print "types opés en trop supprimes"
+        print "types opes en trop supprimes"
+        print qsupprtyp
 
             #ajout de la liste de types d'opération modifiée
         for item in xrange (len(self.ui.lst_edtypope.selectedItems())):
@@ -563,7 +562,8 @@ class OperationDialog(QtGui.QDialog):
                QtGui.QMessageBox.warning(self, 'Alerte', u'Ajout des nvx types d opés en base ratée')
                self.erreurModifBase = '1'
             querymodiftyp.next()
-            print "types opés ajoutés"       
+            #print "types opes ajoutes"       
+            print qmodtyp
 
         # mise à jour de la table join_operateur
             #suppression des opérateurs appartenant à l'opération modifiée
@@ -574,7 +574,8 @@ class OperationDialog(QtGui.QDialog):
         if not ok5 :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des opérateurs en base ratée')
             self.erreurModifBase = '1'
-        print "opérateurs en trop supprimes"
+        #print "operateurs en trop supprimes"
+        print qsupprprest
 
             #ajout de la liste des opérateurs modifiée
         for item in xrange (len(self.ui.lst_edpresta.selectedItems())):
@@ -587,7 +588,8 @@ class OperationDialog(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Ajout des nvx opérateurs en base ratée')
                 self.erreurModifBase = '1'
             querymodifprest.next()
-            print "opérateurs ajoutés"       
+            #print 'operateurs ajoutes'       
+            print qmodprest
 
         # mise à jour de la table join_opeprevues
             #suppression des opérations prévues correspondant à l'opération modifiée
@@ -598,7 +600,8 @@ class OperationDialog(QtGui.QDialog):
         if not ok7 :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des opérations prévues en base ratée')
             self.erreurModifBase = '1'
-        print "opérations prévues en trop supprimees"
+        #print 'operations prevues en trop supprimees'
+        print qsuppropeprev
 
             #ajout de la liste des opérations prévues modifiée
         for item in xrange (len(self.ui.lst_edopeprev.selectedItems())):
@@ -612,10 +615,11 @@ class OperationDialog(QtGui.QDialog):
             zr_pdg = self.ui.lst_edopeprev.selectedItems()[item].text().split(" / ")[5].replace("\'","\'\'"))
             ok7 = querymodifopeprev.exec_(qmodopeprev)
             if not ok7:
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Ajout des nvx opérateurs en base ratée')
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Ajout des nvlles données de gestion prévue en base ratée')
                 self.erreurModifBase = '1'
             querymodifopeprev.next()
-            print "opérations prévues ajoutés"       
+            #print 'operations prevues ajoutees'
+            print qmodopeprev
 
         # Désactivation des bouton "OK", "modif Geom" et "Supprimer" jusqu'à la prochaine sélection d'une opération
         self.ui.pbt_supprope.setEnabled(0)
@@ -733,7 +737,7 @@ class OperationDialog(QtGui.QDialog):
         self.sauverOpeChoi()
         #Création et remplissage de l'objet id_sortie avec l'identifiant de la sortie courante, à partir de la combobox "sortie"
         id_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex())
-        print "id_sortie="+str(id_sortie)
+        #print "id_sortie="+str(id_sortie)
         #lancement de la fonction Composer dans le module composeurClass avec le paramètre id_sortie
         self.obj_compo=composerClass()
         self.obj_compo.Composer(id_sortie)

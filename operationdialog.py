@@ -71,6 +71,7 @@ class OperationDialog(QtGui.QDialog):
             while queryfutopeid.next():
                 self.ui.lbl_futopeid.setText(str(queryfutopeid.value(0)))
 
+
         # Connexions signaux-slots
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('accepted()'), self.sauverOpeChoi)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL('rejected()'), self.close)
@@ -207,6 +208,9 @@ class OperationDialog(QtGui.QDialog):
                 while queryope.next():
                      self.ui.cbx_edoperation.addItem(unicode(queryope.value(1)) + " / " + unicode(queryope.value(2)) + " / "+ unicode(queryope.value(3)) + " / "+ unicode(queryope.value(4)) + " / "+ unicode(queryope.value(5)), int(queryope.value(0)))
             self.blocFillEdOpContr = '1'
+
+            # Rendre le premier item de cbx_edoperation ("choisissez une opération...") non sélectionnable
+            self.ui.cbx_edoperation.model().item(0).setEnabled(False)
 
             # chx_opechvol : Si la sortie contient un chantier de volontaire, la case à cocher "Chantier de volontaire" apparaît pour indiquer si l'opération courante fait partie ou non du chantier de volontaire. Sinon, la case à cocher est cachée.
             if self.chantvol == True:

@@ -79,9 +79,10 @@ class BdTravauxDialog(QtGui.QDialog):
 
         # Mise à jour du label "Id de la future sortie"
         queryidfutsort = QtSql.QSqlQuery(self.db)
-        if queryidfutsort.exec_('SELECT sortie_id+1 FROM bdtravaux.sortie ORDER BY sortie_id DESC LIMIT 1'):
-            while queryidfutsort.next():
-                self.ui.lbl_idfutsortie.setText(str(queryidfutsort.value(0)))
+        qidfutsort= u'SELECT last_value+1 FROM bdtravaux.sortie_sortie_id_seq'
+        ok = queryidfutsort.exec_(qidfutsort)
+        while queryidfutsort.next():
+            self.ui.lbl_idfutsortie.setText(str(queryidfutsort.value(0)))
 
         ## Connexions signaux-slots
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)

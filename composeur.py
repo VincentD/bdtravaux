@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,7 +49,7 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
 
 
@@ -122,13 +122,13 @@ class composerClass (QtGui.QDialog):
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur')
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Linux')
         if sys.platform.startswith('win32'):
             file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur')
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Windows')
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         elem=doc.firstChildElement()
@@ -159,7 +159,7 @@ class composerClass (QtGui.QDialog):
         #trouver les opérations effectuées lors de la sortie et leurs commentaires dans la table postgresql, selon l'id de la sortie sélectionnée dans le module "opération"
         # une boucle permet de récupérer et afficher à la suite dans une seule zone de texte toutes les opérations et leurs descriptions
         querycomope = QtSql.QSqlQuery(self.db)
-        qcomope=u"""select operation_id, (select distinct array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper order by typoperation),'; ')) as typope, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, (select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper order by operateurs),'; ')) as operateurs, (select distinct array_to_string(array(select distinct lblope from bdtravaux.join_opeprevues where id_joinprev=id_oper order by lblope),'; ')) as opeprev, (select distinct array_to_string(array(select distinct codeope from bdtravaux.join_opeprevues where id_joinprev=id_oper order by codeope),'; ')) as codeope, descriptio from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
+        qcomope=u"""select operation_id, (select distinct array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper order by typoperation),'; ')) as typope, round(st_area(the_geom)::numeric,2) as surface, round(st_length(the_geom)::numeric,2) as longueur, ST_NumGeometries(the_geom) as compte, (select distinct array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper order by operateurs),'; ')) as operateurs, (select distinct array_to_string(array(select distinct lblope from bdtravaux.join_opeprevues where id_joinprev=id_oper order by lblope),'; ')) as opeprev, (select distinct array_to_string(array(select distinct codeope from bdtravaux.join_opeprevues where id_joinprev=id_oper order by codeope),'; ')) as codeope, chantfini, descriptio from (select * from bdtravaux.operation_poly UNION select * from bdtravaux.operation_lgn UNION select * from bdtravaux.operation_pts) tables where sortie={zr_sortie} order by typ_operat""".format \
         (zr_sortie = idsortie) #self.ui.sortie.itemData(self.ui.sortie.currentIndex())
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
@@ -176,8 +176,9 @@ class composerClass (QtGui.QDialog):
             operatope=unicode(querycomope.value(5))
             opeprev=unicode(querycomope.value(6))
             ghopeprev=unicode(querycomope.value(7))
-            descrope=unicode(querycomope.value(8)).replace('\n','<br/>')
-            texteope=unicode(texteope+u'<br/>'+u'<b>'+ope+u'</b>'+u'<h style="margin-left:1cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+surfope+u' m²'+'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+longope+u' ml<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+operatope+u'<br/>'+opeprev+u'<h style="margin-left:1cm;">('+ ghopeprev+u')'+u'<br/>'+descrope+u'<br/>')
+            finiope=unicode(querycomope.value(8))
+            descrope=unicode(querycomope.value(9)).replace('\n','<br/>')
+            texteope=unicode(texteope+u'<br/>'+u'<b>'+ope+u'</b>'+u'<h style="margin-left:1cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+surfope+u' m²'+'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+longope+u' ml<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+operatope+u'<br/>'+opeprev+u'<h style="margin-left:1cm;">('+ ghopeprev+u')'+u'<h style="margin-left:0.5cm;">'+u'Opé finie : <b>'+finiope+u'</b><br/>'+descrope+u'<br/>')
             querycomope.next()
 
         # Pour chaque étiquette qui contient le mot-clé (comme "$codesite"), remplacer le texte par le code du site concerné
@@ -383,7 +384,7 @@ class composerClass (QtGui.QDialog):
             self.gestrealpolys=QgsVectorLayer(self.uri.uri(), "gestrealpolys", "postgres")
             # Intégration dans le MapLayerRegistry pour pouvoir l'utiliser, MAIS sans l'importer dans l'arbo (d'où le False)
             QgsMapLayerRegistry.instance().addMapLayer(self.gestrealpolys, False)
-            # Intégration de la couche dans l'arboresecnce, à l'index 0 (c'est à dire en haut de l'arborescence)
+            # Intégration de la couche dans l'arborescence, à l'index 0 (c'est à dire en haut de l'arborescence)
             root.insertLayer(0, self.gestrealpolys)
             ## Attribution de COULEURS différentes aux opérations
             # Récupération des valeurs uniques du champ qui servira de base à la symbologie

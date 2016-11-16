@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,12 +49,12 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
 
 
     def Composer(self, idsortie):
-        print 'dans composeur, id_sortie='+str(idsortie)
+        #print 'dans composeur, id_sortie='+str(idsortie)
         #Affichage des contours du site
         #Récupération des données de la table "sortie" pour affichage du site et utilisation dans les étiquettes du composeur
         self.recupDonnSortie(idsortie)
@@ -310,7 +310,7 @@ class composerClass (QtGui.QDialog):
         #LEGENDE : mettre à jour la légende. 
         for i in self.composition.items():
             if isinstance(i,QgsComposerLegend):
-                print "mise a jour legende"
+                #print "mise a jour legende"
                 legend = i 
                 legend.setAutoUpdateModel(True)
                 for j in xrange(legend.modelV2().rowCount()):
@@ -333,7 +333,7 @@ class composerClass (QtGui.QDialog):
 
 
     def recupDonnSortie(self, idsortie):
-        print 'dans recupDonnSortie, id_sortie='+str(idsortie)
+        #print 'dans recupDonnSortie, id_sortie='+str(idsortie)
         #recup de données en fction de l'Id de la sortie. Pr afficher le site et les txts des étiqu dans composeur()
         querycodesite = QtSql.QSqlQuery(self.db)
         qcodesite = u"""select sor.codesite, 
@@ -377,7 +377,7 @@ class composerClass (QtGui.QDialog):
         if not okpoly:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête existence polygones ratée')
         if self.querypoly.size()>0:
-            print 'taille requete'+str(self.querypoly.size)
+            #print 'taille requete'+str(self.querypoly.size)
         # Configure le schéma, le nom de la table, la colonne géométrique, un sous-jeu de données (clause WHERE facultative), et une clé primaire.
             self.uri.setDataSource("bdtravaux", "v_bdtravaux_surfaces", "the_geom", reqwhere, "operation_id")
         # Instanciation de la couche dans qgis 

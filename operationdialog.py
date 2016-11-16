@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Connexion à la base de données. Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -96,7 +96,7 @@ class OperationDialog(QtGui.QDialog):
         self.ui.sortie.clear()
         # Remplir la combobox "sortie" avec les champs date_sortie+site de la table "sortie" et les champs redacteur de la tabe sortie et sal_initia de la table "join_salaries"
         query = QtSql.QSqlQuery(self.db)  # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
-        querySortie=u"""select sortie_id, date_sortie, codesite, (SELECT string_agg(left(word, 1), '') FROM (select unnest(string_to_array(redacteur, ' ')) FROM bdtravaux.sortie b WHERE b.sortie_id=a.sortie_id) t(word)) as redacinit, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie a order by date_sortie DESC """
+        querySortie=u"""select sortie_id, date_sortie, codesite, (SELECT string_agg(left(word, 1), '') FROM (select unnest(string_to_array(btrim(redacteur,'_'), ' ')) FROM bdtravaux.sortie b WHERE b.sortie_id=a.sortie_id) t(word)) as redacinit, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie a order by date_sortie DESC """
 
         ok = query.exec_(querySortie)
         while query.next():
@@ -546,7 +546,7 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour opération ratée')
             self.erreurModifBase = '1'
-        print qsavmodo
+        #print qsavmodo
 
         # mise à jour de la table join_typoperation
             #suppression des types d'opération appartenant à l'opération modifiée
@@ -557,8 +557,8 @@ class OperationDialog(QtGui.QDialog):
         if not ok3 :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des types d opération en base ratée')
             self.erreurModifBase = '1'
-        print "types opes en trop supprimes"
-        print qsupprtyp
+        #print "types opes en trop supprimes"
+        #print qsupprtyp
 
             #ajout de la liste de types d'opération modifiée
         for item in xrange (len(self.ui.lst_edtypope.selectedItems())):
@@ -572,7 +572,7 @@ class OperationDialog(QtGui.QDialog):
                self.erreurModifBase = '1'
             querymodiftyp.next()
             #print "types opes ajoutes"       
-            print qmodtyp
+            #print qmodtyp
 
         # mise à jour de la table join_operateur
             #suppression des opérateurs appartenant à l'opération modifiée
@@ -584,7 +584,7 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des opérateurs en base ratée')
             self.erreurModifBase = '1'
         #print "operateurs en trop supprimes"
-        print qsupprprest
+        #print qsupprprest
 
             #ajout de la liste des opérateurs modifiée
         for item in xrange (len(self.ui.lst_edpresta.selectedItems())):
@@ -598,7 +598,7 @@ class OperationDialog(QtGui.QDialog):
                 self.erreurModifBase = '1'
             querymodifprest.next()
             #print 'operateurs ajoutes'       
-            print qmodprest
+            #print qmodprest
 
         # mise à jour de la table join_opeprevues
             #suppression des opérations prévues correspondant à l'opération modifiée
@@ -610,7 +610,7 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Suppression des opérations prévues en base ratée')
             self.erreurModifBase = '1'
         #print 'operations prevues en trop supprimees'
-        print qsuppropeprev
+        #print qsuppropeprev
 
             #ajout de la liste des opérations prévues modifiée
         for item in xrange (len(self.ui.lst_edopeprev.selectedItems())):
@@ -628,7 +628,7 @@ class OperationDialog(QtGui.QDialog):
                 self.erreurModifBase = '1'
             querymodifopeprev.next()
             #print 'operations prevues ajoutees'
-            print qmodopeprev
+            #print qmodopeprev
 
         # Désactivation des bouton "OK", "modif Geom" et "Supprimer" jusqu'à la prochaine sélection d'une opération
         self.ui.pbt_supprope.setEnabled(0)

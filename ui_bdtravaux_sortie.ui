@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -90,37 +90,122 @@
        <widget class="QComboBox" name="cbx_redact">
         <item>
          <property name="text">
-          <string>Alexis Thery / AT</string>
+          <string>_Alexis Théry / AT</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Anthony Vasseux / AV</string>
+          <string>_Anthony Vasseux / AV</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Corentin Lebriez / CL</string>
+          <string>_Corentin Lebriez / CL</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Matthieu Loquet / ML</string>
+          <string>_Matthieu Loquet / ML</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Quentin Vanquelef / QV</string>
+          <string>_Quentin Vanquelef / QV</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Sandrine Gougaud / SG</string>
+          <string>_Sandrine Gougaud / SG</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Simon Bezille / SB</string>
+          <string>_Simon Bezille / SB</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Alexandra Janczak / AJ</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Baptiste Hubert / BH</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Benoît Gallet / BG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cédric Vanappelghem / CV</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Elise Tremel / ET</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Florence Alderweireld / FA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>François Chemin / FC</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>François Fourmy / FF</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Gaëlle Guyétant / GG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Lucie Rousseaux / LR</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Lucile Chastel / LC</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Marion Binet / MB</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Nathalie Delatre / ND</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Gaëtan Rey / GR</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Quentin Marescaux / QM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Vincent Damoy / VD</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Vincent Mercier / VM</string>
          </property>
         </item>
        </widget>
@@ -145,42 +230,127 @@
         </property>
         <item>
          <property name="text">
-          <string>Alexis Thery / AT</string>
+          <string>_Alexis Théry / AT</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Anthony Vasseux / AV</string>
+          <string>_Anthony Vasseux / AV</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Cédric Bailly / CB</string>
+          <string>_Cédric Bailly / CB</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Corentin Lebriez / CL</string>
+          <string>_Corentin Lebriez / CL</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Matthieu Loquet / ML</string>
+          <string>_Matthieu Loquet / ML</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Quentin Vanquelef /QV</string>
+          <string>_Quentin Vanquelef /QV</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Sandrine Gougaud / SG</string>
+          <string>_Sandrine Gougaud / SG</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Simon Bezille / SB</string>
+          <string>_Simon Bezille / SB</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Alexandra Janczak / AJ</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Baptiste Hubert / BH</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Benoît Gallet / BG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cédric Vanappelghem / CV</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Elise Tremel / ET</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Florence Alderweireld / FA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>François Chemin / FC</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>François Fourmy / FF</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Gaëlle Guyétant / GG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Lucie Rousseaux  /LR</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Lucile Chastel / LC</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Marion Binet / MB</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Nathalie Delatre / ND</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Gaëtan Rey / GR</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Quentin Marescaux / QM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Vincent Damoy / VD</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Vincent Mercier / VM</string>
          </property>
         </item>
        </widget>
@@ -1256,42 +1426,127 @@
      </property>
      <item>
       <property name="text">
-       <string>Alexis Thery / AT</string>
+       <string>_Alexis Théry / AT</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Cédric Bailly / CB</string>
+       <string>_Cédric Bailly / CB</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Anthony Vasseux / AV</string>
+       <string>_Anthony Vasseux / AV</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Corentin Lebriez / CL</string>
+       <string>_Corentin Lebriez / CL</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Matthieu Loquet / ML</string>
+       <string>_Matthieu Loquet / ML</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Quentin Vanquelef / QV</string>
+       <string>_Quentin Vanquelef / QV</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Sandrine Gougaud / SG</string>
+       <string>_Sandrine Gougaud / SG</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Simon Bezille / SB</string>
+       <string>_Simon Bezille / SB</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Alexandra Janczak / AJ</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Baptiste Hubert / BH</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Benoît Gallet / BG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Cédric Vanappelghem / CV</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Elise Tremel / ET</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Florence Alderweireld / FA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>François Chemin / FC</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>François Fourmy / FF</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Gaëlle Guyétant / GG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Lucie Rousseaux / LR</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Lucile Chastel / LC</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Marion Binet / MB</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Nathalie delatre / ND</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Gaëtan Rey / GR</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Quentin Marescaux / QM</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Vincent Damoy / VD</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Vincent Mercier / VM</string>
       </property>
      </item>
     </widget>
@@ -1608,37 +1863,122 @@
      </property>
      <item>
       <property name="text">
-       <string>Alexis Thery</string>
+       <string>_Alexis Théry</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Anthony Vasseux</string>
+       <string>_Anthony Vasseux</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Corentin Lebriez</string>
+       <string>_Corentin Lebriez</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Matthieu Loquet</string>
+       <string>_Matthieu Loquet</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Quentin Vanquelef</string>
+       <string>_Quentin Vanquelef</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Sandrine Gougaud</string>
+       <string>_Sandrine Gougaud</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Simon Bezille</string>
+       <string>_Simon Bezille</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Alexandra Janczak / AJ</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Baptiste Hubert / BH</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Benoît Gallet / BG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Cédric Vanappelghem / CV</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Elise Tremel / ET</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Florence Alderweireld / FA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>François Chemin / FC</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>François Fourmy / FF</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Gaëlle Guyétant / GG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Lucie Rousseaux / LR</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Lucile Chastel / LC</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Marion Binet / MB</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Nathalie Delatre / ND</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Gaëtan Rey / GR</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Quentin Marescaux / QM</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Vincent Damoy / VD</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Vincent Mercier / VM</string>
       </property>
      </item>
     </widget>

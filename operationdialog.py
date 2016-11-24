@@ -142,10 +142,13 @@ class OperationDialog(QtGui.QDialog):
             geometrie=""
             if self.iface.activeLayer().geometryType() == QGis.Polygon:
                 geometrie="polygone"
+                self.ui.trsf_geom.setCurrentIndex(2)
             elif self.iface.activeLayer().geometryType() == QGis.Line:
                 geometrie="ligne"
+                self.ui.trsf_geom.setCurrentIndex(1)
             elif self.iface.activeLayer().geometryType() == QGis.Point:
                 geometrie="point"
+                self.ui.trsf_geom.setCurrentIndex(0)
                 #puis, on écrit la phrase qui apparaîtra dans lbl_geom
             self.ui.lbl_geom.setText(u"{nb_geom} {typ_geom}(s) sélectionné(s)".format (nb_geom=self.iface.activeLayer().selectedFeatureCount(),\
             typ_geom=geometrie))

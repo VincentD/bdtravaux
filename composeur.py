@@ -432,6 +432,7 @@ class composerClass (QtGui.QDialog):
             for nom_opera, couleur in operations.items():
                 symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
                 symbol.setColor(QtGui.QColor(couleur))
+                symbol.setWidth(0.86)
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
             expression = 'lblope'
@@ -460,7 +461,7 @@ class composerClass (QtGui.QDialog):
             for nom_opera, couleur in operations.items():
                 symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
                 symbol.setColor(QtGui.QColor(couleur))
-                symbol.setSize(2)
+                symbol.setSize(3)
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
             expression = 'lblope'

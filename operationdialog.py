@@ -443,14 +443,16 @@ class OperationDialog(QtGui.QDialog):
 
         #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
         self.recupIdChantvol()
+        self.recupAnneeSortie()
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, descriptio, chantfini, the_geom, ope_chvol) values ({zr_sortie}, '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}')""".format (zr_nomtable=self.nom_table,\
+        query = u"""insert into bdtravaux.{zr_nomtable} (sortie, descriptio, chantfini, the_geom, ope_chvol, anneereal) values ({zr_sortie}, '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}', '{zr_anneereal}')""".format (zr_nomtable=self.nom_table,\
         zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_libelle = self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini = str(self.ui.chantfini.isChecked()).lower(),\
         zr_the_geom = thegeom,\
-        zr_opechvol = self.id_opechvol)
+        zr_opechvol = self.id_opechvol,\
+        zr_anneereal = self.annsortie)
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
@@ -529,6 +531,16 @@ class OperationDialog(QtGui.QDialog):
         else:
             self.id_opechvol='0'
 
+
+    def recupAnneeSortie(self):
+        #récupération de l'année de la sortie à laquelle appartient l'opération
+        queryannsort = QtSql.QSqlQuery(self.db)
+        queryannso = u"""select left(date_sortie::text,4) from bdtravaux.sortie where sortie_id={zr_sortie}""".format(zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()))
+        ok = queryannsort.exec_(queryannso)
+        if not ok :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé année opération')
+        queryannsort.next()
+        self.annsortie = queryannsort.value(0)
 
 
 ######################

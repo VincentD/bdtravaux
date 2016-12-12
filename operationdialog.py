@@ -61,6 +61,7 @@ class OperationDialog(QtGui.QDialog):
         self.ui.compoButton.setEnabled(0)
         self.ui.pbt_supprope.setEnabled(0)
         self.ui.pbt_edgeom.setEnabled(0)
+        self.ui.lst_edopeprev.setEnabled(0)
         self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setText("OK Modif")
         self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
 
@@ -239,6 +240,16 @@ class OperationDialog(QtGui.QDialog):
             self.ui.pbt_supprope.setEnabled(1)
             self.ui.pbt_edgeom.setEnabled(1)
             self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(1)
+
+        # Activation de la liste lst_edopeprev si et seulement si l'index courant de la cbx_edoperation != 0. Permet de na pas modifier l'item 0 : "Choisissez une opération" par erreur:
+            if self.ui.cbx_edoperation.currentIndex() != 0 :
+                print "une operation selectionnee"
+                self.ui.lst_edopeprev.setEnabled(1)
+            else :
+                print "aucune operation selectionnee"
+                self.ui.lst_edopeprev.setEnabled(0)
+
+
 
         # Mise à jour du label "lbl_opeid", affichant l'id de l'opération sélectionnée
             self.ui.lbl_opeid.setText(str(self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex())))
@@ -650,6 +661,9 @@ class OperationDialog(QtGui.QDialog):
         self.ui.pbt_edgeom.setEnabled(0)
         self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
 
+        #Désactivation de la lst_edopeprev jusqu'à la prochaine sélection d'une opération
+        self.ui.lst_edopeprev.setEnabled(0)
+
         self.db.close()
         self.db.removeDatabase("sitescsn")
         if self.erreurModifBase == '0':
@@ -685,6 +699,9 @@ class OperationDialog(QtGui.QDialog):
         self.ui.pbt_supprope.setEnabled(0)
         self.ui.pbt_edgeom.setEnabled(0)
         self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
+        #Désactivation de la lst_edopeprev jusqu'à la prochaine sélection d'une opération
+        self.ui.lst_edopeprev.setEnabled(0)
+
         self.timeoutTimer = QtCore.QTimer() # attendre une seconde (pour que QGIS ait le temps d'enregistrer la couche), puis la supprimer.
         self.timeoutTimer.singleShot(1000, self.removeModifiedLayer)
 
@@ -742,6 +759,9 @@ class OperationDialog(QtGui.QDialog):
         self.ui.pbt_supprope.setEnabled(0)
         self.ui.pbt_edgeom.setEnabled(0)
         self.ui.bbx_edokannul.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
+
+        #Désactivation de la lst_edopeprev jusqu'à la prochaine sélection d'une opération
+        self.ui.lst_edopeprev.setEnabled(0)
 
         if self.opeSupprOk == '0':
             QtGui.QMessageBox.information(self, 'Information', u'Suppression opération réussie')

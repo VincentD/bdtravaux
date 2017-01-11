@@ -336,12 +336,14 @@ class OperationDialog(QtGui.QDialog):
 
     def sauvOpeSansGeom(self):
         self.recupIdChantvol()
+        self.recupAnneeSortie()
         querysauvope = QtSql.QSqlQuery(self.db)
-        query = u'insert into bdtravaux.operation_poly (sortie, descriptio, chantfini, ope_chvol) values ({zr_sortie}, \'{zr_libelle}\', \'{zr_chantfini}\',{zr_opechvol})'.format (\
+        query = u'insert into bdtravaux.operation_poly (sortie, descriptio, chantfini, ope_chvol, anneereal) values ({zr_sortie}, \'{zr_libelle}\', \'{zr_chantfini}\',{zr_opechvol}, \'{zr_anneereal}\')'.format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
         zr_libelle= self.ui.descriptio.toPlainText().replace("\'","\'\'"),\
         zr_chantfini= str(self.ui.chantfini.isChecked()).lower(),\
-        zr_opechvol = self.id_opechvol)
+        zr_opechvol = self.id_opechvol,\
+        zr_anneereal = self.annsortie)
         ok = querysauvope.exec_(query)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sansgeom ratée')
@@ -552,6 +554,7 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé année opération')
         queryannsort.next()
         self.annsortie = queryannsort.value(0)
+        print 'annsortie='+str(self.annsortie)
 
 
 ######################

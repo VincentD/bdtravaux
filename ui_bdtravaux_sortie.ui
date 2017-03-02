@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -830,6 +830,11 @@
         </item>
         <item>
          <property name="text">
+          <string>Commune</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Commune de Ligny-sur-Canche</string>
          </property>
         </item>
@@ -845,12 +850,22 @@
         </item>
         <item>
          <property name="text">
+          <string>GDEAM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Groupe Naturaliste de l'Avesnois (GNA)</string>
          </property>
         </item>
         <item>
          <property name="text">
           <string>Institut Agricole d'Hazebrouck (IAH)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>MFR de Dunkerque</string>
          </property>
         </item>
         <item>

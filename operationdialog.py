@@ -243,10 +243,10 @@ class OperationDialog(QtGui.QDialog):
 
         # Activation de la liste lst_edopeprev si et seulement si l'index courant de la cbx_edoperation != 0. Permet de na pas modifier l'item 0 : "Choisissez une opération" par erreur:
             if self.ui.cbx_edoperation.currentIndex() != 0 :
-                print "une operation selectionnee"
+                #print "une operation selectionnee"
                 self.ui.lst_edopeprev.setEnabled(1)
             else :
-                print "aucune operation selectionnee"
+                #print "aucune operation selectionnee"
                 self.ui.lst_edopeprev.setEnabled(0)
 
 
@@ -472,6 +472,7 @@ class OperationDialog(QtGui.QDialog):
             self.erreurSaisieBase = '1'
         self.rempliJoin()
         self.iface.setActiveLayer(coucheactive)
+        
         QgsMapLayerRegistry.instance().removeMapLayer(memlayer.id())
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
@@ -554,7 +555,7 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé année opération')
         queryannsort.next()
         self.annsortie = queryannsort.value(0)
-        print 'annsortie='+str(self.annsortie)
+#        print 'annsortie='+str(self.annsortie)
 
 
 ######################

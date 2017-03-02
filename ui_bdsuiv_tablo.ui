@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>bdsuiv_tablo</class>
+ <widget class="QDialog" name="bdsuiv_tablo">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>750</width>
-    <height>300</height>
+    <width>1220</width>
+    <height>870</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>240</y>
+     <x>850</x>
+     <y>810</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -29,27 +29,25 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget_3">
+  <widget class="QTableWidget" name="tableWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>400</y>
+     <width>1171</width>
+     <height>281</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTableView" name="tableView">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>60</y>
-     <width>631</width>
-     <height>103</height>
+     <width>1181</width>
+     <height>261</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_3">
-    <item>
-     <widget class="QLabel" name="lbl_jourope">
-      <property name="text">
-       <string>Jours opération (remplir à la fin d'un chantier) </string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QTextEdit" name="jours_chan"/>
-    </item>
-   </layout>
   </widget>
  </widget>
  <resources/>
@@ -57,7 +55,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>bdsuiv_tablo</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -73,7 +71,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>bdsuiv_tablo</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

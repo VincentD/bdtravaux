@@ -77,8 +77,6 @@ def polygons_linestring(polygeoms):
     for polygeom in polygeoms:
         for ring in polygeom.asPolygon():
             lines.append(ring)
-            print "ring="
-            print ring
     return QgsGeometry.fromMultiPolyline(lines)
 
 

@@ -164,7 +164,7 @@ class composerClass (QtGui.QDialog):
         ok3 = querycomope.exec_(qcomope)
         if not ok3:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête operations ratée')
-            print qcomope
+            #print qcomope
         querycomope.first()
         texteope=""
         #Requête : Données à récupérer pour chaque opération de la sortie

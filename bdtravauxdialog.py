@@ -79,11 +79,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.jourschan=""
 
         # Mise à jour du label "Id de la future sortie"
-        queryidfutsort = QtSql.QSqlQuery(self.db)
-        qidfutsort= u'SELECT last_value+1 FROM bdtravaux.sortie_sortie_id_seq'
-        ok = queryidfutsort.exec_(qidfutsort)
-        while queryidfutsort.next():
-            self.ui.lbl_idfutsortie.setText(str(queryidfutsort.value(0)))
+        self.majIdFutSortie()
 
         ## Connexions signaux-slots
         self.connect(self.ui.buttonBox_2, QtCore.SIGNAL('accepted()'), self.sauverInfos)
@@ -100,6 +96,13 @@ class BdTravauxDialog(QtGui.QDialog):
         self.connect(self.ui.pbt_bordterr, QtCore.SIGNAL('clicked()'), self.bordTerrain)
 
 
+    def majIdFutSortie(self):
+        # Mise à jour du label "Id de la future sortie"
+        queryidfutsort = QtSql.QSqlQuery(self.db)
+        qidfutsort= u'SELECT last_value+1 FROM bdtravaux.sortie_sortie_id_seq'
+        ok = queryidfutsort.exec_(qidfutsort)
+        while queryidfutsort.next():
+            self.ui.lbl_idfutsortie.setText(str(queryidfutsort.value(0)))
 
 
     def objetVisiClicked(self):
@@ -122,7 +125,6 @@ class BdTravauxDialog(QtGui.QDialog):
                     self.ui.txt_objvisautre.setEnabled(0)
                     self.ui.lbl_objvisautre.setEnabled(0)
         return
-
 
 
 
@@ -175,6 +177,7 @@ class BdTravauxDialog(QtGui.QDialog):
             QtGui.QMessageBox.information(self, 'Information', u'Données intégrées dans la base.')
         else :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Données partiellement ou non intégrées dans la base')
+        self.majIdFutSortie()
         self.reinitialiser()
         self.close()
 

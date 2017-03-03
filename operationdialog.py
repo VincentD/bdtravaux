@@ -193,9 +193,10 @@ class OperationDialog(QtGui.QDialog):
             querycodesite.next()
             self.codedusite=querycodesite.value(0)
             self.chantvol=querycodesite.value(1)
-
+            
+            # Récupération des données de gestion prévue en fonction du code du site.
             query = QtSql.QSqlQuery(self.db)
-            if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where prev_codesite='{zr_codesite}' or prev_codesite='000' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
+            if query.exec_(u"""select prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg from (select * from bdtravaux.list_gestprev_surf UNION select * from bdtravaux.list_gestprev_lgn UNION select * from bdtravaux.list_gestprev_pts) as gestprev where (prev_codesite='{zr_codesite}' or prev_codesite='000') and prev_pdgec='t' group by prev_codesite, prev_codeope, prev_typeope, prev_lblope, prev_annprev, prev_pdg order by prev_codesite , prev_pdg , prev_codeope""".format (zr_codesite = self.codedusite)):
                 while query.next():
                     self.ui.opprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)) + " / " + unicode(query.value(5)))
                     self.ui.lst_edopeprev.addItem(unicode(query.value(0)) + " / " + unicode(query.value(1)) + " / "+ unicode(query.value(2)) + " / "+ unicode(query.value(3)) + " / "+ unicode(query.value(4)) + " / " + unicode(query.value(5)))

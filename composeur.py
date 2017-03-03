@@ -156,13 +156,15 @@ class composerClass (QtGui.QDialog):
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
         if sys.platform.startswith('linux'):
-            file1=QtCore.QFile('/home/vincent/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
+            print QtCore.QDir.homePath()+'/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt'
+            file1=QtCore.QFile(QtCore.QDir.currentPath()+'/.qgis2/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt')
+#            
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Linux')
         if sys.platform.startswith('win32'):
-            file1=QtCore.QFile('C:\qgistemplate\BDT_20130705_T_CART_ComposerTemplate.qpt')
+            file1=QtCore.QFile(QtCore.QDir.currentPath()+'\.qgis2\python\plugins\bdtravaux\BDT_20130705_T_CART_ComposerTemplate.qpt')
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:

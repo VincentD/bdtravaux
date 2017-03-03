@@ -208,6 +208,7 @@ class composerClass (QtGui.QDialog):
         #Requête : Données à récupérer pour chaque opération de la sortie
         for i in xrange(0 , querycomope.size()):
             #Récupération des autres valeurs de chaque opération
+            idope=unicode(querycomope.value(0))
             ope=unicode(querycomope.value(1))
             surfope=unicode(querycomope.value(2))
             longope=unicode(querycomope.value(3))
@@ -217,7 +218,7 @@ class composerClass (QtGui.QDialog):
             ghopeprev=unicode(querycomope.value(7))
             finiope=unicode(querycomope.value(8))
             descrope=unicode(querycomope.value(9)).replace('\n','<br/>')
-            texteope=unicode(texteope+u'<br/>'+u'<b>'+ope+u'</b>'+u'<h style="margin-left:1cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+surfope+u' m²'+'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+longope+u' ml<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+operatope+u'<br/>'+opeprev+u'<h style="margin-left:1cm;">('+ ghopeprev+u')'+u'<h style="margin-left:0.5cm;">'+u'<b>'+finiope+u'</b><br/>'+descrope+u'<br/>')
+            texteope=unicode(texteope+u'<br/>'+u'<b>'+ope+u'</b>'+u'<h style="margin-left:1cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+surfope+u' m²'+'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+longope+u' ml<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+countope+u' geom<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+operatope+u'<br/>'+opeprev+u'<h style="margin-left:1cm;">('+ ghopeprev+u')'+u'<h style="margin-left:0.5cm;">'+u'<b>'+finiope+u'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+idope+u'</b><br/>'+descrope+u'<br/>')
             querycomope.next()
 
         # Pour chaque étiquette qui contient le mot-clé (comme "$codesite"), remplacer le texte par le code du site concerné

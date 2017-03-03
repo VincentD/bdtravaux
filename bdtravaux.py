@@ -28,6 +28,7 @@ import resources_rc
 from bdtravauxdialog import BdTravauxDialog
 from operationdialog import OperationDialog
 from prevudialog import PrevuDialog
+from bdhabnatdialog import bdhabnatDialog
 
 
 class BdTravaux:
@@ -39,8 +40,6 @@ class BdTravaux:
         self.plugin_dir = QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bdtravaux"
         # initialize locale
         localePath = ""
-        # locale = QtCore.QSettings().value("locale/userLocale").toString()[0:2] (ancienne phrase)
-        #pb : 'unicode' object has no attribute 'toString'. Pb de compatibilité entre 1.8 et 2.0 : le type QVariant (qui utilise ".toString" n'existe plus. Simplement enlever ".toString" (si on voulait transformer en un autre format, inclure type=str ou TYPE=INT... dans la parenthèse => .value("locale/userLocale", type=int) par exemple
         locale = QtCore.QSettings().value("locale/userLocale")[0:2]
              
 
@@ -57,20 +56,23 @@ class BdTravaux:
         # Create the dialog (after translation) and keep reference
         self.dlg = BdTravauxDialog()
         self.dlg_ope= OperationDialog(iface)
-        self.dlg_prev= PrevuDialog(iface)
+        self.dlg_prev = PrevuDialog(iface)
+        self.dlg_habnat = bdhabnatDialog(iface)
         
     def initGui(self):
-        # Création du bouton qui va démarrer le plugin (interface "sortie")
-        self.action = QtGui.QAction(
+        ######Interface "Sortie"
+        # Création du bouton qui va démarrer le plugin
+        self.sortie = QtGui.QAction(
             QtGui.QIcon(":/plugins/bdtravaux/icon2.png"),
             u"Saisie sortie", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
-        QtCore.QObject.connect(self.action, QtCore.SIGNAL("triggered()"), self.run)
+        QtCore.QObject.connect(self.sortie, QtCore.SIGNAL("triggered()"), self.run)
         # ajoute l'icône sur la barre d'outils et l'élément de menu.
-        self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu(u"&Saisie_travaux", self.action)
+        self.iface.addToolBarIcon(self.sortie)
+        self.iface.addPluginToMenu(u"&Saisie_travaux", self.sortie)
         
-        # Création du bouton qui va démarrer le plugin (interface "opérations")
+        ######Interface "Operation"        
+        # Création du bouton qui va démarrer le plugin
         self.operation = QtGui.QAction(
             QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
             u"Saisie opérations", self.iface.mainWindow())
@@ -80,7 +82,8 @@ class BdTravaux:
         self.iface.addToolBarIcon(self.operation)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.operation)
         
-        # Création du bouton qui va démarrer le plugin (interface "gestion et suivis prévus")
+        ######Interface "Gestion prévue"
+        # Création du bouton qui va démarrer le plugin
         self.prevu = QtGui.QAction(
             QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
             u"Saisie gestion prévue", self.iface.mainWindow())
@@ -90,17 +93,31 @@ class BdTravaux:
         self.iface.addToolBarIcon(self.prevu)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.prevu)
 
+        ######Interface "Habitats naturels"
+        # Création du bouton qui va démarrer le plugin
+        self.habnat = QtGui.QAction(
+            QtGui.QIcon(":/plugins/bdtravaux/icon4.png"),
+            u"Saisie habitats naturels", self.iface.mainWindow())
+        # connecte le bouton à une méthode "run" 
+        QtCore.QObject.connect(self.habnat, QtCore.SIGNAL("triggered()"), self.run_habnat)
+        # ajoute l'icône sur la barre d'outils et l'élément de menu.
+        self.iface.addToolBarIcon(self.habnat)
+        self.iface.addPluginToMenu(u"&Saisie_travaux", self.habnat)
+
 
     def unload(self):
         # Remove the plugin menu item and icon (interface "sortie")
-        self.iface.removePluginMenu(u"&Saisie_travaux", self.action)
-        self.iface.removeToolBarIcon(self.action)
+        self.iface.removePluginMenu(u"&Saisie_travaux", self.sortie)
+        self.iface.removeToolBarIcon(self.sortie)
         # Remove the plugin menu item and icon (interface "opérations")
         self.iface.removePluginMenu(u"&Saisie_travaux", self.operation)
         self.iface.removeToolBarIcon(self.operation)
         # Remove the plugin menu item and icon (interface "gestion et suivis prévus")
-        self.iface.removePluginMenu(u"&Saisie_gestion_prévue", self.prevu)
+        self.iface.removePluginMenu(u"&Saisie_travaux", self.prevu)
         self.iface.removeToolBarIcon(self.prevu)
+        # Remove the plugin menu item and icon (interface "habitats naturels")
+        self.iface.removePluginMenu(u"&Saisie_travaux", self.habnat)
+        self.iface.removeToolBarIcon(self.habnat)
 
 
     # démarre la méthode qui va faire tout le travail (interface "sortie")
@@ -153,6 +170,25 @@ class BdTravaux:
                 pass
 
 
+ # démarre la méthode qui va faire tout le travail (interface "habitats naturels")
+    def run_habnat(self):
+        self.noEntity = 'False'
+        self.verif_geom_habnat()
+        if self.noEntity == 'True':
+            return
+        else:
+            # Initialisation
+            self.dlg_habnat.ui.txt_faciesa.clear()
+            # show the dialog
+            self.dlg_habnat.show()
+            # Run the dialog event loop
+            result = self.dlg_habnat.exec_()
+            # See if OK was pressed
+            if result == 1 :
+                # Do something useful here - delete the line containing pass and
+                # substitute with your code.
+                pass
+        
 
     def verif_geom(self):
         # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
@@ -209,4 +245,35 @@ class BdTravaux:
                         self.dlg_ope.sansgeom='False'
                         self.dlg_prev.sansgeom='False'
                         return
+                        
+    def verif_geom_habnat(self):
+        # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.
+        layer=self.iface.activeLayer()
+        # construction du message d'erreur, qui sera utilisé si aucune couche ou aucune entité n'est sélectionnée
+        messlayer=QtGui.QMessageBox()
+        messlayer.setInformativeText(u'Merci de sélectionner une couche de vecteurs et un ou plusieurs polygones.')
+        messlayer.setStandardButtons(QtGui.QMessageBox.Ok)
+        messlayer.setIcon(QtGui.QMessageBox.Warning)
+
+        if not layer:
+            #S'il n'y a aucune couche active
+            messlayer.setText(u'Aucune couche SIG sélectionnée')
+            ret = messlayer.exec_()
+            self.noEntity = 'True'
+            return
+        else:
+            # S'il y a une couche active, mais que c'est un raster
+            if layer.type() == QgsMapLayer.RasterLayer:
+                messlayer.setText(u'La couche SIG sélectionnée est une image')
+                ret = messlayer.exec_()
+                self.noEntity = 'True'
+                return
+            else:
+                #Si la couche active est bien un vecteur, mais aucune entité n'est sélectionnée
+                selection=self.iface.activeLayer().selectedFeatures()
+                if not selection:
+                    messlayer.setText(u'Aucune entité sélectionnée')
+                    ret = messlayer.exec_()
+                    self.noEntity = 'True'
+                    return
 

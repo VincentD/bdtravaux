@@ -31,11 +31,11 @@ TRANSLATIONS =
 
 PLUGINNAME = bdtravaux
 
-PY_FILES = bdtravaux.py bdtravauxdialog.py __init__.py operationdialog.py convert_geoms.py prevudialog.py composeur.py
+PY_FILES = bdtravaux.py bdtravauxdialog.py __init__.py operationdialog.py convert_geoms.py prevudialog.py composeur.py bdhabnatdialog.py
  
-EXTRAS = icon2.png icon3.png metadata.txt BDT_20130705_T_CART_ComposerTemplate.qpt
+EXTRAS = icon2.png icon3.png icon4.png metadata.txt BDT_20130705_T_CART_ComposerTemplate.qpt
 
-UI_FILES = ui_bdtravaux_sortie.py ui_operation.py ui_gestprev.py
+UI_FILES = ui_bdtravaux_sortie.py ui_operation.py ui_gestprev.py ui_bdhabnat_dialog.py
 
 RESOURCE_FILES = resources_rc.py
 

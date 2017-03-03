@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Connexion à la base de données. Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -326,6 +326,8 @@ class OperationDialog(QtGui.QDialog):
 
 
     def sauverOpeChoi(self):
+            # Fonction à lancer quand les boutons "OK" ou "Dernier - Editer CR" sont cliqués.
+            # Lance sauverOpe ou sauvOpeSanGeom si géométrie présente ou non
         self.erreurSaisieBase = '0'
         if self.sansgeom=='True':
             self.sauvOpeSansGeom()
@@ -335,6 +337,7 @@ class OperationDialog(QtGui.QDialog):
 
 
     def sauvOpeSansGeom(self):
+        # Entre en base les infos saisies dans le formulaire par l'utilisateur
         self.recupIdChantvol()
         self.recupAnneeSortie()
         querysauvope = QtSql.QSqlQuery(self.db)
@@ -361,7 +364,6 @@ class OperationDialog(QtGui.QDialog):
 
 
     def sauverOpe(self):
-        # Fonction à lancer quans les boutons "OK" ou "Dernier - Editer CR" sont cliqués
         # Entre en base les infos sélectionnées dans QGIS, et saisies dans le formulaire par l'utilisateur
         # Gère les erreurs "pas assez de points sélectionnés pour construire une ligne ou un polygone"
         # Gère également la transformation géométrique, via le module convert_geoms
@@ -785,10 +787,12 @@ class OperationDialog(QtGui.QDialog):
         self.sauverOpeChoi()
         #Création et remplissage de l'objet id_sortie avec l'identifiant de la sortie courante, à partir de la combobox "sortie"
         id_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+        # id_site n'est utilisé que pour l'impression des bordereaux de terrain. On le créée juste ici avec une valeur fausse car le module "composeur" le réclame en paramètre.
+        id_site = '000'
         #print "id_sortie="+str(id_sortie)
         #lancement de la fonction Composer dans le module composeurClass avec le paramètre id_sortie
         self.obj_compo=composerClass()
-        self.obj_compo.Composer(id_sortie)
+        self.obj_compo.Composer(id_sortie, id_site)
         # Afficher le formulaire "bdtravauxdialog.py" devant iface, et l'activer.
         self.obj_compo.composerView.composerViewHide.connect(self.raiseModule)
         #connexion de l'évènement "fermeture du composeur" au lancement de la fonction afterComposeurClose dans le module composerClass, afin d'effacer les couches ayant servi au composeur, et réafficher les autres.

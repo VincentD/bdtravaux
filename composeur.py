@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,56 +49,94 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
 
 
-    def Composer(self, idsortie):
+    def Composer(self, idsortie, idsite):
         #print 'dans composeur, id_sortie='+str(idsortie)
-        #Affichage des contours du site
-        #Récupération des données de la table "sortie" pour affichage du site et utilisation dans les étiquettes du composeur
-        self.recupDonnSortie(idsortie)
-        reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
-        self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
-        self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
-        # Import de la couche contenant les contours du site
-        root = QgsProject.instance().layerTreeRoot()
-        if self.contours_site.featureCount()>0:
-            QgsMapLayerRegistry.instance().addMapLayer(self.contours_site, False)
-            root.insertLayer(0, self.contours_site)
-        # Symbologie du contour de site
-            # create a new single symbol renderer
-        symbol = QgsSymbolV2.defaultSymbol(self.contours_site.geometryType())
-        renderer = QgsSingleSymbolRendererV2(symbol)
-            # create a new simple marker symbol layer
-        properties = {'color': 'green', 'color_border': 'red'}
-        symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
-        symbol_layer.setBrushStyle(0) #0 = Qt.NoBrush. Cf doc de QBrush
-            # assign the symbol layer to the symbol renderer
-        renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
-            # assign the renderer to the layer
-        self.contours_site.setRendererV2(renderer)
+        
+        # Si le bouton "Bordereau de terrain" a été cliqué -> on n'affiche que le contour du site sélectionné
+        if idsite != '000':
+            print 'bouton bordereau cliqué'
+            reqbordsite="""codesite='"""+str(idsite)+"""'"""
+            self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqbordsite)
+            self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
+            # Import de la couche contenant les contours du site
+            root = QgsProject.instance().layerTreeRoot()
+            if self.contours_site.featureCount()>0:
+               QgsMapLayerRegistry.instance().addMapLayer(self.contours_site, False)
+               root.insertLayer(0, self.contours_site)
+            # Symbologie du contour de site
+                # create a new single symbol renderer
+            symbol = QgsSymbolV2.defaultSymbol(self.contours_site.geometryType())
+            renderer = QgsSingleSymbolRendererV2(symbol)
+                # create a new simple marker symbol layer
+            properties = {'color': 'green', 'color_border': 'red'}
+            symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
+            symbol_layer.setBrushStyle(0) #0 = Qt.NoBrush. Cf doc de QBrush
+                # assign the symbol layer to the symbol renderer
+            renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
+                # assign the renderer to the layer
+            self.contours_site.setRendererV2(renderer)
+            
+            # Affichage de la couche contenant les contours du site, et masquage des autres
+            self.rendreVisible=[]
+            layers=iface.legendInterface().layers()
+            for layer in layers:
+                if layer.type()==QgsMapLayer.VectorLayer:
+                    if layer.name()=='contours_site':
+                        iface.legendInterface().setLayerVisible(layer, True)
+                    else:
+                        if iface.legendInterface().isLayerVisible(layer):
+                            self.rendreVisible.append(layer)
+                        iface.legendInterface().setLayerVisible(layer, False)
+        # Si les boutons "Réimprimer une sortie" ou "Dernier- Editer CR" ont été cliqués -> on affiche les données de la sortie sélectionnée
+        else:
+            #Affichage des contours du site
+            #Récupération des données de la table "sortie" pour affichage du site et utilisation dans les étiquettes du composeur
+            self.recupDonnSortie(idsortie)
+            reqwheresit="""codesite='"""+str(self.codedusite)+"""'"""
+            self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqwheresit)
+            self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
+            # Import de la couche contenant les contours du site
+            root = QgsProject.instance().layerTreeRoot()
+            if self.contours_site.featureCount()>0:
+               QgsMapLayerRegistry.instance().addMapLayer(self.contours_site, False)
+               root.insertLayer(0, self.contours_site)
+            # Symbologie du contour de site
+                # create a new single symbol renderer
+            symbol = QgsSymbolV2.defaultSymbol(self.contours_site.geometryType())
+            renderer = QgsSingleSymbolRendererV2(symbol)
+                # create a new simple marker symbol layer
+            properties = {'color': 'green', 'color_border': 'red'}
+            symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
+            symbol_layer.setBrushStyle(0) #0 = Qt.NoBrush. Cf doc de QBrush
+                # assign the symbol layer to the symbol renderer
+            renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
+                # assign the renderer to the layer
+            self.contours_site.setRendererV2(renderer)
 
 
-        #Appel à la fonction "affiche", qui importe les couches non vides de gestion réalisée, parmi operation_poly, operation_lgn et operation_pts
-        self.affiche(idsortie)
+            #Appel à la fonction "affiche", qui importe les couches non vides de gestion réalisée, parmi operation_poly, operation_lgn et operation_pts
+            self.affiche(idsortie)
 
 
-        # Affichage des couches contenant les contours du site et les opérations de gestion saisies, et masquage des autres
-        self.rendreVisible=[]
-        layers=iface.legendInterface().layers()
-        for layer in layers:
-            if layer.type()==QgsMapLayer.VectorLayer:
-                if layer.name()=='gestrealpolys' or layer.name()=='gestreallgn' or layer.name()=='gestrealpts' or layer.name()=='contours_site':
-                    iface.legendInterface().setLayerVisible(layer, True)
-                else:
-                    if iface.legendInterface().isLayerVisible(layer):
-                        self.rendreVisible.append(layer)
-                    iface.legendInterface().setLayerVisible(layer, False)
+            # Affichage des couches contenant les contours du site et les opérations de gestion saisies, et masquage des autres
+            self.rendreVisible=[]
+            layers=iface.legendInterface().layers()
+            for layer in layers:
+                if layer.type()==QgsMapLayer.VectorLayer:
+                    if layer.name()=='gestrealpolys' or layer.name()=='gestreallgn' or layer.name()=='gestrealpts' or layer.name()=='contours_site':
+                        iface.legendInterface().setLayerVisible(layer, True)
+                    else:
+                        if iface.legendInterface().isLayerVisible(layer):
+                            self.rendreVisible.append(layer)
+                        iface.legendInterface().setLayerVisible(layer, False)
 
 
-        #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur
-        self.recupDonnChVolont(idsortie)
+            #Récupération des données de la table "ch_volont" pour utilisation dans les étiquettes du composeur
+            self.recupDonnChVolont(idsortie)
 
         #COMPOSEUR : Production d'un composeur
         beforeList = self.iface.activeComposers()

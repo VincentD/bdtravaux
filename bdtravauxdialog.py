@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -48,7 +48,7 @@ class BdTravauxDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
 
-        # Remplir les comboboxs "site" (saisie et modification) avec les codes et noms de sites 
+        # Remplir les comboboxs "site" (saisie, modification et bordereau terrain) avec les codes et noms de sites 
         # issus de la table "sites"
         query = QtSql.QSqlQuery(self.db)
         # on affecte à la variable query la méthode QSqlQuery (paramètre = nom de l'objet "base")
@@ -56,6 +56,7 @@ class BdTravauxDialog(QtGui.QDialog):
             while query.next():
                 self.ui.site.addItem(query.value(1) + " " + query.value(2), query.value(1) )
                 self.ui.cbx_edcodesite.addItem(query.value(1) + " " + query.value(2), query.value(1) )
+                self.ui.cbx_bordsite.addItem(query.value(1)+ " " + query.value(2), query.value(1) )
             # *Voir la doc de la méthode additem d'une combobox : 1er paramètre = ce qu'on affiche (ici, codesite nomsite), 
             # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
 
@@ -96,6 +97,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.connect(self.ui.cbx_exsortie, QtCore.SIGNAL('currentIndexChanged(int)'), self.fillEditControls)
         self.connect(self.ui.pbt_savemodifs, QtCore.SIGNAL('clicked()'), self.saveModifsSortie)
         self.connect(self.ui.pbt_supprsort, QtCore.SIGNAL('clicked()'), self.supprSort)
+        self.connect(self.ui.pbt_bordterr, QtCore.SIGNAL('clicked()'), self.bordTerrain)
 
 
 
@@ -374,9 +376,10 @@ class BdTravauxDialog(QtGui.QDialog):
         #Récupérer l'id_sortie à partir de la combobox cbx_exsortie (cf. RecupDonnSortie)
         self.sourceAffiche='ModSortie' # Pour indiquer au nouveau module "composeur.py" qu'on vient du module "Sortie" (peut-être pus nécessaire si on récupère id_sortie ici, et qu'on le passe en paramètre du composeur => le module composeur se fiche d'où vient l'info, tant qu'elle lui arrive)
         id_sortie = self.ui.cbx_exsortie.itemData(self.ui.cbx_exsortie.currentIndex())
+        id_site='000'
         #lancement de la fonction Composeur dans le module composerClass avec le paramètre id_sortie
         self.obj_compo=composerClass()
-        self.obj_compo.Composer(id_sortie)
+        self.obj_compo.Composer(id_sortie, id_site)
         # Après fermeture du composeur, afficher le formulaire "bdtravauxdialog.py" devant iface, et l'activer.
         self.obj_compo.composerView.composerViewHide.connect(self.raiseModule)
         #Après fermeture du composeur, lancement de la fonction afterComposeurClose dans le module composerClass pour effacer les couches ayant servi au composeur, et réafficher les autres.
@@ -555,6 +558,20 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db.removeDatabase("sitescsn")
         self.close()
 
+
+    def bordTerrain(self):
+        # Si click sur pbt_bordTerr, lancer le composeur avec le site sélectionné dans cbx_bordsite
+        # id_sortie n'est pas utilisé pour l'impression des bordereaux de terrain. On le créée juste ici avec une valeur fausse car le module "composeur" le réclame en paramètre.
+        id_sortie ='000'
+        # id_site sera passé en paramètre dans le module "composeur" pour afficher le bon contour de site.
+        id_site = self.ui.cbx_bordsite.itemData(self.ui.cbx_bordsite.currentIndex())
+        #lancement de la fonction Composeur dans le module composerClass avec le paramètre id_sortie
+        self.obj_compo=composerClass()
+        self.obj_compo.Composer(id_sortie, id_site)
+        # Après fermeture du composeur, afficher le formulaire "bdtravauxdialog.py" devant iface, et l'activer.
+        self.obj_compo.composerView.composerViewHide.connect(self.raiseModule)
+        #Après fermeture du composeur, lancement de la fonction afterComposeurClose dans le module composerClass pour effacer les couches ayant servi au composeur, et réafficher les autres.
+        self.obj_compo.composerView.composerViewHide.connect(self.obj_compo.afterComposerClose)
 
 
     def raiseModule(self):

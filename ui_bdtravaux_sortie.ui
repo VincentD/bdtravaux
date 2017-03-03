@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>5</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -783,7 +783,7 @@
    </widget>
    <widget class="QWidget" name="tab_chantvol">
     <attribute name="title">
-     <string>Chantier de volontaire</string>
+     <string>Chantier volontaires</string>
     </attribute>
     <widget class="QWidget" name="layoutWidget_3">
      <property name="geometry">
@@ -1347,7 +1347,7 @@
    </widget>
    <widget class="QWidget" name="tab_exsortie">
     <attribute name="title">
-     <string>Réimprimer/modifier une sortie</string>
+     <string>Réimprim/modif sortie</string>
     </attribute>
     <widget class="QLabel" name="lbl_exsortiechx">
      <property name="geometry">
@@ -2011,6 +2011,34 @@
        <string>Vincent Mercier / VM</string>
       </property>
      </item>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>Bordereau terrain</string>
+    </attribute>
+    <widget class="QPushButton" name="pbt_bordterr">
+     <property name="geometry">
+      <rect>
+       <x>619</x>
+       <y>556</y>
+       <width>141</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Bordereaux terrain</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cbx_bordsite">
+     <property name="geometry">
+      <rect>
+       <x>22</x>
+       <y>28</y>
+       <width>518</width>
+       <height>27</height>
+      </rect>
+     </property>
     </widget>
    </widget>
   </widget>

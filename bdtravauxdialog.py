@@ -301,7 +301,7 @@ class BdTravauxDialog(QtGui.QDialog):
         querySortie=u"""select sortie_id, date_sortie, codesite, (SELECT string_agg(left(word, 1), '') FROM (select unnest(string_to_array(btrim(redacteur,'_'), ' ')) FROM bdtravaux.sortie b WHERE b.sortie_id=a.sortie_id) t(word)) as redacinit, array_to_string(array(select distinct sal_initia from bdtravaux.join_salaries where id_joinsal=sortie_id), '; ') as salaries from bdtravaux.sortie a order by date_sortie DESC """
         ok = query.exec_(querySortie)
         while query.next():
-            self.ui.cbx_exsortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3))+ " - "+ str(query.value(4)), int (query.value(0)))
+            self.ui.cbx_exsortie.addItem(query.value(1).toPyDate().strftime("%Y-%m-%d") + " / " + str(query.value(2)) + " / "+ str(query.value(3))+ " - "+ str(query.value(4))+ " / "+ str(query.value(0)), int (query.value(0)))
         # 1er paramètre = ce qu'on affiche, 
         # 2ème paramètre = ce qu'on garde en mémoire pour plus tard
         if not ok :

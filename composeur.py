@@ -152,6 +152,8 @@ class composerClass (QtGui.QDialog):
         # Adaptation de la composition : 2 pages A3
         self.composition.setPaperSize(420, 297)
         self.composition.setNumPages(2)
+        
+        self.iface.actionZoomFullExtent().trigger()
 
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.

@@ -31,7 +31,7 @@ def description():
 
 
 def version():
-    return "Version 0.1"
+    return "Version 0.9"
 
 
 def icon():
@@ -49,5 +49,5 @@ def email():
 
 def classFactory(iface):
     # load BdTravaux class from file BdTravaux
-    from bdtravaux import BdTravaux
+    from bd_cen import BdTravaux
     return BdTravaux(iface)

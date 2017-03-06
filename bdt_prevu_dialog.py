@@ -24,7 +24,7 @@ from PyQt4 import QtCore, QtGui, QtSql
 from qgis.core import *
 from qgis.gui import *
 from ui_gestprev import Ui_GestPrev
-from convert_geoms import convert_geometries
+from bdt_convert_geoms import convert_geometries
 # create the dialog for zoom to point
 
 

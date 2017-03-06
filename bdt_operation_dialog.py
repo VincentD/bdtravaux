@@ -24,8 +24,8 @@ from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
 from ui_operation import Ui_operation
-from convert_geoms import convert_geometries
-from composeur import composerClass
+from bdt_convert_geoms import convert_geometries
+from bdt_composeur import composerClass
 
 
 class OperationDialog(QtGui.QDialog):

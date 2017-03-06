@@ -25,10 +25,10 @@ from qgis.core import *
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
-from bdtravauxdialog import BdTravauxDialog
-from operationdialog import OperationDialog
-from prevudialog import PrevuDialog
-from bdhabnatdialog import bdhabnatDialog
+from bdt_sortie_dialog import BdTravauxDialog
+from bdt_operation_dialog import OperationDialog
+from bdt_prevu_dialog import PrevuDialog
+from bdh_habnat_dialog import bdhabnatDialog
 
 
 class BdTravaux:
@@ -63,7 +63,7 @@ class BdTravaux:
         ######Interface "Sortie"
         # Création du bouton qui va démarrer le plugin
         self.sortie = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/icon2.png"),
+            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdt_sort.png"),
             u"Saisie sortie", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.sortie, QtCore.SIGNAL("triggered()"), self.run)
@@ -74,7 +74,7 @@ class BdTravaux:
         ######Interface "Operation"        
         # Création du bouton qui va démarrer le plugin
         self.operation = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
+            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdt_ope.png"),
             u"Saisie opérations", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.operation, QtCore.SIGNAL("triggered()"), self.run_ope)
@@ -85,7 +85,7 @@ class BdTravaux:
         ######Interface "Gestion prévue"
         # Création du bouton qui va démarrer le plugin
         self.prevu = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/icon3.png"),
+            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdt_ope.png"),
             u"Saisie gestion prévue", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.prevu, QtCore.SIGNAL("triggered()"), self.run_prev)
@@ -96,7 +96,7 @@ class BdTravaux:
         ######Interface "Habitats naturels"
         # Création du bouton qui va démarrer le plugin
         self.habnat = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/icon4.png"),
+            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdh.png"),
             u"Saisie habitats naturels", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.habnat, QtCore.SIGNAL("triggered()"), self.run_habnat)

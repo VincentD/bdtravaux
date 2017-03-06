@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/plugins/bdtravaux" >
-        <file>icon2.png</file>
-        <file>icon3.png</file>
-        <file>icon4.png</file>
+        <file>rs_icon_bdt_sort.png</file>
+        <file>rs_icon_bdt_ope.png</file>
+        <file>rs_icon_bdh.png</file>
     </qresource>
 </RCC>

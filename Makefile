@@ -23,17 +23,17 @@ PLUGIN_UPLOAD = $(CURDIR)/plugin_upload.py
 # Makefile for a PyQGIS plugin 
 
 # translation
-SOURCES = bdtravaux.py ui_bdtravaux.py __init__.py bdtravauxdialog.py
+SOURCES = bd_cen.py ui_bdtravaux.py __init__.py bdt_sortie_dialog.py bdt_operation_dialog.py bdt_composeur.py bdt_prevu_dialog.py
 #TRANSLATIONS = i18n/bdtravaux_en.ts
 TRANSLATIONS = 
 
 # global
 
-PLUGINNAME = bdtravaux
+PLUGINNAME = bd_cen
 
-PY_FILES = bdtravaux.py bdtravauxdialog.py __init__.py operationdialog.py convert_geoms.py prevudialog.py composeur.py bdhabnatdialog.py
+PY_FILES = bd_cen.py bdt_sortie_dialog.py __init__.py bdt_operation_dialog.py bdt_convert_geoms.py bdt_prevu_dialog.py bdt_composeur.py bdh_habnat_dialog.py
  
-EXTRAS = icon2.png icon3.png icon4.png metadata.txt BDT_20130705_T_CART_ComposerTemplate.qpt
+EXTRAS = rs_icon_bdt_sort.png rs_icon_bdt_ope.png rs_icon_bdh.png metadata.txt BDT_20130705_T_CART_ComposerTemplate.qpt
 
 UI_FILES = ui_bdtravaux_sortie.py ui_operation.py ui_gestprev.py ui_bdhabnat_dialog.py
 

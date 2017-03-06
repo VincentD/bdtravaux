@@ -22,7 +22,7 @@
 
 from PyQt4 import QtCore, QtGui, QtSql
 from ui_bdtravaux_sortie import Ui_BdTravaux
-from composeur import composerClass
+from bdt_composeur import composerClass
 
 # create the dialog 
 class BdTravauxDialog(QtGui.QDialog):

@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -49,7 +49,7 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
 
 
@@ -153,18 +153,18 @@ class composerClass (QtGui.QDialog):
         self.composition.setPaperSize(420, 297)
         self.composition.setNumPages(2)
         
-        self.iface.actionZoomFullExtent().trigger()
+#        self.iface.actionZoomFullExtent().trigger()
 
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
         if sys.platform.startswith('linux'):
-            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bdtravaux/BDT_20130705_T_CART_ComposerTemplate.qpt")   
+            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen/BDT_20130705_T_CART_ComposerTemplate_linux.qpt")   
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Linux')
         if sys.platform.startswith('win32'):
-            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "\python\plugins\\bdtravaux\BDT_20130705_T_CART_ComposerTemplate.qpt")
+            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/BDT_20130705_T_CART_ComposerTemplate_win.qpt")
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
@@ -220,7 +220,7 @@ class composerClass (QtGui.QDialog):
             ghopeprev=unicode(querycomope.value(7))
             finiope=unicode(querycomope.value(8))
             descrope=unicode(querycomope.value(9)).replace('\n','<br/>')
-            texteope=unicode(texteope+u'<br/>'+u'<b>'+ope+u'</b>'+u'<h style="margin-left:1cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+surfope+u' m²'+'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+longope+u' ml<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+countope+u' geom<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+operatope+u'<br/>'+opeprev+u'<h style="margin-left:1cm;">('+ ghopeprev+u')'+u'<h style="margin-left:0.5cm;">'+u'<b>'+finiope+u'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+idope+u'</b><br/>'+descrope+u'<br/>')
+            texteope=unicode(texteope+u'<br/>'+u'<b>'+ope+u'</b>'+u'<h style="margin-left:1cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+surfope+u' m²'+'<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+longope+u' ml<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+countope+u' geom<h style="margin-left:0.5cm;">'+u'/'+u'<h style="margin-left:0.5cm;">'+operatope+u'<br/>'+opeprev+u'<h style="margin-left:1cm;">('+ ghopeprev+u')'+u'<h style="margin-left:0.5cm;">'+u'<b>'+finiope+u'<h style="margin-left:0.5cm;">'+u'/ id ='+u'<h style="margin-left:0.2cm;">'+idope+u'</b><br/>'+descrope+u'<br/>')
             querycomope.next()
 
         # Pour chaque étiquette qui contient le mot-clé (comme "$codesite"), remplacer le texte par le code du site concerné

@@ -58,39 +58,8 @@ class composerClass (QtGui.QDialog):
         
         # Si le bouton "Bordereau de terrain" a été cliqué -> on n'affiche que le contour du site sélectionné
         if idsite != '000':
-            print 'bouton bordereau cliqué'
-            reqbordsite="""codesite='"""+str(idsite)+"""'"""
-            self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqbordsite)
-            self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
-            # Import de la couche contenant les contours du site
-            root = QgsProject.instance().layerTreeRoot()
-            if self.contours_site.featureCount()>0:
-               QgsMapLayerRegistry.instance().addMapLayer(self.contours_site, False)
-               root.insertLayer(0, self.contours_site)
-            # Symbologie du contour de site
-                # create a new single symbol renderer
-            symbol = QgsSymbolV2.defaultSymbol(self.contours_site.geometryType())
-            renderer = QgsSingleSymbolRendererV2(symbol)
-                # create a new simple marker symbol layer
-            properties = {'color': 'green', 'color_border': 'red'}
-            symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
-            symbol_layer.setBrushStyle(0) #0 = Qt.NoBrush. Cf doc de QBrush
-                # assign the symbol layer to the symbol renderer
-            renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
-                # assign the renderer to the layer
-            self.contours_site.setRendererV2(renderer)
+            self.donnees_ImprBordereau(idsite)
             
-            # Affichage de la couche contenant les contours du site, et masquage des autres
-            self.rendreVisible=[]
-            layers=iface.legendInterface().layers()
-            for layer in layers:
-                if layer.type()==QgsMapLayer.VectorLayer:
-                    if layer.name()=='contours_site':
-                        iface.legendInterface().setLayerVisible(layer, True)
-                    else:
-                        if iface.legendInterface().isLayerVisible(layer):
-                            self.rendreVisible.append(layer)
-                        iface.legendInterface().setLayerVisible(layer, False)
         # Si les boutons "Réimprimer une sortie" ou "Dernier- Editer CR" ont été cliqués -> on affiche les données de la sortie sélectionnée
         else:
             #Affichage des contours du site
@@ -158,13 +127,21 @@ class composerClass (QtGui.QDialog):
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
         if sys.platform.startswith('linux'):
+<<<<<<< HEAD
             file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen/BDT_20130705_T_CART_ComposerTemplate_linux.qpt")   
+=======
+            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen/BDT_20130705_T_CART_ComposerTemplate.qpt")   
+>>>>>>> 389c61ac3b24f87a8d73379ca71c2f46154af5db
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Linux')
         if sys.platform.startswith('win32'):
+<<<<<<< HEAD
             file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/BDT_20130705_T_CART_ComposerTemplate_win.qpt")
+=======
+            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "\python\plugins\\bd_cen\BDT_20130705_T_CART_ComposerTemplate.qpt")
+>>>>>>> 389c61ac3b24f87a8d73379ca71c2f46154af5db
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
@@ -373,6 +350,59 @@ class composerClass (QtGui.QDialog):
 
 
 
+    def donnees_ImprBordereau(self, idsite):
+        #Affiche les couches qui apparaîtront dans le composeur après choix du site dans l'onglet "Bordereau de terrain"
+        print 'bouton bordereau cliqué'
+        reqbordsite="""codesite='"""+str(idsite)+"""'"""
+        self.uri.setDataSource("sites_cen", "t_sitescen", "the_geom", reqbordsite)
+        self.contours_site=QgsVectorLayer(self.uri.uri(), "contours_site", "postgres")
+        # Import de la couche contenant les contours du site
+        root = QgsProject.instance().layerTreeRoot()
+        if self.contours_site.featureCount()>0:
+           QgsMapLayerRegistry.instance().addMapLayer(self.contours_site, False)
+           root.insertLayer(0, self.contours_site)
+        # Symbologie du contour de site
+            # create a new single symbol renderer
+        symbol = QgsSymbolV2.defaultSymbol(self.contours_site.geometryType())
+        renderer = QgsSingleSymbolRendererV2(symbol)
+            # create a new simple marker symbol layer
+        properties = {'color': 'green', 'color_border': 'red'}
+        symbol_layer = QgsSimpleFillSymbolLayerV2.create(properties)
+        symbol_layer.setBrushStyle(0) #0 = Qt.NoBrush. Cf doc de QBrush
+            # assign the symbol layer to the symbol renderer
+        renderer.symbols()[0].changeSymbolLayer(0, symbol_layer)
+            # assign the renderer to the layer
+        self.contours_site.setRendererV2(renderer)
+            
+        # Affichage de la couche contenant les contours du site, et masquage des autres
+        self.rendreVisible=[]
+        layers=iface.legendInterface().layers()
+        for layer in layers:
+            if layer.type()==QgsMapLayer.VectorLayer:
+                if layer.name()=='contours_site':
+                    iface.legendInterface().setLayerVisible(layer, True)
+                else:
+                    if iface.legendInterface().isLayerVisible(layer):
+                        self.rendreVisible.append(layer)
+                    iface.legendInterface().setLayerVisible(layer, False)
+        # Récupération du code et du nom du site et remplissage des objets qui remplaceront les étiquettes du composeur.
+        querysite = QtSql.QSqlQuery(self.db)
+        qsite = u"""select codesite, nomsite from sites_cen.t_sitescen where codesite = '{zr_idsite}'""".format \
+        (zr_idsite = str(idsite))
+        print qsite
+        oksite = querysite.exec_(qsite)
+        if not oksite :
+            print 'Requête site ratée'
+        querysite.next()
+        self.codedusite=querysite.value(0)
+        self.nomdusite=querysite.value(1)
+        self.redacteur = self.salaries = self.datesortie = self.datefin = self.jourschan = self.chantvol = self.sortcom = self.objvisite =\
+        self.objautre = self.natfaune = self.natflore = self.natautre = self.cv_nb_jours = self.cv_nb_heur_ch = self.cv_nb_heur_de =\
+        self.cv_partenaire = self.cv_heberg = self.cv_j1_enc_am = self.cv_j1_enc_pm = self.cv_j1_tot_am = self.cv_j1_tot_pm =\
+        self.cv_j1adcen_am = self.cv_j1adcen_pm = self.cv_j1_blon_am = self.cv_j1_blon_pm = self.cv_j2_enc_am = self.cv_j2_enc_pm =\
+        self.cv_j2_tot_am = self.cv_j2_tot_pm = self.cv_j2adcen_am = self.cv_j2adcen_pm = self.cv_j2_blon_am = self.cv_j2_blon_pm =\
+        self.cv_sem_enc = self.cv_sem_ben = ''
+
 
     def recupDonnSortie(self, idsortie):
         #print 'dans recupDonnSortie, id_sortie='+str(idsortie)
@@ -473,7 +503,8 @@ class composerClass (QtGui.QDialog):
             for nom_opera, couleur in operations.items():
                 symbol = QgsSymbolV2.defaultSymbol(layer.geometryType())
                 symbol.setColor(QtGui.QColor(couleur))
-                symbol.setWidth(0.86)
+                symbol.setWidth(1.26)
+                symbol.setAlpha(0.7)
                 category = QgsRendererCategoryV2(nom_opera, symbol,nom_opera)
                 categories.append(category)
             expression = 'lblope'

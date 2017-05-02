@@ -127,21 +127,15 @@ class composerClass (QtGui.QDialog):
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
         if sys.platform.startswith('linux'):
-<<<<<<< HEAD
             file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen/BDT_20130705_T_CART_ComposerTemplate_linux.qpt")   
-=======
             file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen/BDT_20130705_T_CART_ComposerTemplate.qpt")   
->>>>>>> 389c61ac3b24f87a8d73379ca71c2f46154af5db
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Linux')
         if sys.platform.startswith('win32'):
-<<<<<<< HEAD
             file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/BDT_20130705_T_CART_ComposerTemplate_win.qpt")
-=======
             file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "\python\plugins\\bd_cen\BDT_20130705_T_CART_ComposerTemplate.qpt")
->>>>>>> 389c61ac3b24f87a8d73379ca71c2f46154af5db
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
@@ -351,6 +345,12 @@ class composerClass (QtGui.QDialog):
 
 
     def donnees_ImprBordereau(self, idsite):
+        self.querypoly = QtSql.QSqlQuery(self.db)
+        qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie=999999999 order by operation_id limit 1"""
+        okpoly = self.querypoly.exec_(qpoly)
+
+#        self.querylgn = ''
+#        self.querypts = ''
         #Affiche les couches qui apparaîtront dans le composeur après choix du site dans l'onglet "Bordereau de terrain"
         print 'bouton bordereau cliqué'
         reqbordsite="""codesite='"""+str(idsite)+"""'"""

@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -820,7 +820,22 @@
         </item>
         <item>
          <property name="text">
+          <string>Opérateur inconnu</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Association des Naturalistes de la Gohelle (ANG)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Association locale de pêche</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Bénévole(s)</string>
          </property>
         </item>
         <item>
@@ -830,17 +845,27 @@
         </item>
         <item>
          <property name="text">
+          <string>CEN</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Centre de formation professionnelle pour adultes</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Chasseurs</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Collège NDA de Bavay</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Commune</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Commune de Ligny-sur-Canche</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Commune de Noeux-les-Auxi</string>
          </property>
         </item>
         <item>
@@ -860,7 +885,32 @@
         </item>
         <item>
          <property name="text">
+          <string>Groupe Naturaliste du Ternois (GNT)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Groupe Ornithologique et Naturaliste du Nord-Pas-de-Calais (GON)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Habitants</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Institut Agricole d'Hazebrouck (IAH)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>LEGTA Arras</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Lycée forestier de Bavay</string>
          </property>
         </item>
         <item>
@@ -870,7 +920,22 @@
         </item>
         <item>
          <property name="text">
+          <string>MFR de Marconne</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>MFR de Rollancourt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>MFR de Samer</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Propriétaire</string>
          </property>
         </item>
         <item>

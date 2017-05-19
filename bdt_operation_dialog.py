@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Connexion à la base de données. Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -341,6 +341,7 @@ class OperationDialog(QtGui.QDialog):
         # Entre en base les infos saisies dans le formulaire par l'utilisateur
         self.recupIdChantvol()
         self.recupAnneeSortie()
+        self.rempliJoin()
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u'insert into bdtravaux.operation_poly (sortie, descriptio, chantfini, ope_chvol, anneereal) values ({zr_sortie}, \'{zr_libelle}\', \'{zr_chantfini}\',{zr_opechvol}, \'{zr_anneereal}\')'.format (\
         zr_sortie=self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
@@ -353,7 +354,6 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sansgeom ratée')
             self.erreurSaisieBase = '1'
         self.nom_table='operation_poly'
-        self.rempliJoin()
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
         if self.erreurSaisieBase == '0':
@@ -460,6 +460,9 @@ class OperationDialog(QtGui.QDialog):
         #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
         self.recupIdChantvol()
         self.recupAnneeSortie()
+        #Lancement de la fonction qui introduit les données du formulaire dans les tables annexes.
+        #Elles sont remplies avant la table "opération", pour avoir déjà les données quand le trigger "After Insert" de cette dernière viendra les chercher.
+        self.rempliJoin() 
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, descriptio, chantfini, the_geom, ope_chvol, anneereal) values ({zr_sortie}, '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}', '{zr_anneereal}')""".format (zr_nomtable=self.nom_table,\
@@ -473,9 +476,7 @@ class OperationDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête sauver Ope ratée')
             self.erreurSaisieBase = '1'
-        self.rempliJoin()
         self.iface.setActiveLayer(coucheactive)
-        
         QgsMapLayerRegistry.instance().removeMapLayer(memlayer.id())
         self.ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(0)
         self.ui.compoButton.setEnabled(0)
@@ -497,7 +498,8 @@ class OperationDialog(QtGui.QDialog):
             QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id de l opération')
             self.erreurSaisieBase = '1'
         queryidoper.next()
-        self.id_oper = queryidoper.value(0)
+        self.id_oper = queryidoper.value(0)+1
+        # "+1" car les tables annexes sont remplies avant "operation_xxx" -> l'id_oper correspondant n'existe pas encore dans "operation_xxx"
 
         #remplissage de la table join_operateurs : id_oper et noms du (des) prestataire(s)
         for item in xrange (len(self.ui.prestataire.selectedItems())):

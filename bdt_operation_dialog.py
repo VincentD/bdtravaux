@@ -41,7 +41,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Connexion à la base de données. Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -53,7 +53,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -307,6 +307,7 @@ class OperationDialog(QtGui.QDialog):
             else:
                 self.tablemodif = 'operation_poly'
                 #print "pas trouve la geometrie"
+            print str(self.tablemodif)
 
         # récupération de l'identifiant de l'opération "id_oper". Servira à sélectionner les données à modifier / supprimer dans les tables join_typeoperation et join_operateur
             queryjoinid = QtSql.QSqlQuery(self.db)
@@ -489,6 +490,7 @@ class OperationDialog(QtGui.QDialog):
 
 
     def rempliJoin(self):
+        print 'remplijoin'
     #remplissage des tables join_operateur, join_operations et join_opeprevues avec les prestas, les types d'opés et les GH sélect par l'utilisateur
         #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs, join_operations et join_opeprevues
         queryidoper = QtSql.QSqlQuery(self.db)
@@ -501,10 +503,20 @@ class OperationDialog(QtGui.QDialog):
         self.id_oper = queryidoper.value(0)+1
         # "+1" car les tables annexes sont remplies avant "operation_xxx" -> l'id_oper correspondant n'existe pas encore dans "operation_xxx"
 
-        #remplissage de la table join_operateurs : id_oper et noms du (des) prestataire(s)
+        #remplissage de la table join_operateurs : id_oper, noms et types du (des) prestataire(s)
         for item in xrange (len(self.ui.prestataire.selectedItems())):
+            # récupération du type d'opérateur en fonction du nom de l'opérateur
+            query_typpresta = QtSql.QSqlQuery(self.db)
+            qtyppresta = u"""select distinct typ_oper from bdtravaux.list_operateur where nom_oper = '{zr_operateurs}'""".format(zr_operateurs = self.ui.prestataire.selectedItems()[item].text().replace("\'","\'\'"))
+            oktyp=query_typpresta.exec_(qtyppresta)
+            if not oktyp:
+                QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé le type d opérateur')
+                self.erreurSaisieBase = '1'
+            query_typpresta.next()
+            self.typoptr = query_typpresta.value(0)
+            #requête de remplissage de la table join_operateur
             querypresta = QtSql.QSqlQuery(self.db)
-            qpresta = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs) values ({zr_idjoinop}, '{zr_operateur}')""".format (zr_idjoinop = self.id_oper, zr_operateur = self.ui.prestataire.selectedItems()[item].text().replace("\'","\'\'"))
+            qpresta = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs, typ_optr) values ({zr_idjoinop}, '{zr_operateur}', '{zr_typoptr}')""".format (zr_idjoinop = self.id_oper, zr_operateur = self.ui.prestataire.selectedItems()[item].text().replace("\'","\'\'"), zr_typoptr = str(self.typoptr))
             ok3 = querypresta.exec_(qpresta)
             if not ok3:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des prestas en base ratée')
@@ -623,10 +635,23 @@ class OperationDialog(QtGui.QDialog):
 
             #ajout de la liste des opérateurs modifiée
         for item in xrange (len(self.ui.lst_edpresta.selectedItems())):
+            print item
+                # récupération du type d'opérateur en fonction du nom de l'opérateur
+            query_typprestamod = QtSql.QSqlQuery(self.db)
+            qtypprestamod = u"""select distinct typ_oper from bdtravaux.list_operateur where nom_oper = '{zr_operateurs}'""".format (zr_operateurs = self.ui.lst_edpresta.selectedItems()[item].text().replace("\'","\'\'"))
+            print qtypprestamod
+            oktypm=query_typprestamod.exec_(qtypprestamod)
+            if not oktypm:
+                QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé les types d opérateurs à rajouter')
+                self.erreurModifBase = '1'
+            query_typprestamod.next()
+            self.typoptrmod = query_typprestamod.value(0)
+                #requête d'ajout des données (id_joinop, operateurs et typ_optr)
             querymodifprest = QtSql.QSqlQuery(self.db)
-            qmodprest = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs) values ({zr_idjoinop}, '{zr_presta}')""".format (\
+            qmodprest = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs, typ_optr) values ({zr_idjoinop}, '{zr_presta}', '{zr_typoptr}')""".format (\
             zr_idjoinop = self.id_oper_modif,\
-            zr_presta = self.ui.lst_edpresta.selectedItems()[item].text().replace("\'","\'\'"))
+            zr_presta = self.ui.lst_edpresta.selectedItems()[item].text().replace("\'","\'\'"),\
+            zr_typoptr = self.typoptrmod.replace("\'","\'\'"))
             ok6 = querymodifprest.exec_(qmodprest)
             if not ok6:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Ajout des nvx opérateurs en base ratée')

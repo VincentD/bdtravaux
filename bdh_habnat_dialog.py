@@ -7,7 +7,7 @@
                              -------------------
         begin                : 2015-08-25
         git sha              : $Format:%H$
-        copyright            : (C) 2015 by Conseravtoire d'Espaces Naturels du Nord - Pas-de-Calais
+        copyright            : (C) 2015 by Conseravtoire d'espaces naturels Nord - Pas-de-Calais
         email                : vincent.damoy@espaces-naturels.fr
  ***************************************************************************/
 
@@ -43,7 +43,7 @@ class bdhabnatDialog(QtGui.QDialog):
         
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -243,8 +243,7 @@ class bdhabnatDialog(QtGui.QDialog):
 
             #gestion de l'identifiant id_mosaik, servant à regrouper les enregistrements appartenant à une même mosaïque d'habitats
             pourcent = int(self.ui.cbx_pourcent.itemText(self.ui.cbx_pourcent.currentIndex()))
-            if pourcent > 99 :
-                print ">99"
+            if self.ui.chx_plantation.isChecked == True :  #cas de la plantation
                 id_mosaik = 0
             else :
                 querymosaik = QtSql.QSqlQuery(self.db)
@@ -255,7 +254,8 @@ class bdhabnatDialog(QtGui.QDialog):
                 if not ok:
                     QtGui.QMessageBox.warning(self, 'Alerte', u'Requête Mosaik ratée')
                 if querymosaik.size() > 0 :
-                    print "on est deja dans la mosaique"
+                    #si la req retourne une valeur => soit 1 erreur (100%), soit une mosaik
+                    print "on est deja dans la mosaique ou dans l'erreur"
                     sumprct = 0
                     while querymosaik.next() :
                         sumprct += int(querymosaik.value(2))
@@ -266,16 +266,17 @@ class bdhabnatDialog(QtGui.QDialog):
                     querymosaik.first()
                     id_mosaik = querymosaik.value(5)
                 else :
-                    querybiggestid = QtSql.QSqlQuery(self.db)
-                    qbiggestid = u"""SELECT id_mosaik FROM bd_habnat.t_ce_saisie ORDER BY id_mosaik DESC LIMIT 1"""
-                    ok = querybiggestid.exec_(qbiggestid)
-                    if not ok:
-                        QtGui.QMessageBox.warning(self, 'Alerte', u'Requête PlusGrandIdMosaik ratée')
-                    querybiggestid.next()
-                    print "debut de la mosaique"
-                    if self.ui.chx_plantation.isChecked == True :
+                    if pourcent > 99 :
+                        print ">99"
                         id_mosaik = 0
                     else :
+                        querybiggestid = QtSql.QSqlQuery(self.db)
+                        qbiggestid = u"""SELECT id_mosaik FROM bd_habnat.t_ce_saisie ORDER BY id_mosaik DESC LIMIT 1"""
+                        ok = querybiggestid.exec_(qbiggestid)
+                        if not ok:
+                            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête PlusGrandIdMosaik ratée')
+                        querybiggestid.next()
+                        print "debut de la mosaique"
                         id_mosaik = int(querybiggestid.value(0))+1
                         
             self.habref = self.ui.cbx_habref.itemData(self.ui.cbx_habref.currentIndex())

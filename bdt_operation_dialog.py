@@ -464,7 +464,7 @@ class OperationDialog(QtGui.QDialog):
         #Lancement de la fonction qui introduit les données du formulaire dans les tables annexes.
         #Elles sont remplies avant la table "opération", pour avoir déjà les données quand le trigger "After Insert" de cette dernière viendra les chercher.
         self.rempliJoin() 
-        #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans la base de données.
+        #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans les tables "operations_xxx".
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, descriptio, chantfini, the_geom, ope_chvol, anneereal) values ({zr_sortie}, '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}', '{zr_anneereal}')""".format (zr_nomtable=self.nom_table,\
         zr_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex()),\
@@ -494,7 +494,7 @@ class OperationDialog(QtGui.QDialog):
     #remplissage des tables join_operateur, join_operations et join_opeprevues avec les prestas, les types d'opés et les GH sélect par l'utilisateur
         #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs, join_operations et join_opeprevues
         queryidoper = QtSql.QSqlQuery(self.db)
-        qidoper = u"""select id_oper from bdtravaux.{zr_nomtable} order by id_oper desc limit 1""".format (zr_nomtable=self.nom_table)
+        qidoper = u"""select id_oper as id_oper from (select * from bdtravaux.operation_poly union select * from bdtravaux.operation_lgn union select * from bdtravaux.operation_pts) tab order by id_oper desc limit 1"""
         ok2=queryidoper.exec_(qidoper)
         if not ok2:
             QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé id de l opération')
@@ -516,7 +516,7 @@ class OperationDialog(QtGui.QDialog):
             self.typoptr = query_typpresta.value(0)
             #requête de remplissage de la table join_operateur
             querypresta = QtSql.QSqlQuery(self.db)
-            qpresta = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs, typ_optr) values ({zr_idjoinop}, '{zr_operateur}', '{zr_typoptr}')""".format (zr_idjoinop = self.id_oper, zr_operateur = self.ui.prestataire.selectedItems()[item].text().replace("\'","\'\'"), zr_typoptr = str(self.typoptr))
+            qpresta = u"""insert into bdtravaux.join_operateurs (id_joinop, operateurs, typ_optr) values ({zr_idjoinop}, '{zr_operateur}', '{zr_typoptr}')""".format (zr_idjoinop = self.id_oper, zr_operateur = self.ui.prestataire.selectedItems()[item].text().replace("\'","\'\'"), zr_typoptr = unicode(self.typoptr))
             ok3 = querypresta.exec_(qpresta)
             if not ok3:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Saisie des prestas en base ratée')

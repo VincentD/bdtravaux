@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>bdsuiv_tablo</class>
- <widget class="QDialog" name="bdsuiv_tablo">
+ <class>bdsuivis_dialog</class>
+ <widget class="QDialog" name="bdsuivis_dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,11 +13,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
+  <widget class="QDialogButtonBox" name="btn_okannul">
    <property name="geometry">
     <rect>
      <x>850</x>
-     <y>810</y>
+     <y>760</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -29,23 +29,53 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QTableWidget" name="tableWidget">
+  <widget class="QTableWidget" name="tbw_suivtemp">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>400</y>
-     <width>1171</width>
-     <height>281</height>
+     <x>500</x>
+     <y>230</y>
+     <width>691</width>
+     <height>511</height>
     </rect>
    </property>
   </widget>
-  <widget class="QTableView" name="tableView">
+  <widget class="QTableView" name="tbv_suivdef">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
+     <y>230</y>
+     <width>481</width>
+     <height>511</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTableView" name="tbv_tps">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>161</y>
+     <width>691</width>
+     <height>61</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cbx_chsalarie">
+   <property name="geometry">
+    <rect>
+     <x>770</x>
      <y>60</y>
-     <width>1181</width>
-     <height>261</height>
+     <width>421</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cbx_channee">
+   <property name="geometry">
+    <rect>
+     <x>770</x>
+     <y>100</y>
+     <width>421</width>
+     <height>27</height>
     </rect>
    </property>
   </widget>
@@ -53,9 +83,9 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>btn_okannul</sender>
    <signal>accepted()</signal>
-   <receiver>bdsuiv_tablo</receiver>
+   <receiver>bdsuivis_dialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -69,9 +99,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>btn_okannul</sender>
    <signal>rejected()</signal>
-   <receiver>bdsuiv_tablo</receiver>
+   <receiver>bdsuivis_dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

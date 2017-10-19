@@ -29,6 +29,7 @@ from bdt_sortie_dialog import BdTravauxDialog
 from bdt_operation_dialog import OperationDialog
 from bdt_prevu_dialog import PrevuDialog
 from bdh_habnat_dialog import bdhabnatDialog
+from bds_suivis_dialog import bdsuivisDialog
 
 
 class BdTravaux:
@@ -58,6 +59,7 @@ class BdTravaux:
         self.dlg_ope= OperationDialog(iface)
         self.dlg_prev = PrevuDialog(iface)
         self.dlg_habnat = bdhabnatDialog(iface)
+        self.dlg_suivis = bdsuivisDialog()
         
     def initGui(self):
         ######Interface "Sortie"
@@ -104,6 +106,17 @@ class BdTravaux:
         self.iface.addToolBarIcon(self.habnat)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.habnat)
 
+        ######Interface "Suivis prévus"
+        # Création du bouton qui va démarrer le plugin
+        self.suivprev = QtGui.QAction(
+            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdh.png"),
+            u"Saisie suivis prévus", self.iface.mainWindow())
+        # connecte le bouton à une méthode "run" 
+        QtCore.QObject.connect(self.suivprev, QtCore.SIGNAL("triggered()"), self.run_suivprev)
+        # ajoute l'icône sur la barre d'outils et l'élément de menu.
+        self.iface.addToolBarIcon(self.suivprev)
+        self.iface.addPluginToMenu(u"&Saisie_travaux", self.suivprev)
+
 
     def unload(self):
         # Remove the plugin menu item and icon (interface "sortie")
@@ -118,7 +131,9 @@ class BdTravaux:
         # Remove the plugin menu item and icon (interface "habitats naturels")
         self.iface.removePluginMenu(u"&Saisie_travaux", self.habnat)
         self.iface.removeToolBarIcon(self.habnat)
-
+        # Remove the plugin menu item and icon (interface "suivis prévus")
+        self.iface.removePluginMenu(u"&Saisie_travaux", self.habnat)
+        self.iface.removeToolBarIcon(self.suivprev)
 
     # démarre la méthode qui va faire tout le travail (interface "sortie")
     def run(self):
@@ -188,7 +203,20 @@ class BdTravaux:
                 # Do something useful here - delete the line containing pass and
                 # substitute with your code.
                 pass
-        
+
+
+ # démarre la méthode qui va faire tout le travail (interface "suivis prévus")
+    def run_suivprev(self):
+        # show the dialog
+        self.dlg_suivis.show()
+        # Run the dialog event loop
+        result = self.dlg_suivis.exec_()
+        # See if OK was pressed
+        if result == 1 :
+            # Do something useful here - delete the line containing pass and
+            # substitute with your code.
+            pass
+
 
     def verif_geom(self):
         # layer = la couche active. Si elle n'existe pas (pas de couche sélectionnée), alors lancer le message d'erreur et fermer la fenêtre.

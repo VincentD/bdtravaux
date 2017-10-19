@@ -389,7 +389,7 @@ class composerClass (QtGui.QDialog):
         querysite = QtSql.QSqlQuery(self.db)
         qsite = u"""select codesite, nomsite from sites_cen.t_sitescen where codesite = '{zr_idsite}'""".format \
         (zr_idsite = str(idsite))
-        print qsite
+        #print qsite
         oksite = querysite.exec_(qsite)
         if not oksite :
             print 'Requête site ratée'

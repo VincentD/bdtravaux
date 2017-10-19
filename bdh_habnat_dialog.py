@@ -104,7 +104,7 @@ class bdhabnatDialog(QtGui.QDialog):
         self.ui.cbx_habfr.clear()
         self.ui.txt_codeeur27.clear()
         self.ui.cbx_eur27_mep.setEnabled(True)
-        print 'listesref'
+        #print 'listesref'
         if self.habref == 'cbnbl':
         # Si le référentiel "Digitale" du CBNBL est sélectionné, alors remplir la combobox "cbx_hablat"
             query_cbnbl = QtSql.QSqlQuery(self.db)
@@ -112,10 +112,10 @@ class bdhabnatDialog(QtGui.QDialog):
             ok = query_cbnbl.exec_(qcbnbl)
             while query_cbnbl.next():
                 self.ui.cbx_hablat.addItem(query_cbnbl.value(1), query_cbnbl.value(0))
-            print 'cbnbl'
+            #print 'cbnbl'
             if not ok:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête CBNBL ratée')
-                print qcbnbl
+                #print qcbnbl
             self.listefran()
 
         else :
@@ -123,12 +123,12 @@ class bdhabnatDialog(QtGui.QDialog):
             query_autrref = QtSql.QSqlQuery(self.db)
             qautrref = u"""select hab_cod, hab_fr from bd_habnat.t_liste_ref_{zr_table} order by hab_fr""".format(zr_table = str(self.habref))
             ok = query_autrref.exec_(qautrref)
-            print 'autre'
+            #print 'autre'
             while query_autrref.next():
                 self.ui.cbx_habfr.addItem(query_autrref.value(1), query_autrref.value(0))
             if not ok:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête Autre ref ratée')
-                print unicode(qautrref)
+                #print unicode(qautrref)
             if self.habref == 'eur27':
                 self.ui.cbx_eur27_mep.setEnabled(False)
 
@@ -140,7 +140,7 @@ class bdhabnatDialog(QtGui.QDialog):
             query_fr = QtSql.QSqlQuery(self.db)
             qfr = u"""select hab_cod, hab_fr from bd_habnat.t_liste_ref_cbnbl_v12 cbnbl where cbnbl.hab_cod = {zr_codlat} order by hab_fr""".format (zr_codlat = self.ui.cbx_hablat.itemData(self.ui.cbx_hablat.currentIndex()))
             ok = query_fr.exec_(qfr)
-            print 'listefran'
+            #print 'listefran'
             if not ok :
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête Hab Fr ratée')
             while query_fr.next():
@@ -225,7 +225,7 @@ class bdhabnatDialog(QtGui.QDialog):
                 memlayer.dataProvider().addFeatures([temp_feature])
                 memlayer.updateExtents()
         memlayer.commitChanges()
-        print "memlayercount="+str(memlayer.featureCount())
+        #print "memlayercount="+str(memlayer.featureCount())
 
         #on sélectionne toutes les entités de memlayer pour en faire une liste de géométries, qui sera saisie en base.
         memlayer.selectAll()
@@ -243,9 +243,11 @@ class bdhabnatDialog(QtGui.QDialog):
 
             #gestion de l'identifiant id_mosaik, servant à regrouper les enregistrements appartenant à une même mosaïque d'habitats
             pourcent = int(self.ui.cbx_pourcent.itemText(self.ui.cbx_pourcent.currentIndex()))
-            if self.ui.chx_plantation.isChecked == True :  #cas de la plantation
+            if self.ui.chx_plantation.isChecked() == True :  #cas de la plantation
                 id_mosaik = 0
+                print 'zorglub'
             else :
+                print 'pas le bon'
                 querymosaik = QtSql.QSqlQuery(self.db)
                 qmosaik = u"""SELECT id_hab_ce, annee, pourcent,the_geom, plantation, id_mosaik FROM bd_habnat.t_ce_saisie WHERE the_geom = {zr_thegeom} AND annee = '{zr_annee}' AND plantation = 'f' """.format (\
                 zr_thegeom = thegeom,\
@@ -255,7 +257,7 @@ class bdhabnatDialog(QtGui.QDialog):
                     QtGui.QMessageBox.warning(self, 'Alerte', u'Requête Mosaik ratée')
                 if querymosaik.size() > 0 :
                     #si la req retourne une valeur => soit 1 erreur (100%), soit une mosaik
-                    print "on est deja dans la mosaique ou dans l'erreur"
+                    #print "on est deja dans la mosaique ou dans l'erreur"
                     sumprct = 0
                     while querymosaik.next() :
                         sumprct += int(querymosaik.value(2))
@@ -267,7 +269,7 @@ class bdhabnatDialog(QtGui.QDialog):
                     id_mosaik = querymosaik.value(5)
                 else :
                     if pourcent > 99 :
-                        print ">99"
+                        #print ">99"
                         id_mosaik = 0
                     else :
                         querybiggestid = QtSql.QSqlQuery(self.db)
@@ -276,7 +278,7 @@ class bdhabnatDialog(QtGui.QDialog):
                         if not ok:
                             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête PlusGrandIdMosaik ratée')
                         querybiggestid.next()
-                        print "debut de la mosaique"
+                        #print "debut de la mosaique"
                         id_mosaik = int(querybiggestid.value(0))+1
                         
             self.habref = self.ui.cbx_habref.itemData(self.ui.cbx_habref.currentIndex())
@@ -336,7 +338,7 @@ class bdhabnatDialog(QtGui.QDialog):
                                      
             # récupération du code N2000 par txt_codeeur27 s'il est renseigné, sinon cbx_eur27_mep
             if self.ui.txt_codeeur27.text() != '':
-                print 'txt_codeeur27 renseigne'
+                #print 'txt_codeeur27 renseigne'
                 self.codeeur27 = self.ui.txt_codeeur27.text()
             else :
                 if self.ui.cbx_eur27_mep.currentIndex() == 0 :

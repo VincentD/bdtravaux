@@ -262,7 +262,7 @@ class OperationDialog(QtGui.QDialog):
             
         # Requête pour le remplissage des contrôles du Tab "Modifications" du module "Opérations"
             queryfillope = QtSql.QSqlQuery(self.db)
-            qfillope = u"""SELECT array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; ') as typope, array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper), '; ') as presta, descriptio, chantfini, array_to_string(array(select distinct codeope||' '||pdg||' '||anneeprev from bdtravaux.join_opeprevues where id_joinprev=id_oper), ';') as opeprev, CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE operation_id={zr_ope}""".format(zr_ope = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
+            qfillope = u"""SELECT array_to_string(array(select distinct typoperation from bdtravaux.join_typoperation where id_jointyp=id_oper), '; ') as typope, array_to_string(array(select distinct operateurs from bdtravaux.join_operateurs where id_joinop=id_oper), '; ') as presta, descriptio, chantfini, array_to_string(array(select distinct codeope||' '||lblope||' '||pdg||' '||anneeprev from bdtravaux.join_opeprevues where id_joinprev=id_oper), ';') as opeprev, CASE WHEN geometrytype(the_geom) IN ('MULTIPOINT', 'POINT') THEN 'pts' WHEN geometrytype(the_geom) IN ('MULTILINESTRING', 'LINESTRING') THEN 'lgn' WHEN geometrytype(the_geom) IN ('MULTIPOLYGON', 'POLYGON') THEN 'surf' END as typ_graph FROM (SELECT * FROM bdtravaux.operation_poly UNION SELECT * FROM bdtravaux.operation_lgn UNION SELECT * FROM bdtravaux.operation_pts) as gestreal WHERE operation_id={zr_ope}""".format(zr_ope = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
             ok6 = queryfillope.exec_(qfillope)
             if not ok6 :
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête pour le remplissage des contrôles dans le module operations ratée')
@@ -290,7 +290,7 @@ class OperationDialog(QtGui.QDialog):
         #Sélection d'items dans une liste (opérations prévues)
             list_prevbd = queryfillope.value(4).split(";")
             for y in xrange (self.ui.lst_edopeprev.count()):
-                prevu_lst=str(self.ui.lst_edopeprev.item(y).text().split("/ ")[1]+self.ui.lst_edopeprev.item(y).text().split("/ ")[5]+self.ui.lst_edopeprev.item(y).text().split(" /")[4])
+                prevu_lst=unicode(self.ui.lst_edopeprev.item(y).text().split("/ ")[1]+self.ui.lst_edopeprev.item(y).text().split("/ ")[3]+self.ui.lst_edopeprev.item(y).text().split("/ ")[5]+self.ui.lst_edopeprev.item(y).text().split(" /")[4])
                 for x in list_prevbd:
                     if unicode(prevu_lst)==x:
                         self.ui.lst_edopeprev.item(y).setSelected(True)
@@ -307,7 +307,7 @@ class OperationDialog(QtGui.QDialog):
             else:
                 self.tablemodif = 'operation_poly'
                 #print "pas trouve la geometrie"
-            print str(self.tablemodif)
+            #print str(self.tablemodif)
 
         # récupération de l'identifiant de l'opération "id_oper". Servira à sélectionner les données à modifier / supprimer dans les tables join_typeoperation et join_operateur
             queryjoinid = QtSql.QSqlQuery(self.db)
@@ -490,7 +490,7 @@ class OperationDialog(QtGui.QDialog):
 
 
     def rempliJoin(self):
-        print 'remplijoin'
+        #print 'remplijoin'
     #remplissage des tables join_operateur, join_operations et join_opeprevues avec les prestas, les types d'opés et les GH sélect par l'utilisateur
         #récupération de id_oper dans la table nom_table pour le remettre dans join_operateurs, join_operations et join_opeprevues
         queryidoper = QtSql.QSqlQuery(self.db)
@@ -582,18 +582,9 @@ class OperationDialog(QtGui.QDialog):
     # sauvegarde des modifications d'une opération
 
         self.erreurModifBase = '0'
-        # mise à jour de la table "operation_xxx"
-        querysavemodope = QtSql.QSqlQuery(self.db)
-        qsavmodo = u"""UPDATE bdtravaux.{zr_table} SET descriptio = '{zr_descr}' , chantfini='{zr_chantfini}' WHERE operation_id={zr_opeid}""".format (\
-        zr_table = self.tablemodif,\
-        zr_descr = self.ui.txt_eddescr.toPlainText().replace("\'","\'\'"),\
-        zr_chantfini = str(self.ui.chx_edopeterm.isChecked()).lower(),\
-        zr_opeid = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
-        ok = querysavemodope.exec_(qsavmodo)
-        if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour opération ratée')
-            self.erreurModifBase = '1'
-        #print qsavmodo
+
+        # la table operation_XXX est modifiée en dernier, pour que les tables annexes présentent déjà les données modifiées quand le trigger viendra les chercher  
+        # pour les intégrer aux tables "synthese_XXX".
 
         # mise à jour de la table join_typoperation
             #suppression des types d'opération appartenant à l'opération modifiée
@@ -635,11 +626,11 @@ class OperationDialog(QtGui.QDialog):
 
             #ajout de la liste des opérateurs modifiée
         for item in xrange (len(self.ui.lst_edpresta.selectedItems())):
-            print item
+            #print item
                 # récupération du type d'opérateur en fonction du nom de l'opérateur
             query_typprestamod = QtSql.QSqlQuery(self.db)
             qtypprestamod = u"""select distinct typ_oper from bdtravaux.list_operateur where nom_oper = '{zr_operateurs}'""".format (zr_operateurs = self.ui.lst_edpresta.selectedItems()[item].text().replace("\'","\'\'"))
-            print qtypprestamod
+            # print qtypprestamod
             oktypm=query_typprestamod.exec_(qtypprestamod)
             if not oktypm:
                 QtGui.QMessagebox.warning(self, 'Alerte', u'Pas trouvé les types d opérateurs à rajouter')
@@ -674,6 +665,7 @@ class OperationDialog(QtGui.QDialog):
 
             #ajout de la liste des opérations prévues modifiée
         for item in xrange (len(self.ui.lst_edopeprev.selectedItems())):
+            print str(xrange (len(self.ui.lst_edopeprev.selectedItems())))
             querymodifopeprev = QtSql.QSqlQuery(self.db)
             qmodopeprev =u"""insert into bdtravaux.join_opeprevues (id_joinprev, codeope, typeope, lblope, anneeprev, pdg) values ({zr_idjoinprev}, '{zr_codeope}', '{zr_typeope}', '{zr_lblope}', '{zr_anneeprev}', '{zr_pdg}')""".format (\
             zr_idjoinprev = self.id_oper_modif,\
@@ -686,9 +678,25 @@ class OperationDialog(QtGui.QDialog):
             if not ok7:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Ajout des nvlles données de gestion prévue en base ratée')
                 self.erreurModifBase = '1'
-            querymodifopeprev.next()
+#            querymodifopeprev.next()
             #print 'operations prevues ajoutees'
             #print qmodopeprev
+
+
+        # mise à jour de la table "operation_xxx". Elle est mise à jour en dernier pour que les tables annexes présentent déjà les valeurs modifiées lorsque le trigger modsynthese viendra les 
+        # chercher pour les intégrer aux tables "synthese_XXX"
+        querysavemodope = QtSql.QSqlQuery(self.db)
+        qsavmodo = u"""UPDATE bdtravaux.{zr_table} SET descriptio = '{zr_descr}' , chantfini='{zr_chantfini}' WHERE operation_id={zr_opeid}""".format (\
+        zr_table = self.tablemodif,\
+        zr_descr = self.ui.txt_eddescr.toPlainText().replace("\'","\'\'"),\
+        zr_chantfini = str(self.ui.chx_edopeterm.isChecked()).lower(),\
+        zr_opeid = self.ui.cbx_edoperation.itemData(self.ui.cbx_edoperation.currentIndex()))
+        ok = querysavemodope.exec_(qsavmodo)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Mise à jour opération ratée')
+            self.erreurModifBase = '1'
+        #print qsavmodo
+
 
         # Désactivation des bouton "OK", "modif Geom" et "Supprimer" jusqu'à la prochaine sélection d'une opération
         self.ui.pbt_supprope.setEnabled(0)

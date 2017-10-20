@@ -71,8 +71,8 @@ class bdsuivisDialog(QtGui.QDialog):
         # Connexions signaux - slots
         self.ui.cbx_chsalarie.currentIndexChanged.connect(self.recupdonnees)
         self.ui.cbx_channee.currentIndexChanged.connect(self.recupdonnees)
-#        self.ui.btn_okannul.accepted.connect(self.)
-#        self.ui.btn_okannul.rejected.connect(self.)
+        self.ui.btn_okannul.accepted.connect(self.sauvModifs)
+        self.ui.btn_okannul.rejected.connect(self.sauvModifs)
 
 
     def recupdonnees(self):
@@ -107,6 +107,7 @@ class bdsuivisDialog(QtGui.QDialog):
         self.model.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
         # création du lien entre la table et le modèle
         self.ui.tbv_suivtemp.setModel(self.model)
+        #CRéation du délégué et lien avec le QTableView
         self.ui.tbv_suivtemp.setItemDelegate(QtSql.QSqlRelationalDelegate(self.ui.tbv_suivtemp))
         # activer le tri en cliquant sur les têtes de colonnes
         self.ui.tbv_suivtemp.setSortingEnabled(True)
@@ -141,7 +142,9 @@ class bdsuivisDialog(QtGui.QDialog):
         sizefont = self.ui.tbv_suivtemp.horizontalHeader().setStyleSheet("QHeaderView{ font-size: 7pt; }")
 
         
-        
+    def sauvModifs(self):
+        self.model.submitAll()
+        return
         
         
         

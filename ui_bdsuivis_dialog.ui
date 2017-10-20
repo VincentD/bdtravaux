@@ -29,32 +29,12 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QTableWidget" name="tbw_suivtemp">
-   <property name="geometry">
-    <rect>
-     <x>500</x>
-     <y>230</y>
-     <width>691</width>
-     <height>511</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QTableView" name="tbv_suivdef">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>230</y>
-     <width>481</width>
-     <height>511</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QTableView" name="tbv_tps">
    <property name="geometry">
     <rect>
-     <x>500</x>
+     <x>680</x>
      <y>161</y>
-     <width>691</width>
+     <width>511</width>
      <height>61</height>
     </rect>
    </property>
@@ -78,6 +58,116 @@
      <height>27</height>
     </rect>
    </property>
+   <property name="currentIndex">
+    <number>7</number>
+   </property>
+   <item>
+    <property name="text">
+     <string>2010</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2011</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2012</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2013</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2014</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2015</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2016</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2017</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2018</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2019</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2020</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2021</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2022</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2023</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2024</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2025</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QTableView" name="tbv_suivtemp">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>230</y>
+     <width>1171</width>
+     <height>511</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
+   <property name="sortingEnabled">
+    <bool>true</bool>
+   </property>
+   <attribute name="horizontalHeaderDefaultSectionSize">
+    <number>43</number>
+   </attribute>
+   <attribute name="horizontalHeaderMinimumSectionSize">
+    <number>43</number>
+   </attribute>
+   <attribute name="verticalHeaderDefaultSectionSize">
+    <number>16</number>
+   </attribute>
   </widget>
  </widget>
  <resources/>

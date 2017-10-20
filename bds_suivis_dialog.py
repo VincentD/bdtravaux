@@ -43,7 +43,7 @@ class bdsuivisDialog(QtGui.QDialog):
         
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10")
+        self.db.setHostName("127.0.0.1")
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -57,12 +57,20 @@ class bdsuivisDialog(QtGui.QDialog):
             while query_salarie.next():
                 self.ui.cbx_chsalarie.addItem(query_salarie.value(1), query_salarie.value(0) )
 
+        #Initialisations
+        self.ui.cbx_chsalarie.setCurrentIndex(0)
+        self.ui.cbx_channee.setCurrentIndex(self.ui.cbx_channee.findText((datetime.now().strftime('%Y')), QtCore.Qt.MatchStartsWith))
+
+
+        # Remplir le QtableView au chargement du module
+        self.recupdonnees()
+        
         # Désactiver le bouton "OK" tant qu'on n'a pas choisi au moins un référentiel.
 #        self.ui.btn_okannul.setEnabled(False)
 
         # Connexions signaux - slots
-        self.ui.cbx_chsalarie.currentIndexChanged.connect(self.recupdonnees())
-        self.ui.cbx_channee.currentIndexChanged.connect(self.recupdonnees())
+        self.ui.cbx_chsalarie.currentIndexChanged.connect(self.recupdonnees)
+        self.ui.cbx_channee.currentIndexChanged.connect(self.recupdonnees)
 #        self.ui.btn_okannul.accepted.connect(self.)
 #        self.ui.btn_okannul.rejected.connect(self.)
 
@@ -70,39 +78,74 @@ class bdsuivisDialog(QtGui.QDialog):
     def recupdonnees(self):
         # lorsque le module est lancé ou que les combobox ont changé d'index, récupération des données de la base et remplissage des tableaux
         query_rempl_suivemp = QtSql.QSqlQuery(self.db)
-        query = u"""WITH tablo AS (SELECT tps.spt_spid, tps.spt_annee, CASE WHEN tps.spt_mois::text = 'janvier'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS janvier, CASE WHEN tps.spt_mois::text ='février'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS fevrier, CASE WHEN tps.spt_mois::text = 'mars'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS mars, CASE WHEN tps.spt_mois::text = 'avril'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS avril, CASE WHEN tps.spt_mois::text = 'mai'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS mai, CASE WHEN tps.spt_mois::text = 'juin'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS juin, CASE WHEN tps.spt_mois::text = 'juillet'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS juillet, CASE WHEN tps.spt_mois::text = 'aout'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS aout, CASE WHEN tps.spt_mois::text = 'septembre'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS septembre, CASE WHEN tps.spt_mois::text = 'octobre'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS octobre, CASE WHEN tps.spt_mois::text = 'novembre'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS novembre, CASE WHEN tps.spt_mois::text = 'decembre'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS decembre FROM bdsuivis.t_join_suivprev_temps tps ORDER BY tps.spt_spid) SELECT DISTINCT sp.sp_idsuivi, sp.sp_codesit, sp.sp_codese, sp.sp_libelle, sp.sp_frannu, sp.sp_tpsprev, sp.sp_operat,sp.sp_objpglt, sp.sp_rq, string_agg(t.janvier::text, ','::text) AS janvier, string_agg(t.fevrier::text, ','::text) AS fevrier, string_agg(t.mars::text, ','::text) AS mars, string_agg(t.avril::text, ','::text) AS avril, string_agg(t.mai::text, ','::text) AS mai, string_agg(t.juin::text, ','::text) AS juin, string_agg(t.juillet::text, ','::text) AS juillet, string_agg(t.aout::text, ','::text) AS aout, string_agg(t.septembre::text, ','::text) AS septembre, string_agg(t.octobre::text, ','::text) AS octobre, string_agg(t.novembre::text, ','::text) AS novembre, string_agg(t.janvier::text, ','::text) AS decembre FROM bdsuivis.t_suivprev sp JOIN tablo t ON sp.sp_idsuivi = t.spt_spid WHERE sp_salarie = '{zr_salarie}' and spt_annee = {zr_annee} GROUP BY t.spt_spid, sp.sp_idsuivi, sp.sp_codesit, sp.sp_codese, sp.sp_libelle, sp.sp_frannu, sp.sp_tpsprev, sp.sp_operat, sp.sp_objpglt, sp.sp_rq ORDER BY sp.sp_codesit, sp.sp_codese;""".format (\
-        zr_salarie = self.ui.cbx_chsalarie.itemData(self.ui.cbx_chsalarie.currentIndex()),\
-        zr_annee = self.ui.cbx_channee.itemData(self.ui.cbx_channee.currentIndex()))
-#        ok = quer_rempl_suivemp.exec_(query)
-#        if not ok:
-#            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête rempl tableau suiv_temps ratée')
+        query = u"""WITH tablo AS (SELECT tps.spt_spid, tps.spt_annee, CASE WHEN tps.spt_mois::text = 'janvier'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS janvier, CASE WHEN tps.spt_mois::text ='février'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS fevrier, CASE WHEN tps.spt_mois::text = 'mars'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS mars, CASE WHEN tps.spt_mois::text = 'avril'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS avril, CASE WHEN tps.spt_mois::text = 'mai'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS mai, CASE WHEN tps.spt_mois::text = 'juin'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS juin, CASE WHEN tps.spt_mois::text = 'juillet'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS juillet, CASE WHEN tps.spt_mois::text = 'aout'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS aout, CASE WHEN tps.spt_mois::text = 'septembre'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS septembre, CASE WHEN tps.spt_mois::text = 'octobre'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS octobre, CASE WHEN tps.spt_mois::text = 'novembre'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS novembre, CASE WHEN tps.spt_mois::text = 'decembre'::text THEN tps.spt_nb_jrs_prev ELSE NULL::real END AS decembre FROM bdsuivis.t_join_suivprev_temps tps ORDER BY tps.spt_spid) SELECT DISTINCT sp.sp_idsuivi, sp.sp_codesit, sp.sp_codese, sp.sp_libelle, sp.sp_frannu, sp.sp_tpsprev, sp.sp_operat,sp.sp_objpglt, sp.sp_rq, string_agg(t.janvier::text, ','::text) AS janvier, string_agg(t.fevrier::text, ','::text) AS fevrier, string_agg(t.mars::text, ','::text) AS mars, string_agg(t.avril::text, ','::text) AS avril, string_agg(t.mai::text, ','::text) AS mai, string_agg(t.juin::text, ','::text) AS juin, string_agg(t.juillet::text, ','::text) AS juillet, string_agg(t.aout::text, ','::text) AS aout, string_agg(t.septembre::text, ','::text) AS septembre, string_agg(t.octobre::text, ','::text) AS octobre, string_agg(t.novembre::text, ','::text) AS novembre, string_agg(t.janvier::text, ','::text) AS decembre FROM bdsuivis.t_suivprev sp JOIN tablo t ON sp.sp_idsuivi = t.spt_spid WHERE sp_salarie = '{zr_salarie}' and spt_annee = '{zr_annee}' GROUP BY t.spt_spid, sp.sp_idsuivi, sp.sp_codesit, sp.sp_codese, sp.sp_libelle, sp.sp_frannu, sp.sp_tpsprev, sp.sp_operat, sp.sp_objpglt, sp.sp_rq ORDER BY sp.sp_codesit, sp.sp_codese;""".format (\
+       zr_salarie = self.ui.cbx_chsalarie.itemData(self.ui.cbx_chsalarie.currentIndex()),\
+       zr_annee = self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
+        print query
+        ok = query_rempl_suivemp.exec_(query)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête rempl tableau suiv_temps ratée')
+
+        resultQuery = []
+        while query_rempl_suivemp.next():
+            resultQuery.append([])  # nouvelle ligne
+            j = 0
+            while query_rempl_suivemp.value(j):
+                # ajout d'une donnée sur la ligne
+                resultQuery[-1].append(query_rempl_suivemp.value(j))
+                j += 1
 
 
         # table à afficher
-        self.nomtable = query_rempl_suivemp.exec_(query)
+        self.nomtable = resultQuery
         if not self.nomtable:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête rempl tableau suiv_temps ratée')
+            #return
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Pas de données pour ce salarié et cette année')
         # création du modèle et de sa liaison avec la base SQL
         self.model = QtSql.QSqlRelationalTableModel(self, self.db)
         # stratégie en cas de modification de données par l'utilisateur
         self.model.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
         # création du lien entre la table et le modèle
-        self.ui.tbw_suivtemp.setModel(self.model)
-        self.ui.tbw_suivtemp.setItemDelegate(QtSql.QSqlRelationalDelegate(self.ui.tbw_suivtemp))
+        self.ui.tbv_suivtemp.setModel(self.model)
+        self.ui.tbv_suivtemp.setItemDelegate(QtSql.QSqlRelationalDelegate(self.ui.tbv_suivtemp))
         # activer le tri en cliquant sur les têtes de colonnes
-        self.ui.tbw_suivtemp.setSortingEnabled(True)
-        # affiche la table demandée
-        self.model.setTable(self.nomtable)
+        self.ui.tbv_suivtemp.setSortingEnabled(True)
+        # affiche la table de base de données demandée
+        self.model.setQuery(query_rempl_suivemp)
         self.model.select() # peuple le modèle avec les données de la table
  
         # tri si nécessaire selon la colonne 0
         self.model.sort(0, QtCore.Qt.AscendingOrder) # ou DescendingOrder
  
-        # ajuste la largeur des colonnes en fonction de leurs contenus
-        self.ui.tbw_suivtemp.resizeColumnsToContents()
+        # ajuste la largeur des colonnes
+#        self.ui.tbv_suivtemp.resizeColumnsToContents()
+        self.ui.tbv_suivtemp.setColumnWidth(0,40)
+        self.ui.tbv_suivtemp.setColumnWidth(1,40)
+        self.ui.tbv_suivtemp.setColumnWidth(2,50)
+        self.ui.tbv_suivtemp.setColumnWidth(3,170)
+        self.ui.tbv_suivtemp.setColumnWidth(4,30)
+        self.ui.tbv_suivtemp.setColumnWidth(5,40)
+        self.ui.tbv_suivtemp.setColumnWidth(6,50)
+        self.ui.tbv_suivtemp.setColumnWidth(7,100)
+        self.ui.tbv_suivtemp.setColumnWidth(8,120)
+        for a in range(9,21):
+            self.ui.tbv_suivtemp.setColumnWidth(a,40)
+        
+        # Adapte les libellés dans les entêtes
+ #       self.ui.tbv_suivtemp.setHorizontalHeaderLabels(['Id', 'Site', 'SE', 'Libellé suivi', 'FrqAn' , 'JrsPrev', 'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Sept.', 'Octobre', 'Nov.', 'Déc.'])
+        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Janvier', u'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Octobre', 'Nov.', u'Déc.']
+        for column in range(21):
+            self.model.setHeaderData(column,QtCore.Qt.Horizontal,listLabel[column])
 
+        # rétrécit la taille de la police dans les headers
+        sizefont = self.ui.tbv_suivtemp.horizontalHeader().setStyleSheet("QHeaderView{ font-size: 7pt; }")
 
-
+        
+        
+        
+        
+        
+# ci-dessous : un exemple de création de modèle (QSqlRelationalTble Model pour accéder à une table de BD), de connexion du modèle avec la QTableView (absolument recommandée par la doc de QT, plutôt que le QTableWidget), de connexion entre la requête et le modèle, puis d'affichage des données dans le QTableView + quelques paramètres (largeures des colonnes, etc...)
 
 #https://www.developpez.net/forums/d1463248/autres-langages/python-zope/gui/pyqt/qtablewidget-remplissage-requete-sql-affichage-lignes-desordre/
 
@@ -212,76 +255,3 @@ class bdsuivisDialog(QtGui.QDialog):
 #    fen.show()
 #    sys.exit(app.exec_())
 
-
-#********************************************************************************************
-
-#Même page, essai
-
-# -*- coding: utf-8 -*-
-#import psycopg2
-#import sys
-#from PyQt4 import QtCore, QtGui
-#from PyQt4.QtGui import *
-#from PyQt4.QtCore import SIGNAL, Qt
- 
- 
-#con = None
- 
-#class MainWindow(QtGui.QTableWidget):
- 
-#    def __init__(self, parent=None):
-#        super(MainWindow, self).__init__(parent)
-#        layout = QtGui.QVBoxLayout()
- 
-#        self.table_widget = QtGui.QTableWidget() # Créer la table
-#        self.connect(self.table_widget,SIGNAL('cellClicked(int, int)'), self.returnIndex) # Return la ligne
-#        self.sridData() # Lance le remplissage
- 
-#        layout.addWidget(self.table_widget)
-#        self.setLayout(layout)
- 
-#    def sridData(self): ##REMPLISSAGE
-#        try:
-#            conn = psycopg2.connect("dbname='postgis_21_sample' user='postgres' host='localhost' password='postgresql'")
-#        except:
-#            print "I am unable to connect to the database"
-#        cur = conn.cursor()        
-#        self.data= cur.execute("SELECT srtext, srid FROM spatial_ref_sys;")
-#        data = cur.fetchall()
- 
-#        lignes = len(data)
-#        columns =  len(data[0])
-#        i = 0
-#        j = 0
- 
-#        self.table_widget.setRowCount(lignes)
-#        self.table_widget.setColumnCount(columns)
-#        self.table_widget.setHorizontalHeaderLabels(['Label sird', 'srid'])
-#        #self.table_widget.setColumnWidth(1, 80)
-#        self.table_widget.horizontalHeader().setResizeMode(0, QHeaderView.Stretch)
- 
-#        for i in range(lignes):
-#            for j in range(columns):
-#                item = QtGui.QTableWidgetItem(data[i][j])
-#                self.tabledata = self.table_widget.setItem(i, j, item)
-        #self.table_widget.sortByColumn(0, QtCore.Qt.AscendingOrder) # permet de choisir l'ordre d'affichage
- 
-#    def returnIndex(self,row,column):
-#        row =row +1
-#        try:
-#            conn = psycopg2.connect("dbname='postgis_21_sample' user='postgres' host='localhost' password='postgresql'")
-#        except:
-#            print "I am unable to connect to the database"
-#        cur = conn.cursor()        
-#        self.data= cur.execute("SELECT srid FROM spatial_ref_sys;")
-#        srid = cur.fetchall()
-#        srid = srid[row]
-#        print row, srid
- 
- 
-#if __name__ == "__main__":
-#    app = QtGui.QApplication(sys.argv)
-#    wnd = MainWindow()
-#    wnd.resize(900, 500)
-#    wnd.show()
-#    sys.exit(app.exec_())

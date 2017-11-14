@@ -32,9 +32,9 @@
   <widget class="QTableView" name="tbv_tps">
    <property name="geometry">
     <rect>
-     <x>709</x>
+     <x>692</x>
      <y>120</y>
-     <width>482</width>
+     <width>422</width>
      <height>51</height>
     </rect>
    </property>
@@ -172,19 +172,19 @@
   <widget class="QTreeView" name="tbv_sum">
    <property name="geometry">
     <rect>
-     <x>709</x>
+     <x>692</x>
      <y>170</y>
-     <width>482</width>
+     <width>422</width>
      <height>38</height>
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
      <y>770</y>
-     <width>325</width>
+     <width>346</width>
      <height>29</height>
     </rect>
    </property>
@@ -204,6 +204,19 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QPushButton" name="btn_dupllgn">
+   <property name="geometry">
+    <rect>
+     <x>415</x>
+     <y>771</y>
+     <width>159</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Dupliquer une ligne</string>
+   </property>
   </widget>
  </widget>
  <resources/>

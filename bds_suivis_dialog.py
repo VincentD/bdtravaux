@@ -75,14 +75,16 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.btn_okannul.rejected.connect(self.sauvModifs)
         self.ui.btn_ajoutlgn.clicked.connect(self.ajoutlgn)
         self.ui.btn_supprlgn.clicked.connect(self.supprlgn)
+        self.ui.btn_duplgn.clicked.connect(self.dupllgn)
 
 
     def recupdonnees(self):
 
+        # Récupération et affichage des données du nombre de jours maximum travaillés dans un mois
         query_jrsmaxmois = QtSql.QSqlQuery(self.db)
         q_jrsmaxmois = u"""WITH tablo AS (SELECT id, CASE WHEN mois = 'janvier' THEN nb_jrs_ouv ELSE NULL END as janvier, CASE WHEN mois = 'fevrier' THEN nb_jrs_ouv ELSE NULL END as fevrier, CASE WHEN mois = 'mars' THEN nb_jrs_ouv ELSE NULL END as mars, CASE WHEN mois = 'avril' THEN nb_jrs_ouv ELSE NULL END as avril, CASE WHEN mois = 'mai' THEN nb_jrs_ouv ELSE NULL END as mai, CASE WHEN mois = 'juin' THEN nb_jrs_ouv ELSE NULL END as juin, CASE WHEN mois = 'juillet' THEN nb_jrs_ouv ELSE NULL END as juillet, CASE WHEN mois = 'aout' THEN nb_jrs_ouv ELSE NULL END as aout, CASE WHEN mois = 'septembre' THEN nb_jrs_ouv ELSE NULL END as septembre, CASE WHEN mois = 'octobre' THEN nb_jrs_ouv ELSE NULL END as octobre, CASE WHEN mois = 'novembre' THEN nb_jrs_ouv ELSE NULL END as novembre, CASE WHEN mois = 'decembre' THEN nb_jrs_ouv ELSE NULL END as decembre FROM bdsuivis.t_list_jours_ouvres ORDER BY id) SELECT string_agg(t.janvier::text, ','::text) AS janvier, string_agg(t.fevrier::text, ','::text) AS fevrier, string_agg(t.mars::text, ','::text) AS mars, string_agg(t.avril::text, ','::text) AS avril, string_agg(t.mai::text, ','::text) AS mai, string_agg(t.juin::text, ','::text) AS juin, string_agg(t.juillet::text, ','::text) AS juillet, string_agg(t.aout::text, ','::text) AS aout, string_agg(t.septembre::text, ','::text) AS septembre, string_agg(t.octobre::text, ','::text) AS octobre, string_agg(t.novembre::text, ','::text) AS novembre, string_agg(t.decembre::text, ','::text) AS décembre FROM bdsuivis.t_list_jours_ouvres l JOIN tablo t ON (l.id = t.id) WHERE l.annee='{zr_annee}'""".format(\
         zr_annee = self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
-        print q_jrsmaxmois
+        #print q_jrsmaxmois
         ok = query_jrsmaxmois.exec_(q_jrsmaxmois)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête rempl jours max mois ratée')
@@ -111,30 +113,25 @@ class bdsuivisDialog(QtGui.QDialog):
         self.modelmois.select()
         # ajuste la largeur des colonnes
         for a in range(0,12):
-            self.ui.tbv_tps.setColumnWidth(a,40)
+            self.ui.tbv_tps.setColumnWidth(a,35)
         self.ui.tbv_tps.verticalHeader().hide()
         # rétrécit la taille de la police dans les headers
         sizefont = self.ui.tbv_tps.horizontalHeader().setStyleSheet("QHeaderView{ font-size: 7pt; }")
         # adapte les libellés dans les entêtes
-        listLabel = ['Janvier', u'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
+        listLabel = ['Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
         for column in range(12):
             self.modelmois.setHeaderData(column,QtCore.Qt.Horizontal,listLabel[column])
 
 
 
-        # table à afficher
-#        self.nomtable = resultQuery
-#        if not self.nomtable:
-            #return
-#            QtGui.QMessageBox.warning(self, 'Alerte', u'Pas de données pour ce salarié et cette année')
+        # Récupération et affichage des données dans le QTableView principal
         # création du modèle et de sa liaison avec la base SQL
-#        self.model = QtSql.QSqlRelationalTableModel(self, self.db)
         self.model = QtSql.QSqlTableModel(self, self.db)
         # stratégie en cas de modification de données par l'utilisateur
         self.model.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
         # création du lien entre la table et le modèle
         self.ui.tbv_suivtemp.setModel(self.model)
-        #CRéation du délégué et lien avec le QTableView
+        # création du délégué et lien avec le QTableView
         self.ui.tbv_suivtemp.setItemDelegate(QtSql.QSqlRelationalDelegate(self.ui.tbv_suivtemp))
         # activer le tri en cliquant sur les têtes de colonnes
         self.ui.tbv_suivtemp.setSortingEnabled(True)
@@ -157,28 +154,30 @@ class bdsuivisDialog(QtGui.QDialog):
             self.model.setFilter("Annee = '%s' AND Salarie = '%i'" % (annee, salarie))
 
         # cacher les colonnes ayant servi à filtrer
-        self.ui.tbv_suivtemp.hideColumn(21)
-        self.ui.tbv_suivtemp.hideColumn(22)
+#        self.ui.tbv_suivtemp.hideColumn(21)
+#        self.ui.tbv_suivtemp.hideColumn(22)
 
         # tri si nécessaire selon la colonne 0
         self.model.sort(0, QtCore.Qt.AscendingOrder) # ou DescendingOrder
  
         # ajuste la largeur des colonnes
 #        self.ui.tbv_suivtemp.resizeColumnsToContents()
-        self.ui.tbv_suivtemp.setColumnWidth(0,40)
-        self.ui.tbv_suivtemp.setColumnWidth(1,40)
-        self.ui.tbv_suivtemp.setColumnWidth(2,50)
+        self.ui.tbv_suivtemp.setColumnWidth(0,35)
+        self.ui.tbv_suivtemp.setColumnWidth(1,35)
+        self.ui.tbv_suivtemp.setColumnWidth(2,45)
         self.ui.tbv_suivtemp.setColumnWidth(3,170)
         self.ui.tbv_suivtemp.setColumnWidth(4,30)
         self.ui.tbv_suivtemp.setColumnWidth(5,40)
         self.ui.tbv_suivtemp.setColumnWidth(6,50)
         self.ui.tbv_suivtemp.setColumnWidth(7,115)
-        self.ui.tbv_suivtemp.setColumnWidth(8,136)
+        self.ui.tbv_suivtemp.setColumnWidth(8,133)
         for a in range(9,21):
-            self.ui.tbv_suivtemp.setColumnWidth(a,40)
+            self.ui.tbv_suivtemp.setColumnWidth(a,35)
+        self.ui.tbv_suivtemp.setColumnWidth(21,35)
+        self.ui.tbv_suivtemp.setColumnWidth(22,35)
         
         # Adapte les libellés dans les entêtes
-        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Janvier', u'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.']
+        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
         for column in range(21):
             self.model.setHeaderData(column,QtCore.Qt.Horizontal,listLabel[column])
 
@@ -194,9 +193,34 @@ class bdsuivisDialog(QtGui.QDialog):
             print erreur
 
     def ajoutlgn(self):
-        return
+        #self.model.insertRow(self.model.rowCount())
+        #self.model.layoutChanged.emit()
+        #attribution de l'identifiant unique pour la nouvelle ligne (colonne "id")
+        query_idNewLine = QtSql.QSqlQuery(self.db)
+        if query_idNewLine.exec_('SELECT sp_idsuivi+1 FROM bdsuivis.t_suivprev_tablo_test ORDER BY sp_idsuivi DESC LIMIT 1'):
+            while query_idNewLine.next():
+                identifiant = query_idNewLine.value(0)
+                print identifiant
+
+#        self.model.setData(self.model.index(self.model.rowCount(),0),identifiant)
+
+        record = QtSql.QSqlRecord()
+        record.setValue(1,identifiant)
+        self.model.insertRecord(self.model.rowCount(), record)
+
+
 
     def supprlgn(self):
+        index_list = []                                                          
+        for model_index in self.ui.tbv_suivtemp.selectionModel().selectedRows():       
+            index = QtCore.QPersistentModelIndex(model_index)         
+            index_list.append(index)                                             
+
+        for index in index_list:                                      
+             self.model.removeRow(index.row()) 
+
+
+    def dupllgn(self):
         return
 
 

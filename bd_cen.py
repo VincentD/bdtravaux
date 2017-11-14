@@ -38,7 +38,7 @@ class BdTravaux:
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
-        self.plugin_dir = QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bdtravaux"
+        self.plugin_dir = QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen"
         # initialize locale
         localePath = ""
         locale = QtCore.QSettings().value("locale/userLocale")[0:2]
@@ -65,7 +65,7 @@ class BdTravaux:
         ######Interface "Sortie"
         # Création du bouton qui va démarrer le plugin
         self.sortie = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdt_sort.png"),
+            QtGui.QIcon(":/plugins/bd_cen/rs_icon_bdt_sort.png"),
             u"Saisie sortie", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.sortie, QtCore.SIGNAL("triggered()"), self.run)
@@ -76,7 +76,7 @@ class BdTravaux:
         ######Interface "Operation"        
         # Création du bouton qui va démarrer le plugin
         self.operation = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdt_ope.png"),
+            QtGui.QIcon(":/plugins/bd_cen/rs_icon_bdt_ope.png"),
             u"Saisie opérations", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.operation, QtCore.SIGNAL("triggered()"), self.run_ope)
@@ -87,7 +87,7 @@ class BdTravaux:
         ######Interface "Gestion prévue"
         # Création du bouton qui va démarrer le plugin
         self.prevu = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdt_ope.png"),
+            QtGui.QIcon(":/plugins/bd_cen/rs_icon_bdt_prev.png"),
             u"Saisie gestion prévue", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.prevu, QtCore.SIGNAL("triggered()"), self.run_prev)
@@ -98,7 +98,7 @@ class BdTravaux:
         ######Interface "Habitats naturels"
         # Création du bouton qui va démarrer le plugin
         self.habnat = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdh.png"),
+            QtGui.QIcon(":/plugins/bd_cen/rs_icon_bdh.png"),
             u"Saisie habitats naturels", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.habnat, QtCore.SIGNAL("triggered()"), self.run_habnat)
@@ -109,7 +109,7 @@ class BdTravaux:
         ######Interface "Suivis prévus"
         # Création du bouton qui va démarrer le plugin
         self.suivprev = QtGui.QAction(
-            QtGui.QIcon(":/plugins/bdtravaux/rs_icon_bdh.png"),
+            QtGui.QIcon(":/plugins/bd_cen/rs_icon_bds.png"),
             u"Saisie suivis prévus", self.iface.mainWindow())
         # connecte le bouton à une méthode "run" 
         QtCore.QObject.connect(self.suivprev, QtCore.SIGNAL("triggered()"), self.run_suivprev)

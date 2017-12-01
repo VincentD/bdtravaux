@@ -112,7 +112,7 @@ class bdhabnatDialog(QtGui.QDialog):
             ok = query_cbnbl.exec_(qcbnbl)
             while query_cbnbl.next():
                 self.ui.cbx_hablat.addItem(query_cbnbl.value(1), query_cbnbl.value(0))
-            #print 'cbnbl'
+            #print str(qcbnbl)
             if not ok:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Requête CBNBL ratée')
                 #print qcbnbl

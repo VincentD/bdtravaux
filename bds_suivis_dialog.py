@@ -43,7 +43,7 @@ class bdsuivisDialog(QtGui.QDialog):
         
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10")
+        self.db.setHostName("127.0.0.1")
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -60,23 +60,41 @@ class bdsuivisDialog(QtGui.QDialog):
         #Initialisations
         self.ui.cbx_chsalarie.setCurrentIndex(0)
         self.ui.cbx_channee.setCurrentIndex(self.ui.cbx_channee.findText((datetime.now().strftime('%Y')), QtCore.Qt.MatchStartsWith))
+        self.text_sal = 'Janczak Alexandra'
 
+        # Remplir la liste de choix lst_salaries
+        self.ui.lst_salaries.clear()
+        querySal = QtSql.QSqlQuery(self.db)
+        qsalaries=u"""SELECT id_salarie, sa_nomcomp FROM sites_cen.t_salaries_cen WHERE sa_pole IN ('scientifique') ORDER BY sa_nomcomp;"""
+        ok = querySal.exec_(qsalaries)
+        while querySal.next():
+            self.ui.lst_salaries.addItem(unicode(querySal.value(1)))
+        if not ok :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage salariés ratée')
+            
 
         # Remplir le QtableView au chargement du module
         self.recupdonnees()
         
-        # Désactiver le bouton "OK" tant qu'on n'a pas choisi au moins un référentiel.
-#        self.ui.btn_okannul.setEnabled(False)
-
         # Connexions signaux - slots
         self.ui.cbx_chsalarie.currentIndexChanged.connect(self.recupdonnees)
         self.ui.cbx_channee.currentIndexChanged.connect(self.recupdonnees)
         self.ui.btn_okannul.accepted.connect(self.sauvModifs)
-        self.ui.btn_okannul.rejected.connect(self.sauvModifs)
+        self.ui.btn_okannul.rejected.connect(self.close)
         self.ui.btn_ajoutlgn.clicked.connect(self.ajoutlgn)
         self.ui.btn_supprlgn.clicked.connect(self.supprlgn)
         self.ui.btn_duplgn.clicked.connect(self.dupllgn)
+        self.ui.btn_choisal.clicked.connect(self.choisal)
 
+    def choisal(self):
+        list_sal = []
+        for item in xrange (len(self.ui.lst_salaries.selectedItems())):
+            salarie = self.ui.lst_salaries.selectedItems()[item].text().replace("\'","\'\'")
+            list_sal.append(salarie)
+        self.text_sal = ", ".join((str(x) for x in list_sal)).replace(",","\',\'")
+        print "Je passe dans choi_sal"
+        print self.text_sal
+        self.recupdonnees()
 
     def recupdonnees(self):
 
@@ -88,9 +106,7 @@ class bdsuivisDialog(QtGui.QDialog):
         ok = query_jrsmaxmois.exec_(q_jrsmaxmois)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête rempl jours max mois ratée')
-
-
-            #Stockage des nb max de jours travaillés dans une liste pour comparaison ultérieure avec les nb réels de jours travaillés. (cf. dans les environs de la ligne 147)
+        #Stockage des nb max de jours travaillés dans une liste pour comparaison ultérieure avec les nb réels de jours travaillés. (cf. dans les environs de la ligne 147)
         resultQjrsMax = []
         while query_jrsmaxmois.next():
             #resultQjrsMax.append([])  # nouvelle ligne
@@ -100,8 +116,6 @@ class bdsuivisDialog(QtGui.QDialog):
                 #print moismax
                 # ajout d'une donnée dans la liste
                 resultQjrsMax.append(moismax)
-        #print resultQjrsMax
-
 
         # création du modèle et de sa liaison avec la base SQL
         self.modelmaxjrs = QtSql.QSqlRelationalTableModel(self, self.db)
@@ -123,6 +137,8 @@ class bdsuivisDialog(QtGui.QDialog):
         listLabel = ['Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
         for column in range(12):
             self.modelmaxjrs.setHeaderData(column,QtCore.Qt.Horizontal,listLabel[column])
+
+
 
         # 2 Récupération et affichage des données du nombre de jours travaillés dans le mois (= somme des jours de suivis prévus dans le QTableView principal)
         query_jrsmois = QtSql.QSqlQuery(self.db)
@@ -149,12 +165,10 @@ class bdsuivisDialog(QtGui.QDialog):
             if resultQjrs[i]>resultQjrsMax[i]:
                 print 'trop grand'
 #                self.modelmaxjrs.index(0,i).setStyleSheet("color : red")
-                self.ui.tbv_sum.item(0,i).setStyleSheet("color : red")
+                #self.ui.tbv_sum.item(0,i).setStyleSheet("color : red")
             else:
 #                self.modelmaxjrs.index(0,i).setStyleSheet("color : black")
                 print 'OK'
-
-
 
         # création du modèle et de sa liaison avec la base SQL
         self.modeljrs = QtSql.QSqlRelationalTableModel(self, self.db)
@@ -171,8 +185,8 @@ class bdsuivisDialog(QtGui.QDialog):
             self.ui.tbv_sum.setColumnWidth(a,35)
         self.ui.tbv_sum.verticalHeader().hide()
         self.ui.tbv_sum.horizontalHeader().hide()
-
         #self.ui.tbv_sum.setStyleSheet("color : red")
+
 
 
         # 3 Récupération et affichage des données dans le QTableView principal
@@ -187,22 +201,24 @@ class bdsuivisDialog(QtGui.QDialog):
         # activer le tri en cliquant sur les têtes de colonnes
         self.ui.tbv_suivtemp.setSortingEnabled(True)
         # affiche la table de base de données demandée
-#        self.model.setQuery(query_rempl_suivemp)
         self.model.setTable("bdsuivis.t_suivprev_tablo")
         self.model.select() # peuple le modèle avec les données de la table
         # Création des "datas" pour les colonnes "salarié" et "année", afin de pouvoir filtrer dessus
         self.model.setHeaderData(22, QtCore.Qt.Horizontal, "Annee")
         self.model.setHeaderData(21, QtCore.Qt.Horizontal, "Salarie")
 
-        # filtre en fonction des contenus des combobox
+        # filtre en fonction des contenus de la liste à choix multiples et de la combobox
             #création de variables qui serviront à filtrer
-        salarie = self.ui.cbx_chsalarie.itemData(self.ui.cbx_chsalarie.currentIndex())
+        #salarie = self.ui.cbx_chsalarie.itemData(self.ui.cbx_chsalarie.currentIndex())
         annee = self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex())
             # Filtre : si rien sélectionné, tout afficher. Sinon setFilter selon les variables créées à partir des combobox (ci-dessus)
-        if len(annee) == 0 and len(salarie) == 0:
+        if len(annee) == 0 and len(self.text_sal) == 0:
             self.model.setFilter("")
         else:
-            self.model.setFilter("Annee = '%s' AND Salarie = '%i'" % (annee, salarie))
+            filtre = "annee = '%s' AND salaries IN ('%s')" % (annee, self.text_sal)
+            print filtre
+            self.model.setFilter(filtre)
+            
 
         # cacher les colonnes ayant servi à filtrer
 #        self.ui.tbv_suivtemp.hideColumn(21)
@@ -239,27 +255,22 @@ class bdsuivisDialog(QtGui.QDialog):
     def sauvModifs(self):
         submit = self.model.submitAll()
         if not submit:
-            #print "rate"
+            print "rate"
             erreur = self.model.lastError().text()
-            #print erreur
+            print erreur
 
     def ajoutlgn(self):
-        #self.model.insertRow(self.model.rowCount())
-        #self.model.layoutChanged.emit()
-        #attribution de l'identifiant unique pour la nouvelle ligne (colonne "id")
+        #Ajout d'une nouvelle ligne dans le QTableView et remplissage de l'identifiant unique
         query_idNewLine = QtSql.QSqlQuery(self.db)
         if query_idNewLine.exec_('SELECT sp_idsuivi+1 FROM bdsuivis.t_suivprev_tablo ORDER BY sp_idsuivi DESC LIMIT 1'):
             while query_idNewLine.next():
                 identifiant = query_idNewLine.value(0)
                 print identifiant
 
-        #record = QtSql.QSqlRecord()
         record = self.model.record();
         record.setValue(0,identifiant)
         self.model.insertRecord(self.model.rowCount(), record)
-        #record.setValue(0,identifiant)
-        #self.model.setData(self.model.index(self.model.rowCount(),0),str(identifiant))
-        self.model.dataChanged.emit(self.model.createIndex(self.model.rowCount(), 0),self.model.createIndex(self.model.rowCount(), 22))
+        #self.model.dataChanged.emit(self.model.createIndex(self.model.rowCount(), 0),self.model.createIndex(self.model.rowCount(), 22))
 
 
 
@@ -274,7 +285,22 @@ class bdsuivisDialog(QtGui.QDialog):
 
 
     def dupllgn(self):
-        return
+        index_list = []                                                          
+        for model_index in self.ui.tbv_suivtemp.selectionModel().selectedRows():       
+            index = QtCore.QPersistentModelIndex(model_index)         
+            index_list.append(index)
+            if len(index_list) == 1:
+                self.ajoutlgn()  
+                list_values = []
+                for col in xrange(1,23):
+                    value = self.model.data(self.model.index(index_list[0].row(),col), role = QtCore.Qt.DisplayRole)
+                    list_values.append(value)
+                    self.model.setData(self.model.index(self.model.rowCount()-1,col), value, role = QtCore.Qt.EditRole)
+            else:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Choisir une et une seule ligne à dupliquer')
+        
+            
+        
 
 
 

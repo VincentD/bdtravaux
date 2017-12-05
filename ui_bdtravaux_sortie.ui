@@ -653,6 +653,11 @@
      </item>
      <item>
       <property name="text">
+       <string>Concertation</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string>Surveillance</string>
       </property>
      </item>

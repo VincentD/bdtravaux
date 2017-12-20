@@ -21,7 +21,7 @@
  ***************************************************************************/
 """
 
-import os
+import os, sys, csv
 
 from PyQt4 import QtCore, QtGui, uic, QtSql, Qt
 from qgis.core import *
@@ -43,7 +43,7 @@ class bdsuivisDialog(QtGui.QDialog):
         
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1")
+        self.db.setHostName("192.168.0.10")
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -52,13 +52,13 @@ class bdsuivisDialog(QtGui.QDialog):
             QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
 
         # Remplir la combobox "cbx_chsalarie" avec les prénoms et noms issus de la table "t_list_salaries"
-        query_salarie = QtSql.QSqlQuery(self.db)
-        if query_salarie.exec_('select sps_id, sps_nomsal from bdsuivis.t_list_salaries order by sps_nomsal'):
-            while query_salarie.next():
-                self.ui.cbx_chsalarie.addItem(query_salarie.value(1), query_salarie.value(0) )
+        #query_salarie = QtSql.QSqlQuery(self.db)
+        #if query_salarie.exec_('select sps_id, sps_nomsal from bdsuivis.t_list_salaries order by sps_nomsal'):
+        #    while query_salarie.next():
+        #        self.ui.cbx_chsalarie.addItem(query_salarie.value(1), query_salarie.value(0) )
 
         #Initialisations
-        self.ui.cbx_chsalarie.setCurrentIndex(0)
+        #self.ui.cbx_chsalarie.setCurrentIndex(0)
         self.ui.cbx_channee.setCurrentIndex(self.ui.cbx_channee.findText((datetime.now().strftime('%Y')), QtCore.Qt.MatchStartsWith))
         self.text_sal = 'Janczak Alexandra'
 
@@ -77,7 +77,7 @@ class bdsuivisDialog(QtGui.QDialog):
         self.recupdonnees()
         
         # Connexions signaux - slots
-        self.ui.cbx_chsalarie.currentIndexChanged.connect(self.recupdonnees)
+        #self.ui.cbx_chsalarie.currentIndexChanged.connect(self.recupdonnees)
         self.ui.cbx_channee.currentIndexChanged.connect(self.recupdonnees)
         self.ui.btn_okannul.accepted.connect(self.sauvModifs)
         self.ui.btn_okannul.rejected.connect(self.close)
@@ -85,15 +85,14 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.btn_supprlgn.clicked.connect(self.supprlgn)
         self.ui.btn_duplgn.clicked.connect(self.dupllgn)
         self.ui.btn_choisal.clicked.connect(self.choisal)
+        self.ui.btn_expcsv.clicked.connect(self.saveCsv)
 
     def choisal(self):
-        list_sal = []
+        self.list_sal = []
         for item in xrange (len(self.ui.lst_salaries.selectedItems())):
             salarie = self.ui.lst_salaries.selectedItems()[item].text().replace("\'","\'\'")
-            list_sal.append(salarie)
-        self.text_sal = ", ".join((str(x) for x in list_sal)).replace(",","\',\'")
-        print "Je passe dans choi_sal"
-        print self.text_sal
+            self.list_sal.append(salarie)
+        self.text_sal = ",".join((str(x) for x in self.list_sal)).replace(",","\',\'")
         self.recupdonnees()
 
     def recupdonnees(self):
@@ -140,10 +139,10 @@ class bdsuivisDialog(QtGui.QDialog):
 
 
 
-        # 2 Récupération et affichage des données du nombre de jours travaillés dans le mois (= somme des jours de suivis prévus dans le QTableView principal)
+        # 2 Récupération et affichage des données du nombre de jours travaillés dans le mois (= somme des jours de suivis prévus dans le QTableView principal). comparaison avec le nb de jours maximum
         query_jrsmois = QtSql.QSqlQuery(self.db)
-        qjrsmois = u"""SELECT sum(coalesce(t.janvier,0)) as sjanvier, sum(coalesce(t.fevrier,0)) as sfevrier, sum(coalesce(t.mars,0)) as smars, sum(coalesce(t.avril,0)) as savril, sum(coalesce(t.mai,0)) as smai, sum(coalesce(t.juin,0)) as sjuin, sum(coalesce(t.juillet,0)) as sjuillet, sum(coalesce(t.aout,0)) as saout, sum(coalesce(t.septembre,0)) as sseptembre, sum(coalesce(t.octobre,0)) as soctobre, sum(coalesce(t.novembre,0)) as snovembre, sum(coalesce(t.decembre,0)) as sdecembre FROM bdsuivis.t_suivprev_tablo t WHERE salarie ='{zr_salarie}' AND annee = '{zr_annee}';""".format(\
-        zr_salarie = self.ui.cbx_chsalarie.itemData(self.ui.cbx_chsalarie.currentIndex()),
+        qjrsmois = u"""SELECT sum(coalesce(t.janvier,0)) as sjanvier, sum(coalesce(t.fevrier,0)) as sfevrier, sum(coalesce(t.mars,0)) as smars, sum(coalesce(t.avril,0)) as savril, sum(coalesce(t.mai,0)) as smai, sum(coalesce(t.juin,0)) as sjuin, sum(coalesce(t.juillet,0)) as sjuillet, sum(coalesce(t.aout,0)) as saout, sum(coalesce(t.septembre,0)) as sseptembre, sum(coalesce(t.octobre,0)) as soctobre, sum(coalesce(t.novembre,0)) as snovembre, sum(coalesce(t.decembre,0)) as sdecembre FROM bdsuivis.t_suivprev_tablo t WHERE salaries IN ('{zr_salarie}') AND annee = '{zr_annee}';""".format(\
+        zr_salarie = self.text_sal,
         zr_annee = self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
         #print qjrsmois
         ok = query_jrsmois.exec_(qjrsmois)
@@ -221,7 +220,7 @@ class bdsuivisDialog(QtGui.QDialog):
             
 
         # cacher les colonnes ayant servi à filtrer
-#        self.ui.tbv_suivtemp.hideColumn(21)
+        self.ui.tbv_suivtemp.hideColumn(21)
 #        self.ui.tbv_suivtemp.hideColumn(22)
 
         # tri si nécessaire selon la colonne 0
@@ -298,9 +297,25 @@ class bdsuivisDialog(QtGui.QDialog):
                     self.model.setData(self.model.index(self.model.rowCount()-1,col), value, role = QtCore.Qt.EditRole)
             else:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Choisir une et une seule ligne à dupliquer')
-        
-            
-        
+
+
+    def saveCsv(self):
+        path = QtGui.QFileDialog.getSaveFileName(
+                self, 'Save File', '', 'CSV(*.csv)')
+        if path!= '':
+            with open(unicode(path), 'wb') as stream:
+                writer = csv.writer(stream)
+                for row in range(self.model.rowCount()):
+                    rowdata = []
+                    for column in range(self.model.columnCount()):
+                        value = self.model.data(self.model.index(row, column))
+                        if value is not None:
+                            rowdata.append(
+                                unicode(value).encode('utf8'))
+                        else:
+                            rowdata.append('')
+                    writer.writerow(rowdata)
+
 
 
 

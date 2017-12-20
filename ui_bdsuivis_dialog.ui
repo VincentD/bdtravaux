@@ -6,18 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1220</width>
-    <height>825</height>
+    <width>1222</width>
+    <height>833</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <widget class="QDialogButtonBox" name="btn_okannul">
    <property name="geometry">
     <rect>
-     <x>856</x>
-     <y>776</y>
+     <x>853</x>
+     <y>764</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -38,112 +41,6 @@
      <height>51</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QComboBox" name="cbx_chsalarie">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>770</x>
-     <y>30</y>
-     <width>421</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="cbx_channee">
-   <property name="geometry">
-    <rect>
-     <x>770</x>
-     <y>70</y>
-     <width>421</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="currentIndex">
-    <number>7</number>
-   </property>
-   <item>
-    <property name="text">
-     <string>2010</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2011</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2012</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2013</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2014</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2015</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2016</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2017</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2018</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2019</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2020</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2021</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2022</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2023</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2024</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2025</string>
-    </property>
-   </item>
   </widget>
   <widget class="QTableView" name="tbv_suivtemp">
    <property name="geometry">
@@ -192,7 +89,7 @@
     <rect>
      <x>30</x>
      <y>760</y>
-     <width>346</width>
+     <width>549</width>
      <height>51</height>
     </rect>
    </property>
@@ -211,48 +108,175 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QPushButton" name="btn_duplgn">
+      <property name="text">
+       <string>Dupliquer une ligne</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_expcsv">
+      <property name="text">
+       <string>Export CSV</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="btn_duplgn">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>415</x>
-     <y>771</y>
-     <width>159</width>
-     <height>27</height>
+     <x>400</x>
+     <y>17</y>
+     <width>128</width>
+     <height>51</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Dupliquer une ligne</string>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QLabel" name="lbl_choiSal_2">
+      <property name="text">
+       <string>Choisir une année :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="cbx_channee">
+      <property name="currentIndex">
+       <number>7</number>
+      </property>
+      <item>
+       <property name="text">
+        <string>2010</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2011</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2012</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2013</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2014</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2015</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2016</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2017</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2018</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2019</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2020</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2021</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2022</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2023</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2024</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2025</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QListWidget" name="lst_salaries">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>20</y>
-     <width>321</width>
-     <height>151</height>
+     <x>15</x>
+     <y>17</y>
+     <width>372</width>
+     <height>197</height>
     </rect>
    </property>
-   <property name="selectionMode">
-    <enum>QAbstractItemView::ExtendedSelection</enum>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_choisal">
-   <property name="geometry">
-    <rect>
-     <x>370</x>
-     <y>140</y>
-     <width>121</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Salariés choisis</string>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="lbl_choiSal">
+      <property name="text">
+       <string>Choisir un(e) ou des salarié(es) :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="lst_salaries">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_choisal">
+      <property name="text">
+       <string>Salariés choisis</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>lst_salaries</tabstop>
+  <tabstop>btn_choisal</tabstop>
+  <tabstop>cbx_channee</tabstop>
+  <tabstop>btn_ajoutlgn</tabstop>
+  <tabstop>btn_supprlgn</tabstop>
+  <tabstop>btn_duplgn</tabstop>
+  <tabstop>btn_expcsv</tabstop>
+  <tabstop>btn_okannul</tabstop>
+  <tabstop>tbv_suivtemp</tabstop>
+  <tabstop>tbv_sum</tabstop>
+  <tabstop>tbv_tps</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

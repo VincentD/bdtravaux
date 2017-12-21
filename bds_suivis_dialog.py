@@ -43,7 +43,7 @@ class bdsuivisDialog(QtGui.QDialog):
         
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10")
+        self.db.setHostName("127.0.0.1")
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -196,7 +196,36 @@ class bdsuivisDialog(QtGui.QDialog):
         # création du lien entre la table et le modèle
         self.ui.tbv_suivtemp.setModel(self.model)
         # création du délégué et lien avec le QTableView
-        self.delegue = self.ui.tbv_suivtemp.setItemDelegate(QtSql.QSqlRelationalDelegate(self.ui.tbv_suivtemp))
+       # self.delegue = self.ui.tbv_suivtemp.setItemDelegate(QtSql.QSqlRelationalDelegate(self.ui.tbv_suivtemp))
+   
+
+### Essai pour changer couleur de quelques items du QTableView     
+        # remplir le fond du QTableView automatiquement
+        #self.ui.tbv_suivtemp.setAutoFillBackground(True)
+        #p = self.ui.tbv_suivtemp.palette()
+        #p.setColor(self.ui.tbv_suivtemp.backgroundRole(), QtGui.QColor(255,0,0))
+        #self.ui.tbv_suivtemp.setPalette(p)
+        
+        #palette = self.palette()
+        #role = self.backgroundRole()
+        #palette.setColor(role, QColor('green'))
+        #self.setPalette(palette)
+        
+        #delegue33 = self.ui.tbv_suivtemp.itemDelegate(self.model.index(3,3))
+        #palette = delegue33.palette()
+        #role = delegue33.backgroundRole()
+        #palette.setColor(role, QColor(255,0,0))
+        #delegue33.setPalette(palette)
+        
+        #table = self.ui.tbv_suivtemp
+        #delegate = monDelegue(None, table)
+        #table.setItemDelegate(delegate)
+
+        #item = QtGui.QTableViewItem()
+        #item.setData(monDelegue.ItemBackgroundRole, QColor(Qt.red))
+        
+###
+        
         # activer le tri en cliquant sur les têtes de colonnes
         self.ui.tbv_suivtemp.setSortingEnabled(True)
         # affiche la table de base de données demandée
@@ -213,6 +242,10 @@ class bdsuivisDialog(QtGui.QDialog):
             # Filtre : si rien sélectionné, tout afficher. Sinon setFilter selon les variables créées à partir des combobox (ci-dessus)
         if len(annee) == 0 and len(self.text_sal) == 0:
             self.model.setFilter("")
+        elif annee == u"""Toutes les années""" and len(self.text_sal) != 0:
+            filtre = "salaries IN ('%s')" % (self.text_sal)
+            print filtre
+            self.model.setFilter(filtre)
         else:
             filtre = "annee = '%s' AND salaries IN ('%s')" % (annee, self.text_sal)
             print filtre
@@ -315,6 +348,30 @@ class bdsuivisDialog(QtGui.QDialog):
                         else:
                             rowdata.append('')
                     writer.writerow(rowdata)
+
+
+#Céation du délégué pour gérer la couleur des cellules individuellement.
+class monDelegue(QtGui.QItemDelegate):
+
+    ItemBackgroundRole = QtCore.Qt.UserRole + 1
+
+    def __init__(self, parent, table):
+        super(monDelegue, self).__init__(parent)
+        self.table = table
+
+    def paint(self, painter, option, index):
+        painter.save()
+        item = self.table.itemFromIndex(index)
+        if item:
+            bg_color = item.data(MyDelegate.ItemBackgroundRole)
+            if bg_color:
+                # These two roles (Window, Base) both style different aspects of the "background"
+                # Try with one or both to see which works for you
+                option.palette.setColor(QPalette.Window, bg_color)
+                option.palette.setColor(QPalette.Base, bg_color)
+        super(MyDelegate, self).paint(painter, option, index)
+        painter.restore()
+
 
 
 

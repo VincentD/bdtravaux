@@ -89,7 +89,7 @@
     <rect>
      <x>30</x>
      <y>760</y>
-     <width>549</width>
+     <width>562</width>
      <height>51</height>
     </rect>
    </property>
@@ -124,13 +124,13 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>400</x>
      <y>17</y>
-     <width>128</width>
-     <height>51</height>
+     <width>151</width>
+     <height>61</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -144,8 +144,13 @@
     <item>
      <widget class="QComboBox" name="cbx_channee">
       <property name="currentIndex">
-       <number>7</number>
+       <number>0</number>
       </property>
+      <item>
+       <property name="text">
+        <string>Toutes les années</string>
+       </property>
+      </item>
       <item>
        <property name="text">
         <string>2010</string>
@@ -230,7 +235,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>15</x>

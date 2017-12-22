@@ -23,9 +23,8 @@
 
 import os, sys, csv
 
-from PyQt4 import QtCore, QtGui, uic, QtSql, Qt
-from qgis.core import *
-from qgis.gui import *
+from PyQt4 import QtGui, uic, QtSql, Qt
+from PyQt4.QtCore import *
 from ui_bdsuivis_dialog import Ui_bdsuivis_dialog
 from datetime import datetime
 
@@ -43,7 +42,7 @@ class bdsuivisDialog(QtGui.QDialog):
         
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1")
+        self.db.setHostName("192.168.0.10")
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -59,7 +58,7 @@ class bdsuivisDialog(QtGui.QDialog):
 
         #Initialisations
         #self.ui.cbx_chsalarie.setCurrentIndex(0)
-        self.ui.cbx_channee.setCurrentIndex(self.ui.cbx_channee.findText((datetime.now().strftime('%Y')), QtCore.Qt.MatchStartsWith))
+        self.ui.cbx_channee.setCurrentIndex(self.ui.cbx_channee.findText((datetime.now().strftime('%Y')), Qt.MatchStartsWith))
         self.text_sal = 'Janczak Alexandra'
 
         # Remplir la liste de choix lst_salaries
@@ -86,6 +85,7 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.btn_duplgn.clicked.connect(self.dupllgn)
         self.ui.btn_choisal.clicked.connect(self.choisal)
         self.ui.btn_expcsv.clicked.connect(self.saveCsv)
+
 
     def choisal(self):
         self.list_sal = []
@@ -135,7 +135,7 @@ class bdsuivisDialog(QtGui.QDialog):
         # adapte les libellés dans les entêtes
         listLabel = ['Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
         for column in range(12):
-            self.modelmaxjrs.setHeaderData(column,QtCore.Qt.Horizontal,listLabel[column])
+            self.modelmaxjrs.setHeaderData(column,Qt.Horizontal,listLabel[column])
 
 
 
@@ -221,9 +221,20 @@ class bdsuivisDialog(QtGui.QDialog):
         #delegate = monDelegue(None, table)
         #table.setItemDelegate(delegate)
 
-        #item = QtGui.QTableViewItem()
+        #item = QtGui.QTableViewItem()  # le QTableView n'a pas d'items. Mais le modèle si. PAsser par le modèle?
+
         #item.setData(monDelegue.ItemBackgroundRole, QColor(Qt.red))
         
+
+
+#self.model.setData(self.model.index(self.model.rowCount()-1,col), value, role = Qt.EditRole)
+
+
+#Piste : You should use signal QAbstractItemModel::dataChanged(). Every time data change in your model, it has to emit that signal to notify views and/or proxy models that data has changed. Typicaly it is emitted in QAbstractItemModel::setData() after setting data, as it stands in Qt docs: "The dataChanged() signal should be emitted if the data was successfully set."
+#All views will refresh changed items. 
+#http://www.qtcentre.org/threads/18388-Refreshing-a-QTableView-when-QAbstractTableModel-changes
+
+
 ###
         
         # activer le tri en cliquant sur les têtes de colonnes
@@ -232,8 +243,9 @@ class bdsuivisDialog(QtGui.QDialog):
         self.model.setTable("bdsuivis.t_suivprev_tablo")
         self.model.select() # peuple le modèle avec les données de la table
         # Création des "datas" pour les colonnes "salarié" et "année", afin de pouvoir filtrer dessus
-        self.model.setHeaderData(22, QtCore.Qt.Horizontal, "Annee")
-        self.model.setHeaderData(21, QtCore.Qt.Horizontal, "Salarie")
+        self.model.setHeaderData(22, Qt.Horizontal, "Annee")
+        self.model.setHeaderData(21, Qt.Horizontal, "Salarie")
+
 
         # filtre en fonction des contenus de la liste à choix multiples et de la combobox
             #création de variables qui serviront à filtrer
@@ -252,12 +264,21 @@ class bdsuivisDialog(QtGui.QDialog):
             self.model.setFilter(filtre)
             
 
+###
+        color = QtGui.QColor(Qt.red)
+        if self.model.setData(self.model.index(2,2), color, role = Qt.BackgroundRole) :
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Changement réussi dans le modèle')
+        else : 
+            QtGui.QMessageBox.warning(self, 'Information', u'Changement raté dans le modèle')
+###
+
+
         # cacher les colonnes ayant servi à filtrer
         self.ui.tbv_suivtemp.hideColumn(21)
 #        self.ui.tbv_suivtemp.hideColumn(22)
 
         # tri si nécessaire selon la colonne 0
-        self.model.sort(0, QtCore.Qt.AscendingOrder) # ou DescendingOrder
+        self.model.sort(0, Qt.AscendingOrder) # ou DescendingOrder
  
         # ajuste la largeur des colonnes
 #        self.ui.tbv_suivtemp.resizeColumnsToContents()
@@ -278,10 +299,13 @@ class bdsuivisDialog(QtGui.QDialog):
         # Adapte les libellés dans les entêtes
         listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.', 'Salarie', 'Annee']
         for column in range(21):
-            self.model.setHeaderData(column,QtCore.Qt.Horizontal,listLabel[column])
+            self.model.setHeaderData(column,Qt.Horizontal,listLabel[column])
 
         # rétrécit la taille de la police dans les headers
         sizefont = self.ui.tbv_suivtemp.horizontalHeader().setStyleSheet("QHeaderView{ font-size: 7pt; }")
+
+
+
 
         
     def sauvModifs(self):
@@ -309,7 +333,7 @@ class bdsuivisDialog(QtGui.QDialog):
     def supprlgn(self):
         index_list = []                                                          
         for model_index in self.ui.tbv_suivtemp.selectionModel().selectedRows():       
-            index = QtCore.QPersistentModelIndex(model_index)         
+            index = QPersistentModelIndex(model_index)         
             index_list.append(index)                                             
 
         for index in index_list:                                      
@@ -319,15 +343,15 @@ class bdsuivisDialog(QtGui.QDialog):
     def dupllgn(self):
         index_list = []                                                          
         for model_index in self.ui.tbv_suivtemp.selectionModel().selectedRows():       
-            index = QtCore.QPersistentModelIndex(model_index)         
+            index = QPersistentModelIndex(model_index)         
             index_list.append(index)
             if len(index_list) == 1:
                 self.ajoutlgn()  
                 list_values = []
                 for col in xrange(1,23):
-                    value = self.model.data(self.model.index(index_list[0].row(),col), role = QtCore.Qt.DisplayRole)
+                    value = self.model.data(self.model.index(index_list[0].row(),col), role = Qt.DisplayRole)
                     list_values.append(value)
-                    self.model.setData(self.model.index(self.model.rowCount()-1,col), value, role = QtCore.Qt.EditRole)
+                    self.model.setData(self.model.index(self.model.rowCount()-1,col), value, role = Qt.EditRole)
             else:
                 QtGui.QMessageBox.warning(self, 'Alerte', u'Choisir une et une seule ligne à dupliquer')
 
@@ -353,7 +377,7 @@ class bdsuivisDialog(QtGui.QDialog):
 #Céation du délégué pour gérer la couleur des cellules individuellement.
 class monDelegue(QtGui.QItemDelegate):
 
-    ItemBackgroundRole = QtCore.Qt.UserRole + 1
+    ItemBackgroundRole = Qt.UserRole + 1
 
     def __init__(self, parent, table):
         super(monDelegue, self).__init__(parent)

@@ -30,6 +30,7 @@ from bdt_operation_dialog import OperationDialog
 from bdt_prevu_dialog import PrevuDialog
 from bdh_habnat_dialog import bdhabnatDialog
 from bds_suivis_dialog import bdsuivisDialog
+#from bds_suivis_dialog_test import bdsuivisDialog_test
 
 
 class BdTravaux:
@@ -60,6 +61,7 @@ class BdTravaux:
         self.dlg_prev = PrevuDialog(iface)
         self.dlg_habnat = bdhabnatDialog(iface)
         self.dlg_suivis = bdsuivisDialog()
+#        self.dlg_suivis_test = bdsuivisDialog_test()
         
     def initGui(self):
         ######Interface "Sortie"
@@ -117,6 +119,17 @@ class BdTravaux:
         self.iface.addToolBarIcon(self.suivprev)
         self.iface.addPluginToMenu(u"&Saisie_travaux", self.suivprev)
 
+        ######Interface "Suivis prévus test"
+        # Création du bouton qui va démarrer le plugin
+#        self.suivprev_test = QtGui.QAction(
+#            QtGui.QIcon(":/plugins/bd_cen/rs_icon_bds.png"),
+#            u"Saisie suivis prévus test", self.iface.mainWindow())
+        # connecte le bouton à une méthode "run" 
+#        QtCore.QObject.connect(self.suivprev_test, QtCore.SIGNAL("triggered()"), self.run_suivprev_test)
+        # ajoute l'icône sur la barre d'outils et l'élément de menu.
+#        self.iface.addToolBarIcon(self.suivprev_test)
+#        self.iface.addPluginToMenu(u"&Saisie_travaux", self.suivprev_test)
+
 
     def unload(self):
         # Remove the plugin menu item and icon (interface "sortie")
@@ -132,8 +145,11 @@ class BdTravaux:
         self.iface.removePluginMenu(u"&Saisie_travaux", self.habnat)
         self.iface.removeToolBarIcon(self.habnat)
         # Remove the plugin menu item and icon (interface "suivis prévus")
-        self.iface.removePluginMenu(u"&Saisie_travaux", self.habnat)
+        self.iface.removePluginMenu(u"&Saisie_travaux", self.suivprev)
         self.iface.removeToolBarIcon(self.suivprev)
+        # Remove the plugin menu item and icon (interface "suivis prévus")
+#        self.iface.removePluginMenu(u"&Saisie_travaux", self.suivprev_test)
+#        self.iface.removeToolBarIcon(self.suivprev_test)
 
     # démarre la méthode qui va faire tout le travail (interface "sortie")
     def run(self):
@@ -216,6 +232,18 @@ class BdTravaux:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
             pass
+
+ # démarre la méthode qui va faire tout le travail (interface "suivis prévus test")
+#    def run_suivprev_test(self):
+#        # show the dialog
+#        self.dlg_suivis_test.show()
+#        # Run the dialog event loop
+#        result = self.dlg_suivis_test.exec_()
+        # See if OK was pressed
+#        if result == 1 :
+            # Do something useful here - delete the line containing pass and
+            # substitute with your code.
+#            pass
 
 
     def verif_geom(self):

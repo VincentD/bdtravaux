@@ -31,11 +31,11 @@ TRANSLATIONS =
 
 PLUGINNAME = bd_cen
 
-PY_FILES = bd_cen.py bdt_sortie_dialog.py __init__.py bdt_operation_dialog.py bdt_convert_geoms.py bdt_prevu_dialog.py bdt_composeur.py bdh_habnat_dialog.py bds_suivis_dialog.py bdt_matosassur_dialog.py
+PY_FILES = bd_cen.py bdt_sortie_dialog.py __init__.py bdt_operation_dialog.py bdt_convert_geoms.py bdt_prevu_dialog.py bdt_composeur.py bdh_habnat_dialog.py bds_suivis_dialog.py bdt_matosassur_dialog.py bds_suivis_dialog_test.py
  
 EXTRAS = rs_icon_bdt_sort.png rs_icon_bdt_ope.png rs_icon_bdh.png rs_icon_bds.png rs_icon_bdt_prev.png metadata.txt BDT_20130705_T_CART_ComposerTemplate_linux.qpt BDT_20130705_T_CART_ComposerTemplate_win.qpt
 
-UI_FILES = ui_bdtravaux_sortie.py ui_operation.py ui_gestprev.py ui_bdhabnat_dialog.py ui_bdsuivis_dialog.py ui_bdtravaux_matosassur.py
+UI_FILES = ui_bdtravaux_sortie.py ui_operation.py ui_gestprev.py ui_bdhabnat_dialog.py ui_bdsuivis_dialog.py ui_bdtravaux_matosassur.py ui_bdsuivis_dialog_test.py
 
 RESOURCE_FILES = resources_rc.py
 

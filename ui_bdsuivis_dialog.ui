@@ -2,16 +2,28 @@
 <ui version="4.0">
  <class>bdsuivis_dialog</class>
  <widget class="QDialog" name="bdsuivis_dialog">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1222</width>
-    <height>833</height>
+    <height>710</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -20,7 +32,7 @@
    <property name="geometry">
     <rect>
      <x>853</x>
-     <y>764</y>
+     <y>650</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -48,7 +60,7 @@
      <x>20</x>
      <y>230</y>
      <width>1171</width>
-     <height>511</height>
+     <height>386</height>
     </rect>
    </property>
    <property name="font">
@@ -94,7 +106,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>760</y>
+     <y>640</y>
      <width>562</width>
      <height>51</height>
     </rect>

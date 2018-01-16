@@ -43,6 +43,7 @@ class bdsuivisDialog(QtGui.QDialog):
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         self.db.setHostName("192.168.0.10")
+        self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
         self.db.setPassword("postgres")
@@ -92,7 +93,8 @@ class bdsuivisDialog(QtGui.QDialog):
         for item in xrange (len(self.ui.lst_salaries.selectedItems())):
             salarie = self.ui.lst_salaries.selectedItems()[item].text().replace("\'","\'\'")
             self.list_sal.append(salarie)
-        self.text_sal = ",".join((str(x) for x in self.list_sal)).replace(",","\',\'")
+        self.text_sal = ",".join((unicode(x) for x in self.list_sal)).replace(",","\',\'")
+        print unicode(self.text_sal)
         self.recupdonnees()
 
     def recupdonnees(self):
@@ -265,11 +267,11 @@ class bdsuivisDialog(QtGui.QDialog):
             
 
 ###
-        color = QtGui.QColor(Qt.red)
-        if self.model.setData(self.model.index(2,2), color, role = Qt.BackgroundRole) :
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Changement réussi dans le modèle')
-        else : 
-            QtGui.QMessageBox.warning(self, 'Information', u'Changement raté dans le modèle')
+#        color = QtGui.QColor(Qt.red)
+#        if self.model.setData(self.model.index(2,2), color, role = Qt.BackgroundRole) :
+#            QtGui.QMessageBox.warning(self, 'Alerte', u'Changement réussi dans le modèle')
+#        else : 
+#            QtGui.QMessageBox.warning(self, 'Information', u'Changement raté dans le modèle')
 ###
 
 

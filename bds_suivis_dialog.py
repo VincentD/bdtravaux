@@ -61,6 +61,7 @@ class bdsuivisDialog(QtGui.QDialog):
         #self.ui.cbx_chsalarie.setCurrentIndex(0)
         self.ui.cbx_channee.setCurrentIndex(self.ui.cbx_channee.findText((datetime.now().strftime('%Y')), Qt.MatchStartsWith))
         self.text_sal = 'Janczak Alexandra'
+        self.idligne = 0 # compteur permettant d'incrémenter l'ID des nouvelles lignes
 
         # Remplir la liste de choix lst_salaries
         self.ui.lst_salaries.clear()
@@ -71,7 +72,6 @@ class bdsuivisDialog(QtGui.QDialog):
             self.ui.lst_salaries.addItem(unicode(querySal.value(1)))
         if not ok :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage salariés ratée')
-            
 
         # Remplir le QtableView au chargement du module
         self.recupdonnees()
@@ -308,25 +308,54 @@ class bdsuivisDialog(QtGui.QDialog):
 
 
 
-
-        
     def sauvModifs(self):
+        # on vérifie pour chaque champ de texte que le texte saisi ne dépasse par la longueur du champ.
+        # Requête renvoyant les longuers maximales des chaînes de caractères dans les champs de type character varying
+        query_longmax = QtSql.QSqlQuery(self.db)
+        qlgmax = u"""SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 't_suivprev_tablo';"""
+        ok = query_longmax.exec_(qlgmax)
+        if not ok:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête longueur champs ratée')
+        # Récupératuion des longueurs maximales de texte dans les champs de type "character varying", et comparaison avec les valeurs saisies par l'utilisateur
+        i = 0
+        while query_longmax.next():
+            lgchamp = query_longmax.value(0)
+            if lgchamp:
+                #print lgchamp
+                for j in range (self.model.rowCount()):
+                    if lgchamp < len(self.model.data(self.model.index(j,i))):
+                        QtGui.QMessageBox.warning(self, 'Alerte', u'Texte trop long dans la colonne {}'.format(i+1))
+                        return
+            i = i+1
+
+        # Les données du modèle sont saisies en base
         submit = self.model.submitAll()
         if not submit:
             print "rate"
             erreur = self.model.lastError().text()
-            print erreur
+            print unicode(erreur)
+        else:
+            QtGui.QMessageBox.warning(self, 'Alerte', u'Données saisies en base')
+
+
 
     def ajoutlgn(self):
         #Ajout d'une nouvelle ligne dans le QTableView et remplissage de l'identifiant unique
         query_idNewLine = QtSql.QSqlQuery(self.db)
-        if query_idNewLine.exec_('SELECT sp_idsuivi+1 FROM bdsuivis.t_suivprev_tablo ORDER BY sp_idsuivi DESC LIMIT 1'):
-            while query_idNewLine.next():
-                identifiant = query_idNewLine.value(0)
-                print identifiant
+        if self.idligne == 0:
+            if query_idNewLine.exec_('SELECT sp_idsuivi+1 FROM bdsuivis.t_suivprev_tablo ORDER BY sp_idsuivi DESC LIMIT 1'):
+                while query_idNewLine.next():
+                    identifiant = query_idNewLine.value(0)
+                    print identifiant
+            self.idligne = identifiant
+        else:
+            self.idligne = self.idligne +1
+            identifiant = self.idligne
 
         record = self.model.record();
         record.setValue(0,identifiant)
+        record.setValue(22,self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
+        record.setValue(23,self.text_sal.replace("\',\'",","))
         self.model.insertRecord(self.model.rowCount(), record)
         #self.model.dataChanged.emit(self.model.createIndex(self.model.rowCount(), 0),self.model.createIndex(self.model.rowCount(), 22))
 

@@ -73,6 +73,13 @@ class bdsuivisDialog(QtGui.QDialog):
         if not ok :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage salariés ratée')
 
+        # Remplir la combobox "site" avec les codes et noms de sites issus de la table "sites"
+        query = QtSql.QSqlQuery(self.db)
+        if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
+            while query.next():
+                self.ui.cbx_chsite.addItem(query.value(1) + " " + query.value(2), query.value(1) )
+
+
         # Remplir le QtableView au chargement du module
         self.recupdonnees()
         
@@ -86,6 +93,7 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.btn_duplgn.clicked.connect(self.dupllgn)
         self.ui.btn_choisal.clicked.connect(self.choisal)
         self.ui.btn_expcsv.clicked.connect(self.saveCsv)
+
 
 
     def choisal(self):
@@ -323,9 +331,10 @@ class bdsuivisDialog(QtGui.QDialog):
             if lgchamp:
                 #print lgchamp
                 for j in range (self.model.rowCount()):
-                    if lgchamp < len(self.model.data(self.model.index(j,i))):
-                        QtGui.QMessageBox.warning(self, 'Alerte', u'Texte trop long dans la colonne {}'.format(i+1))
-                        return
+                    if self.model.data(self.model.index(j,i)):
+                        if lgchamp < len(self.model.data(self.model.index(j,i))):
+                            QtGui.QMessageBox.warning(self, 'Alerte', u'Texte trop long dans la colonne {}'.format(i+1))
+                            return
             i = i+1
 
         # Les données du modèle sont saisies en base

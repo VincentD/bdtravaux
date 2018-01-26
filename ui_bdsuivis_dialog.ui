@@ -145,15 +145,15 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>400</x>
-     <y>17</y>
+     <x>401</x>
+     <y>90</y>
      <width>151</width>
-     <height>61</height>
+     <height>50</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QLabel" name="lbl_choiSal_2">
+     <widget class="QLabel" name="lbl_choiAnn">
       <property name="text">
        <string>Choisir une année :</string>
       </property>
@@ -281,6 +281,32 @@
      <widget class="QPushButton" name="btn_choisal">
       <property name="text">
        <string>Salariés choisis</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>399</x>
+     <y>19</y>
+     <width>563</width>
+     <height>52</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <widget class="QLabel" name="lbl_choiSite">
+      <property name="text">
+       <string>Choisir un site :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="cbx_chsite">
+      <property name="currentIndex">
+       <number>-1</number>
       </property>
      </widget>
     </item>

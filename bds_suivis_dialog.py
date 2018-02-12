@@ -252,27 +252,30 @@ class bdsuivisDialog(QtGui.QDialog):
         # affiche la table de base de données demandée
         self.model.setTable("bdsuivis.t_suivprev_tablo")
         self.model.select() # peuple le modèle avec les données de la table
-        # Création des "datas" pour les colonnes "salarié" et "année", afin de pouvoir filtrer dessus
-        self.model.setHeaderData(22, Qt.Horizontal, "Annee")
-        self.model.setHeaderData(21, Qt.Horizontal, "Salarie")
 
 
         # filtre en fonction des contenus de la liste à choix multiples et de la combobox
             #création de variables qui serviront à filtrer
-        #salarie = self.ui.cbx_chsalarie.itemData(self.ui.cbx_chsalarie.currentIndex())
+        site = self.ui.cbx_chsite.itemText(self.ui.cbx_chsite.currentIndex())
         annee = self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex())
-            # Filtre : si rien sélectionné, tout afficher. Sinon setFilter selon les variables créées à partir des combobox (ci-dessus)
-        if len(annee) == 0 and len(self.text_sal) == 0:
-            self.model.setFilter("")
-        elif annee == u"""Toutes les années""" and len(self.text_sal) != 0:
-            filtre = "salaries IN ('%s')" % (self.text_sal)
-            print filtre
-            self.model.setFilter(filtre)
+        if len(site) == 0 or site == "Tous les sites":
+            site = '0filtresite'
+        if len(annee) == 0 or annee == u"""Toutes les années""":
+            annee = '0filtreannee'
+            # Filtre : si pas de salarié sélectionné, ne rien afficher. Sinon création du filtreselon les variables créées à partir des combobox (ci-dessus), et aplication via setFilter.
+        if len(self.text_sal) == 0:
+            return
         else:
-            filtre = "annee = '%s' AND salaries IN ('%s')" % (annee, self.text_sal)
+            if site == '0filtresite' and annee == '0filtreannee':
+                filtre = "salaries IN ('%s')" % (self.text_sal)
+            elif site == '0filtresite' and annee != '0filtreannee':
+                filtre = "annee = '%s' AND salaries IN ('%s')" % (annee, self.text_sal)
+            elif site != '0filtresite' and annee == '0filtreannee':
+                filtre = "sp_codesit = '%s' AND salaries IN ('%s')" % (site[:3], self.text_sal)
+            elif site != '0filtresite' and annee != '0filtreannee':
+                filtre = "sp_codesit = '%s' AND annee = '%s' AND salaries IN ('%s')" % (site[:3], annee, self.text_sal)
             print filtre
             self.model.setFilter(filtre)
-            
 
 ###
 #        color = QtGui.QColor(Qt.red)
@@ -282,10 +285,6 @@ class bdsuivisDialog(QtGui.QDialog):
 #            QtGui.QMessageBox.warning(self, 'Information', u'Changement raté dans le modèle')
 ###
 
-
-        # cacher les colonnes ayant servi à filtrer
-        self.ui.tbv_suivtemp.hideColumn(21)
-#        self.ui.tbv_suivtemp.hideColumn(22)
 
         # tri si nécessaire selon la colonne 0
         self.model.sort(0, Qt.AscendingOrder) # ou DescendingOrder
@@ -307,7 +306,7 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.tbv_suivtemp.setColumnWidth(22,35)
         
         # Adapte les libellés dans les entêtes
-        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.', 'Salarie', 'Annee']
+        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.', 'Annee', 'Salarie']
         for column in range(21):
             self.model.setHeaderData(column,Qt.Horizontal,listLabel[column])
 

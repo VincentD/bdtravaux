@@ -148,7 +148,7 @@
      <x>401</x>
      <y>90</y>
      <width>151</width>
-     <height>50</height>
+     <height>52</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -286,7 +286,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>399</x>
@@ -306,8 +306,13 @@
     <item>
      <widget class="QComboBox" name="cbx_chsite">
       <property name="currentIndex">
-       <number>-1</number>
+       <number>0</number>
       </property>
+      <item>
+       <property name="text">
+        <string>Tous les sites</string>
+       </property>
+      </item>
      </widget>
     </item>
    </layout>

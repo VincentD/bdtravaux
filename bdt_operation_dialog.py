@@ -333,29 +333,35 @@ class OperationDialog(QtGui.QDialog):
             # Fonction à lancer quand les boutons "OK" ou "Dernier - Editer CR" sont cliqués.
 
         self.erreurSaisieBase = '0'
-        
+
+###     
 #        #Récupération de la liste des types d'opérations sélectionnés, afin de vérifier s'il y a pose/retrait... de matériel à assurer.
-#        listopreal=[]
-#        for item in range(len(self.ui.opreal.selectedItems())):
-#            listopreal.append("\'"+self.ui.opreal.selectedItems()[item].text().replace("\'","\'\'")+"\'")
-#        txtopreal = ','.join(listopreal)
+        listopreal=[]
+        for item in range(len(self.ui.opreal.selectedItems())):
+            listopreal.append("\'"+self.ui.opreal.selectedItems()[item].text().replace("\'","\'\'")+"\'")
+        txtopreal = ','.join(listopreal)
         
-#        querymatassur = QtSql.QSqlQuery(self.db)
-#        if querymatassur.exec_( u"""SELECT id_opes, operations, matosassur FROM bdtravaux.list_operations_cen WHERE operations IN ({zr_opes})""".format(zr_opes = txtopreal)) :
-#            while querymatassur.next():
-#                self.matassur = querymatassur.value(2)
-#                print self.matassur
-#                if self.matassur == True :
-#                    print 'on entre dans matassur'
-#                    #Création et remplissage de l'objet id_sortie avec l'identifiant de la sortie courante, à partir de la combobox "sortie"
-#                    id_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex())
-#                    print "id_sortie="+str(id_sortie)
-#                    #lancement de la fonction trsfrtdonnees dans le module matosAssurDialog avec le paramètre id_sortie
-#                    self.obj_assur=matosAssurDialog()
-#                    self.obj_assur.trsfrtDonnees(id_sortie)
-#                else:
-#                    print 'opé non assurée'
-        
+        querymatassur = QtSql.QSqlQuery(self.db)
+        if querymatassur.exec_( u"""SELECT id_opes, operations, matosassur FROM bdtravaux.list_operations_cen WHERE operations IN ({zr_opes})""".format(zr_opes = txtopreal)) :
+            while querymatassur.next():
+                self.matassur = querymatassur.value(2)
+                print self.matassur
+                if self.matassur == True :
+                    print 'on entre dans matassur'
+                    #Création et remplissage de l'objet id_sortie avec l'identifiant de la sortie courante, à partir de la combobox "sortie"
+                    id_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+                    print "id_sortie="+str(id_sortie)
+                    #lancement deu module matosAssurDialog avec le paramètre id_sortie
+                    self.obj_assur=matosAssurDialog(id_sortie)
+                    self.obj_assur.show()
+  #                  self.obj_assur.trsfrtDonnees(id_sortie)
+                    result = self.obj_assur.exec_()
+                    if result == 1:
+                        pass
+
+                else:
+                    print 'opé non assurée'
+###        
         
             # Lance sauverOpe ou sauvOpeSanGeom si géométrie présente ou non        
         if self.sansgeom=='True':

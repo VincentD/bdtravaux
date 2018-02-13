@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
+  <widget class="QDialogButtonBox" name="btn_matosassur">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -29,7 +29,7 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QListWidget" name="listWidget">
+  <widget class="QListWidget" name="lst_assur">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -73,7 +73,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>btn_matosassur</sender>
    <signal>accepted()</signal>
    <receiver>MatosAssurDialog</receiver>
    <slot>accept()</slot>
@@ -89,7 +89,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>btn_matosassur</sender>
    <signal>rejected()</signal>
    <receiver>MatosAssurDialog</receiver>
    <slot>reject()</slot>

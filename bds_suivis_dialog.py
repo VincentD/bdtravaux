@@ -58,7 +58,6 @@ class bdsuivisDialog(QtGui.QDialog):
         #        self.ui.cbx_chsalarie.addItem(query_salarie.value(1), query_salarie.value(0) )
 
         #Initialisations
-        #self.ui.cbx_chsalarie.setCurrentIndex(0)
         self.ui.cbx_channee.setCurrentIndex(self.ui.cbx_channee.findText((datetime.now().strftime('%Y')), Qt.MatchStartsWith))
         self.text_sal = 'Janczak Alexandra'
         self.idligne = 0 # compteur permettant d'incrémenter l'ID des nouvelles lignes

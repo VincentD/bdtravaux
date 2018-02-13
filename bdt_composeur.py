@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -50,7 +50,7 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
 
 
@@ -350,8 +350,15 @@ class composerClass (QtGui.QDialog):
         qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie=999999999 order by operation_id limit 1"""
         okpoly = self.querypoly.exec_(qpoly)
 
-#        self.querylgn = ''
-#        self.querypts = ''
+        self.querylgn = QtSql.QSqlQuery(self.db)
+        qlgn=u"""select operation_id from bdtravaux.operation_lgn where sortie=999999999 order by operation_id limit 1"""
+        oklgn = self.querylgn.exec_(qlgn)
+        
+        self.querypts = QtSql.QSqlQuery(self.db)
+        qpts=u"""select operation_id from bdtravaux.operation_pts where sortie=999999999 order by operation_id limit 1"""
+        okpts = self.querypts.exec_(qpts)
+
+
         #Affiche les couches qui apparaîtront dans le composeur après choix du site dans l'onglet "Bordereau de terrain"
         print 'bouton bordereau cliqué'
         reqbordsite="""codesite='"""+str(idsite)+"""'"""

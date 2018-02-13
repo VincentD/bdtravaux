@@ -48,7 +48,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>5</number>
    </property>
    <widget class="QWidget" name="tab_quand">
     <property name="toolTip">
@@ -2088,7 +2088,7 @@
      </item>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab_2">
+   <widget class="QWidget" name="tab_bordereau">
     <attribute name="title">
      <string>Bordereau terrain</string>
     </attribute>

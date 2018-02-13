@@ -40,7 +40,7 @@ class BdTravauxDialog(QtGui.QDialog):
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
         #ici on crée self.db =objet de la classe, et non db=variable, car on veut réutiliser db même en étant sorti du constructeur
         # (une variable n'est exploitable que dans le bloc où elle a été créée)
-        self.db.setHostName("192.168.0.10")
+        self.db.setHostName("127.0.0.1")
         self.db.setPort(5432)
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -290,9 +290,9 @@ class BdTravauxDialog(QtGui.QDialog):
 
 
     def masqueBoutons(self, index):
-        #si l'onglet actif est "tab_extsortie" (index=4), alors les boutons OK et annuler sont masqués. Sinon ils sont actifs.
+        #si l'onglet actif est "tab_extsortie" (index=4) ou tab "tab_bordereau" (index = 5), alors les boutons OK et annuler sont masqués. Sinon ils sont actifs.
         #print 'Boutons à masquer'+str(index)
-        if index == 4:
+        if index == 4 or index == 5:
             self.ui.buttonBox_2.setEnabled(False)
         else:
             self.ui.buttonBox_2.setEnabled(True)

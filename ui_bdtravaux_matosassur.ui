@@ -56,9 +56,9 @@
   <widget class="QPushButton" name="btn_matosassur">
    <property name="geometry">
     <rect>
-     <x>268</x>
-     <y>180</y>
-     <width>71</width>
+     <x>276</x>
+     <y>176</y>
+     <width>66</width>
      <height>27</height>
     </rect>
    </property>

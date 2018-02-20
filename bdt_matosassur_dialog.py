@@ -36,7 +36,7 @@ class matosAssurDialog(QtGui.QDialog):
 
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -55,11 +55,11 @@ class matosAssurDialog(QtGui.QDialog):
 
         # Connexions signaux - slots
         self.ui.btn_matosassur.clicked.connect(self.trsfrtDonnees)
-        self.ui.lst_matosassur.itemSelectionChanged.connect(self.activButton)       
+        self.ui.lst_assur.itemSelectionChanged.connect(self.activButton)       
         
         
-    def activbutton(self):
-        matoassurlist = self.ui.lst_matosassur.selectedItems()
+    def activButton(self):
+        matosassurlist = self.ui.lst_assur.selectedItems()
         if len(matosassurlist) !=0:
             self.ui.btn_matosassur.setEnabled(1)
         

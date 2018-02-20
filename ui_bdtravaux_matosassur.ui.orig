@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MatosAssurDialog</class>
+ <widget class="QDialog" name="MatosAssurDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>356</width>
+    <height>219</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QListWidget" name="lst_assur">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>30</y>
+     <width>301</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Pose de nouveau matériel</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Remplacement pour usure</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Remplacement pour vol / vandalisme</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Retrait (sans remplacement le jour même)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Constat de dégradation</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Non concerné (hivernage matériel)</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QPushButton" name="btn_matosassur">
+   <property name="geometry">
+    <rect>
+<<<<<<< HEAD
+     <x>268</x>
+     <y>180</y>
+     <width>71</width>
+=======
+     <x>276</x>
+     <y>176</y>
+     <width>66</width>
+>>>>>>> refs/remotes/origin/master
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>OK</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

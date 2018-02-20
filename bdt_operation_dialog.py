@@ -42,7 +42,7 @@ class OperationDialog(QtGui.QDialog):
 
         # Connexion à la base de données. Type de BD, hôte, utilisateur, mot de passe...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -55,7 +55,7 @@ class OperationDialog(QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
 
         #Initialisations
         self.ui.chx_opechvol.setVisible(False)
@@ -121,6 +121,10 @@ class OperationDialog(QtGui.QDialog):
         if queryopes.exec_('select * from bdtravaux.list_operations_cen order by operations'):
             while queryopes.next():
                 self.ui.opreal.addItem(unicode(queryopes.value(1)))
+                if self.sansgeom == 'True':
+                    matosassur = queryopes.value(2)
+                    if matosassur == True:
+                        self.ui.opreal.item(self.ui.opreal.count()-1).setHidden(True)
                 self.ui.lst_edtypope.addItem(unicode(queryopes.value(1)))
 
         self.ui.prestataire.clear()
@@ -334,34 +338,6 @@ class OperationDialog(QtGui.QDialog):
 
         self.erreurSaisieBase = '0'
 
-###     
-#        #Récupération de la liste des types d'opérations sélectionnés, afin de vérifier s'il y a pose/retrait... de matériel à assurer.
-        listopreal=[]
-        for item in range(len(self.ui.opreal.selectedItems())):
-            listopreal.append("\'"+self.ui.opreal.selectedItems()[item].text().replace("\'","\'\'")+"\'")
-        txtopreal = ','.join(listopreal)
-        
-        querymatassur = QtSql.QSqlQuery(self.db)
-        if querymatassur.exec_( u"""SELECT id_opes, operations, matosassur FROM bdtravaux.list_operations_cen WHERE operations IN ({zr_opes})""".format(zr_opes = txtopreal)) :
-            while querymatassur.next():
-                self.matassur = querymatassur.value(2)
-                print self.matassur
-                if self.matassur == True :
-                    print 'on entre dans matassur'
-                    #Création et remplissage de l'objet id_sortie avec l'identifiant de la sortie courante, à partir de la combobox "sortie"
-                    id_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex())
-                    print "id_sortie="+str(id_sortie)
-                    #lancement deu module matosAssurDialog avec le paramètre id_sortie
-                    self.obj_assur=matosAssurDialog(id_sortie)
-                    self.obj_assur.show()
-  #                  self.obj_assur.trsfrtDonnees(id_sortie)
-                    result = self.obj_assur.exec_()
-                    if result == 1:
-                        pass
-
-                else:
-                    print 'opé non assurée'
-###        
         
             # Lance sauverOpe ou sauvOpeSanGeom si géométrie présente ou non        
         if self.sansgeom=='True':
@@ -491,12 +467,42 @@ class OperationDialog(QtGui.QDialog):
         else :
             print u'La projection de la couche active n\'est pas supportee'
 
+
+        #Récupération de la liste des types d'opérations sélectionnés, afin de vérifier s'il y a pose/retrait... de matériel à assurer.
+        #Dans ce cas, entrée dans le module "MatosAssur"
+        listopreal=[]
+        for item in range(len(self.ui.opreal.selectedItems())):
+            listopreal.append("\'"+self.ui.opreal.selectedItems()[item].text().replace("\'","\'\'")+"\'")
+        txtopreal = ','.join(listopreal)
+        
+        querymatassur = QtSql.QSqlQuery(self.db)
+        if querymatassur.exec_( u"""SELECT id_opes, operations, matosassur FROM bdtravaux.list_operations_cen WHERE operations IN ({zr_opes})""".format(zr_opes = txtopreal)) :
+            while querymatassur.next():
+                self.matassur = querymatassur.value(2)
+                print self.matassur
+                if self.matassur == True :
+                    print 'on entre dans matassur'
+                    #Création et remplissage de l'objet id_sortie avec l'identifiant de la sortie courante, à partir de la combobox "sortie"
+                    id_sortie = self.ui.sortie.itemData(self.ui.sortie.currentIndex())
+                    print "id_sortie="+str(id_sortie)
+                    #lancement deu module matosAssurDialog avec le paramètre id_sortie
+                    self.obj_assur=matosAssurDialog(id_sortie,thegeom)
+                    self.obj_assur.show()
+                    result = self.obj_assur.exec_()
+                    if result == 1:
+                        pass
+                else:
+                    print 'opé non assurée'
+       
+
         #lancement de la fonction qui vérifie si l'opération fait partie d'un chantier de volontaires.
         self.recupIdChantvol()
         self.recupAnneeSortie()
+        
         #Lancement de la fonction qui introduit les données du formulaire dans les tables annexes.
         #Elles sont remplies avant la table "opération", pour avoir déjà les données quand le trigger "After Insert" de cette dernière viendra les chercher.
         self.rempliJoin() 
+        
         #lancement de la requête SQL qui introduit les données géographiques et du formulaire dans les tables "operations_xxx".
         querysauvope = QtSql.QSqlQuery(self.db)
         query = u"""insert into bdtravaux.{zr_nomtable} (sortie, descriptio, chantfini, the_geom, ope_chvol, anneereal) values ({zr_sortie}, '{zr_libelle}', '{zr_chantfini}', {zr_the_geom}, '{zr_opechvol}', '{zr_anneereal}')""".format (zr_nomtable=self.nom_table,\

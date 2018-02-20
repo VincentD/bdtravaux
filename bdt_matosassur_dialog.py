@@ -28,7 +28,7 @@ from ui_bdtravaux_matosassur import Ui_MatosAssurDialog
 
 
 class matosAssurDialog(QtGui.QDialog):
-    def __init__(self,id_sortie):
+    def __init__(self,id_sortie,thegeom):
         """Constructor."""
         QtGui.QDialog.__init__(self)
         self.ui = Ui_MatosAssurDialog()
@@ -36,7 +36,7 @@ class matosAssurDialog(QtGui.QDialog):
 
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10") 
+        self.db.setHostName("127.0.0.1") 
         self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -45,9 +45,10 @@ class matosAssurDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
 
-        #Création de l'objet self.idsortie pour requêtes sur la sortie, à partir du paramètre id_sortie venant du module "opération".
+        #Création des objets self.idsortie et self.thegeom pour requêtes sur la sortie et utilisation de la géométrie, à partir des paramètres id_sortie et thegeom venant du module "opération".
         print "idsortie dans matassur = "+str(id_sortie)
         self.id_sortie=id_sortie
+        self.thegeom=thegeom
 
         #Le boutons OK est grisé tant qu'on n'a pas sélectionné un item de la liste
         self.ui.btn_matosassur.setEnabled(0)
@@ -65,7 +66,7 @@ class matosAssurDialog(QtGui.QDialog):
         
         
     def recupDonnSortie(self):
-    # Récupération des données de la sortie pour les intégrer dans la reqte de remplaissage de la table t_matos_assur.
+    # Récupération des données de la sortie pour les intégrer dans la reqte de remplissage de la table t_matos_assur.
         # Initialisations
         self.datpose = None
         self.datvandal = None
@@ -114,7 +115,7 @@ class matosAssurDialog(QtGui.QDialog):
         
         queryMatosAssur = QtSql.QSqlQuery(self.db)
         qMatosAssur = u"""INSERT INTO bdtravaux.t_matos_assur_pts(id_matos, codesite, nomsite, commune, typ_matos, dat_pose, 
-            dat_vandal, dat_retrait, id_sortie, geom) VALUES ('{zr_idmatos}', '{zr_codesite}', '{zr_nomsite}', '{zr_commune}','{zr_typmatos}', '{zr_datpose}', {zr_datvandal}, {zr_datretrait}, '{zr_idsortie}', '{zr_geom}')""".format (\
+            dat_vandal, dat_retrait, id_sortie, geom) VALUES ('{zr_idmatos}', '{zr_codesite}', '{zr_nomsite}', '{zr_commune}','{zr_typmatos}', '{zr_datpose}', {zr_datvandal}, {zr_datretrait}, '{zr_idsortie}', {zr_geom})""".format (\
         zr_idmatos = '',\
         zr_codesite = self.codedusite,\
         zr_nomsite = self.nomdusite,\
@@ -124,7 +125,7 @@ class matosAssurDialog(QtGui.QDialog):
         zr_datvandal = self.datvandal,\
         zr_datretrait = self.datretrait,\
         zr_idsortie = self.id_sortie,\
-        zr_geom = '')
+        zr_geom = self.thegeom)
         ok = queryMatosAssur.exec_(qMatosAssur)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête saisie données Matos à Assurer ratée')

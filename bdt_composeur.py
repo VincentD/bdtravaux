@@ -37,7 +37,7 @@ class composerClass (QtGui.QDialog):
 
         # Connexion à la BD PostgreSQL
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -50,8 +50,10 @@ class composerClass (QtGui.QDialog):
         #QgsDataSourceUri() permet d'aller chercher une table d'une base de données PostGis (cf. PyQGIS cookbook)
         self.uri = QgsDataSourceURI()
         # configure l'adresse du serveur (hôte), le port, le nom de la base de données, l'utilisateur et le mot de passe.
-        self.uri.setConnection("127.0.0.1", "5432", "sitescsn", "postgres", "postgres")
-
+        self.uri.setConnection("192.168.0.10", "5432", "sitescsn", "postgres", "postgres")
+        
+        #Initialisations
+        self.bordereau = 0
 
 
     def Composer(self, idsortie, idsite):
@@ -127,20 +129,33 @@ class composerClass (QtGui.QDialog):
 
 
         #TEMPLATE : Récupération du template. Intégration des ses éléments dans la carte.
-        if sys.platform.startswith('linux'):
-            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen/BDT_20130705_T_CART_ComposerTemplate_linux.qpt")   
+#        if sys.platform.startswith('linux'):
+#            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen/BDT_20130705_T_CART_ComposerTemplate_linux.qpt")   
 #            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/bd_cen/BDT_20130705_T_CART_ComposerTemplate.qpt")   
-            if file1.exists():
-                print 'trouve le modele de composeur'
-            else:
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Linux')
-        if sys.platform.startswith('win32'):
-            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/BDT_20130705_T_CART_ComposerTemplate_win.qpt")
+#            if file1.exists():
+#                print 'trouve le modele de composeur'
+#            else:
+#                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Linux')
+#        if sys.platform.startswith('win32'):
+#            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/BDT_20130705_T_CART_ComposerTemplate_win.qpt")
 #            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "\python\plugins\\bd_cen\BDT_20130705_T_CART_ComposerTemplate.qpt")
+#            if file1.exists():
+#                print 'trouve le modele de composeur'
+#            else:
+#                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Windows')
+        if self.bordereau == 0 :
+            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/BDT_20130705_T_CART_ComposerTemplate.qpt")
             if file1.exists():
                 print 'trouve le modele de composeur'
             else:
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur sous Windows')
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du composeur')
+        else :
+            file1=QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/BDT_20160927_F_CART_modele_bordero_terrain.qpt")
+            if file1.exists():
+                print 'trouve le modele de bordereau'
+            else:
+                QtGui.QMessageBox.warning(self, 'Alerte', u'Pas trouvé le modèle du bordereau')
+
         doc=QtXml.QDomDocument()
         doc.setContent(file1, False)
         elem=doc.firstChildElement()
@@ -161,6 +176,31 @@ class composerClass (QtGui.QDialog):
         self.composerMapSetBBox(self.contours_site, self.margin)
                     #(Dé)zoome sur l'ensemble des deux pages du composeur
                     #self.composition.mActionZoomFullExtent().trigger()
+
+        # LOGOS
+        #Il ne sont pas inétgrés au modèle de composeur, afin de pouvoir indiquer un chemin (path) qui est fonction du dossier d'installation de QGIS, et qui fonctionne quel que soit l'OS.
+            # Logo CEN NPdC
+        imageCEN = QgsComposerPicture(self.composition)
+        cenPath = QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/rs_logo_cen.jpg").fileName()
+        imageCEN.setPicturePath(cenPath)
+        imageCEN.setSceneRect(QtCore.QRectF(0,0,31.6,10.7))
+        imageCEN.setItemPosition(357,248)
+        self.composition.addItem(imageCEN)
+            #logo PPIGE
+        imagePPIGE = QgsComposerPicture(self.composition)
+        ppigePath = QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/rs_logo_ppige.jpg").fileName()
+        imagePPIGE.setPicturePath(ppigePath)
+        imagePPIGE.setSceneRect(QtCore.QRectF(0,0,18.5,10.7))
+        imagePPIGE.setItemPosition(392,255)
+        self.composition.addItem(imagePPIGE)
+            #logo Flèche Nord
+        imageNord = QgsComposerPicture(self.composition)
+        nordPath = QtCore.QFile(QtCore.QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/bdcen/rs_logo_flechenord2.svg").fileName()
+        imageNord.setPicturePath(nordPath)
+        imageNord.setSceneRect(QtCore.QRectF(0,0,14.3,18.5))
+        imageNord.setItemPosition(330,268)
+        self.composition.addItem(imageNord)
+
 
 
         #ETIQUETTES :       Modifier les étiquettes du composeur.
@@ -343,9 +383,11 @@ class composerClass (QtGui.QDialog):
                 legend.setAutoUpdateModel(False)
                 legend.setLegendFilterByMapEnabled(True)
 
+        self.bordereau = 0
 
 
     def donnees_ImprBordereau(self, idsite):
+        self.bordereau = 1
         self.querypoly = QtSql.QSqlQuery(self.db)
         qpoly=u"""select operation_id from bdtravaux.operation_poly where sortie=999999999 order by operation_id limit 1"""
         okpoly = self.querypoly.exec_(qpoly)
@@ -410,6 +452,8 @@ class composerClass (QtGui.QDialog):
         self.cv_j1adcen_am = self.cv_j1adcen_pm = self.cv_j1_blon_am = self.cv_j1_blon_pm = self.cv_j2_enc_am = self.cv_j2_enc_pm =\
         self.cv_j2_tot_am = self.cv_j2_tot_pm = self.cv_j2adcen_am = self.cv_j2adcen_pm = self.cv_j2_blon_am = self.cv_j2_blon_pm =\
         self.cv_sem_enc = self.cv_sem_ben = ''
+
+
 
 
     def recupDonnSortie(self, idsortie):

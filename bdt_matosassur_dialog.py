@@ -36,7 +36,7 @@ class matosAssurDialog(QtGui.QDialog):
 
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1") 
+        self.db.setHostName("192.168.0.10") 
         self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -87,24 +87,24 @@ class matosAssurDialog(QtGui.QDialog):
         
         
         #calcul des objets qui seront insérés dans la requête d'insertion (cf. fonction trsfrtDonnees)
-        print len(self.ui.lst_assur.selectedItems())
+#        print len(self.ui.lst_assur.selectedItems())
         for item in xrange (len(self.ui.lst_assur.selectedItems())):
-            print self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'")
+            #print self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'")
             if self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Pose de nouveau matériel""" or \
             self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Remplacement pour usure""" or \
             self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Remplacement pour vol / vandalisme""":
-                print "pose nouveau matos"
+             #   print "pose nouveau matos"
                 self.datpose = self.datesortie
                 self.datvandal = 'Null'
                 self.datretrait='Null'
             elif self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Constat de dégradation""":
-                print "vandalisme"
+             #   print "vandalisme"
                 self.datvandal = self.datesortie
             elif self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Retrait (sans remplacement le jour même)""":
-                print "retrait"
+             #   print "retrait"
                 self.datretrait = self.datesortie
             else :
-                print 'hivernage du matériel'
+             #   print 'hivernage du matériel'
                 self.close()
         
         
@@ -113,9 +113,10 @@ class matosAssurDialog(QtGui.QDialog):
         
         self.recupDonnSortie()
         
+
         queryMatosAssur = QtSql.QSqlQuery(self.db)
         qMatosAssur = u"""INSERT INTO bdtravaux.t_matos_assur_pts(id_matos, codesite, nomsite, commune, typ_matos, dat_pose, 
-            dat_vandal, dat_retrait, id_sortie, geom) VALUES ('{zr_idmatos}', '{zr_codesite}', '{zr_nomsite}', '{zr_commune}','{zr_typmatos}', '{zr_datpose}', {zr_datvandal}, {zr_datretrait}, '{zr_idsortie}', {zr_geom})""".format (\
+            dat_vandal, dat_retrait, id_sortie, geom) VALUES ('{zr_idmatos}', '{zr_codesite}', '{zr_nomsite}', '{zr_commune}','{zr_typmatos}', '{zr_datpose}', '2017-05-23', '2017-05-23', '{zr_idsortie}', {zr_geom})""".format (\
         zr_idmatos = '',\
         zr_codesite = self.codedusite,\
         zr_nomsite = self.nomdusite,\
@@ -129,7 +130,10 @@ class matosAssurDialog(QtGui.QDialog):
         ok = queryMatosAssur.exec_(qMatosAssur)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête saisie données Matos à Assurer ratée')
-            print unicode(qMatosAssur)
+            #print str(qMatosAssur)
+        self.ui.btn_matosassur.setEnabled(0)
+        self.close()
+
 
     ############ En cours : adapter les zr_xxx pour récupérer toutes les données à insérer dans la table t_matos_assur_pts
    

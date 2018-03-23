@@ -55,7 +55,7 @@ class matosAssurDialog(QtGui.QDialog):
 
 
         # Connexions signaux - slots
-        self.ui.btn_matosassur.clicked.connect(self.trsfrtDonnees)
+        self.ui.btn_matosassur.clicked.connect(self.recupDonnSortie)
         self.ui.lst_assur.itemSelectionChanged.connect(self.activButton)       
         
         
@@ -94,29 +94,33 @@ class matosAssurDialog(QtGui.QDialog):
             self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Remplacement pour usure""" or \
             self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Remplacement pour vol / vandalisme""":
              #   print "pose nouveau matos"
-                self.datpose = self.datesortie
+                self.datpose = "\'"+self.datesortie+"\'"
                 self.datvandal = 'Null'
-                self.datretrait='Null'
+                self.datretrait= 'Null'
+                self.trsfrtDonnees()
             elif self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Constat de dégradation""":
              #   print "vandalisme"
-                self.datvandal = self.datesortie
+                self.datpose = 'Null'
+                self.datvandal = "\'"+self.datesortie+"\'"
+                self.datretrait= 'Null'
+                self.trsfrtDonnees()
+                
             elif self.ui.lst_assur.selectedItems()[item].text().replace("\'","\'\'") == u"""Retrait (sans remplacement le jour même)""":
              #   print "retrait"
-                self.datretrait = self.datesortie
+                self.datpose = 'Null'
+                self.datvandal = 'Null'
+                self.datretrait= "\'"+self.datesortie+"\'"
+                self.trsfrtDonnees()
             else :
-             #   print 'hivernage du matériel'
+            #    print 'hivernage du matériel'
                 self.close()
         
         
         
     def trsfrtDonnees(self):
         
-        self.recupDonnSortie()
-        
-
         queryMatosAssur = QtSql.QSqlQuery(self.db)
-        qMatosAssur = u"""INSERT INTO bdtravaux.t_matos_assur_pts(id_matos, codesite, nomsite, commune, typ_matos, dat_pose, 
-            dat_vandal, dat_retrait, id_sortie, geom) VALUES ('{zr_idmatos}', '{zr_codesite}', '{zr_nomsite}', '{zr_commune}','{zr_typmatos}', '{zr_datpose}', '2017-05-23', '2017-05-23', '{zr_idsortie}', {zr_geom})""".format (\
+        qMatosAssur = u"""INSERT INTO bdtravaux.t_matos_assur_pts(id_matos, codesite, nomsite, commune, typ_matos, dat_pose, dat_vandal, dat_retrait, id_sortie, geom) VALUES ('{zr_idmatos}', '{zr_codesite}', '{zr_nomsite}', '{zr_commune}','{zr_typmatos}', {zr_datpose}, {zr_datvandal}, {zr_datretrait}, '{zr_idsortie}', {zr_geom})""".format (\
         zr_idmatos = '',\
         zr_codesite = self.codedusite,\
         zr_nomsite = self.nomdusite,\
@@ -130,7 +134,7 @@ class matosAssurDialog(QtGui.QDialog):
         ok = queryMatosAssur.exec_(qMatosAssur)
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête saisie données Matos à Assurer ratée')
-            #print str(qMatosAssur)
+            print str(qMatosAssur)
         self.ui.btn_matosassur.setEnabled(0)
         self.close()
 

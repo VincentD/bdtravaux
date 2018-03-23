@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/bd_cen" >
+    <qresource prefix="/plugins/bdcen" >
         <file>rs_icon_bdt_sort.png</file>
         <file>rs_icon_bdt_ope.png</file>
         <file>rs_icon_bdt_prev.png</file>

@@ -48,6 +48,6 @@ def email():
     return "vincent.damoy@espaces-naturels.fr"
 
 def classFactory(iface):
-    # load BdTravaux class from file BdTravaux
-    from bd_cen import BdTravaux
+    # load BdTravaux class from file bd_cen
+    from bdcen import BdTravaux
     return BdTravaux(iface)

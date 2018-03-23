@@ -42,7 +42,7 @@ class bdsuivisDialog(QtGui.QDialog):
         
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("192.168.0.10")
+        self.db.setHostName("127.0.0.1")
         self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -51,11 +51,6 @@ class bdsuivisDialog(QtGui.QDialog):
         if not ok:
             QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
 
-        # Remplir la combobox "cbx_chsalarie" avec les prénoms et noms issus de la table "t_list_salaries"
-        #query_salarie = QtSql.QSqlQuery(self.db)
-        #if query_salarie.exec_('select sps_id, sps_nomsal from bdsuivis.t_list_salaries order by sps_nomsal'):
-        #    while query_salarie.next():
-        #        self.ui.cbx_chsalarie.addItem(query_salarie.value(1), query_salarie.value(0) )
 
         #Initialisations
         self.ui.cbx_channee.setCurrentIndex(self.ui.cbx_channee.findText((datetime.now().strftime('%Y')), Qt.MatchStartsWith))
@@ -72,11 +67,11 @@ class bdsuivisDialog(QtGui.QDialog):
         if not ok :
             QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage salariés ratée')
 
-        # Remplir la combobox "site" avec les codes et noms de sites issus de la table "sites"
+        # Remplir la combobox "site" avec les codes et noms de sites issus de la table "sites" et les codes et noms des études issus de la table "etudes"
         query = QtSql.QSqlQuery(self.db)
-        if query.exec_('select idchamp, codesite, nomsite from sites_cen.t_sitescen order by codesite'):
+        if query.exec_('SELECT codesite, nomsite FROM sites_cen.t_sitescen UNION SELECT spe_code, spe_nom FROM bdsuivis.t_list_etudes ORDER by codesite;'):
             while query.next():
-                self.ui.cbx_chsite.addItem(query.value(1) + " " + query.value(2), query.value(1) )
+                self.ui.cbx_chsite.addItem(query.value(0) + " " + query.value(1), query.value(0) )
 
 
         # Remplir le QtableView au chargement du module
@@ -84,7 +79,7 @@ class bdsuivisDialog(QtGui.QDialog):
         
         # Connexions signaux - slots
         #self.ui.cbx_chsalarie.currentIndexChanged.connect(self.recupdonnees)
-        self.ui.cbx_channee.currentIndexChanged.connect(self.recupdonnees)
+        #self.ui.cbx_channee.currentIndexChanged.connect(self.recupdonnees)
         self.ui.btn_okannul.accepted.connect(self.sauvModifs)
         self.ui.btn_okannul.rejected.connect(self.close)
         self.ui.btn_ajoutlgn.clicked.connect(self.ajoutlgn)
@@ -150,7 +145,7 @@ class bdsuivisDialog(QtGui.QDialog):
 
         # 2 Récupération et affichage des données du nombre de jours travaillés dans le mois (= somme des jours de suivis prévus dans le QTableView principal). comparaison avec le nb de jours maximum
         query_jrsmois = QtSql.QSqlQuery(self.db)
-        qjrsmois = u"""SELECT sum(coalesce(t.janvier,0)) as sjanvier, sum(coalesce(t.fevrier,0)) as sfevrier, sum(coalesce(t.mars,0)) as smars, sum(coalesce(t.avril,0)) as savril, sum(coalesce(t.mai,0)) as smai, sum(coalesce(t.juin,0)) as sjuin, sum(coalesce(t.juillet,0)) as sjuillet, sum(coalesce(t.aout,0)) as saout, sum(coalesce(t.septembre,0)) as sseptembre, sum(coalesce(t.octobre,0)) as soctobre, sum(coalesce(t.novembre,0)) as snovembre, sum(coalesce(t.decembre,0)) as sdecembre FROM bdsuivis.t_suivprev_tablo t WHERE salaries IN ('{zr_salarie}') AND annee = '{zr_annee}';""".format(\
+        qjrsmois = u"""SELECT sum(coalesce(t.janvier,0)) as sjanvier, sum(coalesce(t.fevrier,0)) as sfevrier, sum(coalesce(t.mars,0)) as smars, sum(coalesce(t.avril,0)) as savril, sum(coalesce(t.mai,0)) as smai, sum(coalesce(t.juin,0)) as sjuin, sum(coalesce(t.juillet,0)) as sjuillet, sum(coalesce(t.aout,0)) as saout, sum(coalesce(t.septembre,0)) as sseptembre, sum(coalesce(t.octobre,0)) as soctobre, sum(coalesce(t.novembre,0)) as snovembre, sum(coalesce(t.decembre,0)) as sdecembre FROM bdsuivis.t_suivprev_tablo t WHERE salaries IN ('{zr_salarie}') AND annee = '{zr_annee}' AND sp_operat = 'Régie';""".format(\
         zr_salarie = self.text_sal,
         zr_annee = self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
         #print qjrsmois
@@ -261,7 +256,7 @@ class bdsuivisDialog(QtGui.QDialog):
             site = '0filtresite'
         if len(annee) == 0 or annee == u"""Toutes les années""":
             annee = '0filtreannee'
-            # Filtre : si pas de salarié sélectionné, ne rien afficher. Sinon création du filtreselon les variables créées à partir des combobox (ci-dessus), et aplication via setFilter.
+            # Filtre : si pas de salarié sélectionné, ne rien afficher. Sinon création du filtre selon les variables créées à partir des combobox (ci-dessus), et application via setFilter.
         if len(self.text_sal) == 0:
             return
         else:
@@ -288,6 +283,7 @@ class bdsuivisDialog(QtGui.QDialog):
         # tri si nécessaire selon la colonne 0
         self.model.sort(0, Qt.AscendingOrder) # ou DescendingOrder
  
+
         # ajuste la largeur des colonnes
 #        self.ui.tbv_suivtemp.resizeColumnsToContents()
         self.ui.tbv_suivtemp.setColumnWidth(0,35)
@@ -297,16 +293,17 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.tbv_suivtemp.setColumnWidth(4,30)
         self.ui.tbv_suivtemp.setColumnWidth(5,40)
         self.ui.tbv_suivtemp.setColumnWidth(6,50)
-        self.ui.tbv_suivtemp.setColumnWidth(7,115)
-        self.ui.tbv_suivtemp.setColumnWidth(8,133)
-        for a in range(9,21):
+        self.ui.tbv_suivtemp.setColumnWidth(7,50)
+        self.ui.tbv_suivtemp.setColumnWidth(8,115)
+        self.ui.tbv_suivtemp.setColumnWidth(9,35)
+        self.ui.tbv_suivtemp.setColumnWidth(10,115)
+        for a in range(11,23):
             self.ui.tbv_suivtemp.setColumnWidth(a,35)
-        self.ui.tbv_suivtemp.setColumnWidth(21,35)
-        self.ui.tbv_suivtemp.setColumnWidth(22,35)
+
         
         # Adapte les libellés dans les entêtes
-        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.', 'Annee', 'Salarie']
-        for column in range(21):
+        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Annee', 'Salarie', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
+        for column in range(22):
             self.model.setHeaderData(column,Qt.Horizontal,listLabel[column])
 
         # rétrécit la taille de la police dans les headers
@@ -316,7 +313,7 @@ class bdsuivisDialog(QtGui.QDialog):
 
     def sauvModifs(self):
         # on vérifie pour chaque champ de texte que le texte saisi ne dépasse par la longueur du champ.
-        # Requête renvoyant les longuers maximales des chaînes de caractères dans les champs de type character varying
+        # Requête renvoyant les longueurs maximales des chaînes de caractères dans les champs de type character varying
         query_longmax = QtSql.QSqlQuery(self.db)
         qlgmax = u"""SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 't_suivprev_tablo';"""
         ok = query_longmax.exec_(qlgmax)

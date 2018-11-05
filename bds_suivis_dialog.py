@@ -42,7 +42,7 @@ class bdsuivisDialog(QtGui.QDialog):
         
         # Connexion à la base de données. DB type, host, user, password...
         self.db = QtSql.QSqlDatabase.addDatabase("QPSQL") # QPSQL = nom du pilote postgreSQL
-        self.db.setHostName("127.0.0.1")
+        self.db.setHostName("192.168.0.10")
         self.db.setPort(5432) 
         self.db.setDatabaseName("sitescsn")
         self.db.setUserName("postgres")
@@ -294,16 +294,17 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.tbv_suivtemp.setColumnWidth(5,40)
         self.ui.tbv_suivtemp.setColumnWidth(6,50)
         self.ui.tbv_suivtemp.setColumnWidth(7,50)
-        self.ui.tbv_suivtemp.setColumnWidth(8,115)
-        self.ui.tbv_suivtemp.setColumnWidth(9,35)
-        self.ui.tbv_suivtemp.setColumnWidth(10,115)
-        for a in range(11,23):
+        self.ui.tbv_suivtemp.setColumnWidth(8,35)
+        self.ui.tbv_suivtemp.setColumnWidth(9,115)
+        self.ui.tbv_suivtemp.setColumnWidth(10,35)
+        self.ui.tbv_suivtemp.setColumnWidth(11,70)
+        for a in range(12,23):
             self.ui.tbv_suivtemp.setColumnWidth(a,35)
 
         
         # Adapte les libellés dans les entêtes
-        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Opérateur', 'Objctf PG ou LT', 'Remarques', 'Annee', 'Salarie', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
-        for column in range(22):
+        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Type_opér', u'Opérateur','Objctf PG ou LT', 'Remarques', 'Annee', 'Salarie', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
+        for column in range(23):
             self.model.setHeaderData(column,Qt.Horizontal,listLabel[column])
 
         # rétrécit la taille de la police dans les headers

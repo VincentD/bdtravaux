@@ -49,5 +49,5 @@ def email():
 
 def classFactory(iface):
     # load BdTravaux class from file bd_cen
-    from bdcen import BdTravaux
+    from bd_cen import BdTravaux
     return BdTravaux(iface)

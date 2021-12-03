@@ -23,16 +23,16 @@
 
 import os, sys, csv
 
-from PyQt4 import QtGui, uic, QtSql, Qt
-from PyQt4.QtCore import *
-from ui_bdsuivis_dialog import Ui_bdsuivis_dialog
+from qgis.PyQt import QtGui, uic, QtSql, Qt, QtWidgets
+from qgis.PyQt.QtCore import *
+from .ui_bdsuivis_dialog import Ui_bdsuivis_dialog
 from datetime import datetime
 
 
-class bdsuivisDialog(QtGui.QDialog):
+class bdsuivisDialog(QtWidgets.QDialog):
     def __init__(self):
         """Constructor."""
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.ui = Ui_bdsuivis_dialog()
         self.ui.setupUi(self)
 
@@ -49,7 +49,7 @@ class bdsuivisDialog(QtGui.QDialog):
         self.db.setPassword("postgres")
         ok = self.db.open()
         if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
+            QtWidgets.QMessageBox.warning(self, 'Alerte', u'La connexion est échouée'+self.db.hostName())
 
 
         #Initialisations
@@ -65,7 +65,7 @@ class bdsuivisDialog(QtGui.QDialog):
         while querySal.next():
             self.ui.lst_salaries.addItem(unicode(querySal.value(1)))
         if not ok :
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête remplissage salariés ratée')
+            QtWidgets.QMessageBox.warning(self, 'Alerte', u'Requête remplissage salariés ratée')
 
         # Remplir la combobox "site" avec les codes et noms de sites issus de la table "sites" et les codes et noms des études issus de la table "etudes"
         query = QtSql.QSqlQuery(self.db)
@@ -87,16 +87,18 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.btn_duplgn.clicked.connect(self.dupllgn)
         self.ui.btn_choisal.clicked.connect(self.choisal)
         self.ui.btn_expcsv.clicked.connect(self.saveCsv)
+        self.ui.btn_flt_typetud.clicked.connect(self.flt_typetud)
+        self.ui.btn_flt_objetud.clicked.connect(self.flt_objetud)
 
 
 
     def choisal(self):
         self.list_sal = []
-        for item in xrange (len(self.ui.lst_salaries.selectedItems())):
+        for item in range (len(self.ui.lst_salaries.selectedItems())):
             salarie = self.ui.lst_salaries.selectedItems()[item].text().replace("\'","\'\'")
             self.list_sal.append(salarie)
         self.text_sal = ",".join((unicode(x) for x in self.list_sal)).replace(",","\',\'")
-        print unicode(self.text_sal)
+        #print (unicode(self.text_sal))
         self.recupdonnees()
 
     def recupdonnees(self):
@@ -105,10 +107,10 @@ class bdsuivisDialog(QtGui.QDialog):
         query_jrsmaxmois = QtSql.QSqlQuery(self.db)
         q_jrsmaxmois = u"""WITH tablo AS (SELECT id, CASE WHEN mois = 'janvier' THEN nb_jrs_ouv ELSE NULL END as janvier, CASE WHEN mois = 'fevrier' THEN nb_jrs_ouv ELSE NULL END as fevrier, CASE WHEN mois = 'mars' THEN nb_jrs_ouv ELSE NULL END as mars, CASE WHEN mois = 'avril' THEN nb_jrs_ouv ELSE NULL END as avril, CASE WHEN mois = 'mai' THEN nb_jrs_ouv ELSE NULL END as mai, CASE WHEN mois = 'juin' THEN nb_jrs_ouv ELSE NULL END as juin, CASE WHEN mois = 'juillet' THEN nb_jrs_ouv ELSE NULL END as juillet, CASE WHEN mois = 'aout' THEN nb_jrs_ouv ELSE NULL END as aout, CASE WHEN mois = 'septembre' THEN nb_jrs_ouv ELSE NULL END as septembre, CASE WHEN mois = 'octobre' THEN nb_jrs_ouv ELSE NULL END as octobre, CASE WHEN mois = 'novembre' THEN nb_jrs_ouv ELSE NULL END as novembre, CASE WHEN mois = 'decembre' THEN nb_jrs_ouv ELSE NULL END as decembre FROM bdsuivis.t_list_jours_ouvres ORDER BY id) SELECT string_agg(t.janvier, ',')::real AS janvier, string_agg(t.fevrier, ',')::real AS fevrier, string_agg(t.mars, ',')::real AS mars, string_agg(t.avril, ',')::real AS avril, string_agg(t.mai, ',')::real AS mai, string_agg(t.juin, ',')::real AS juin, string_agg(t.juillet, ',')::real AS juillet, string_agg(t.aout, ',')::real AS aout, string_agg(t.septembre, ',')::real AS septembre, string_agg(t.octobre, ',')::real AS octobre, string_agg(t.novembre, ',')::real AS novembre, string_agg(t.decembre, ',')::real AS décembre FROM bdsuivis.t_list_jours_ouvres l JOIN tablo t ON (l.id = t.id) WHERE l.annee='{zr_annee}'""".format(\
         zr_annee = self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
-        #print q_jrsmaxmois
+        #print (q_jrsmaxmois)
         ok = query_jrsmaxmois.exec_(q_jrsmaxmois)
         if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête rempl jours max mois ratée')
+            QtWidgets.QMessageBox.warning(self, 'Alerte', u'Requête rempl jours max mois ratée')
         #Stockage des nb max de jours travaillés dans une liste pour comparaison ultérieure avec les nb réels de jours travaillés. (cf. dans les environs de la ligne 147)
         resultQjrsMax = []
         while query_jrsmaxmois.next():
@@ -116,7 +118,7 @@ class bdsuivisDialog(QtGui.QDialog):
             j = 0
             for j in range(12):
                 moismax = query_jrsmaxmois.value(j)
-                #print moismax
+                #print (moismax)
                 # ajout d'une donnée dans la liste
                 resultQjrsMax.append(moismax)
 
@@ -148,10 +150,10 @@ class bdsuivisDialog(QtGui.QDialog):
         qjrsmois = u"""SELECT sum(coalesce(t.janvier,0)) as sjanvier, sum(coalesce(t.fevrier,0)) as sfevrier, sum(coalesce(t.mars,0)) as smars, sum(coalesce(t.avril,0)) as savril, sum(coalesce(t.mai,0)) as smai, sum(coalesce(t.juin,0)) as sjuin, sum(coalesce(t.juillet,0)) as sjuillet, sum(coalesce(t.aout,0)) as saout, sum(coalesce(t.septembre,0)) as sseptembre, sum(coalesce(t.octobre,0)) as soctobre, sum(coalesce(t.novembre,0)) as snovembre, sum(coalesce(t.decembre,0)) as sdecembre FROM bdsuivis.t_suivprev_tablo t WHERE salaries IN ('{zr_salarie}') AND annee = '{zr_annee}' AND sp_operat = 'Régie';""".format(\
         zr_salarie = self.text_sal,
         zr_annee = self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
-        #print qjrsmois
+        #print (qjrsmois)
         ok = query_jrsmois.exec_(qjrsmois)
         if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête rempl jours mois ratée')
+            QtWidgets.QMessageBox.warning(self, 'Alerte', u'Requête rempl jours mois ratée')
 
             # Stockage des nb réels de jours travaillés dans une liste pour comparaison avec les nb max de jours travaillés.
         resultQjrs = []
@@ -159,19 +161,19 @@ class bdsuivisDialog(QtGui.QDialog):
             i = 0
             for i in range(12):
                 mois = query_jrsmois.value(i)
-                #print mois
+                #print (mois)
                 resultQjrs.append(mois)
-            #print resultQjrs
+            #print (resultQjrs)
 
             # Comparaison des nb max et réels de jours travaillés dans chaque mois de l'année sélectionnée. Police rouge si nb réel > nb max
         for i in range(12):
             if resultQjrs[i]>resultQjrsMax[i]:
-                print 'trop grand'
+                print ('trop grand')
 #                self.modelmaxjrs.index(0,i).setStyleSheet("color : red")
                 #self.ui.tbv_sum.item(0,i).setStyleSheet("color : red")
             else:
 #                self.modelmaxjrs.index(0,i).setStyleSheet("color : black")
-                print 'OK'
+                print ('OK')
 
         # création du modèle et de sa liaison avec la base SQL
         self.modeljrs = QtSql.QSqlRelationalTableModel(self, self.db)
@@ -192,7 +194,7 @@ class bdsuivisDialog(QtGui.QDialog):
 
 
 
-        # 3 Récupération et affichage des données dans le QTableView principal
+  # 3 Récupération et affichage des données dans le QTableView principal
         # création du modèle et de sa liaison avec la base SQL
         self.model = QtSql.QSqlTableModel(self, self.db)
         # stratégie en cas de modification de données par l'utilisateur
@@ -202,6 +204,10 @@ class bdsuivisDialog(QtGui.QDialog):
         # création du délégué et lien avec le QTableView
        # self.delegue = self.ui.tbv_suivtemp.setItemDelegate(QtSql.QSqlRelationalDelegate(self.ui.tbv_suivtemp))
    
+### Voir ce lien pour un exemple complet de subclass pour inclure des widgets dans une tableview via un délégué : https://gist.github.com/Riateche/5984815
+
+# trouvé le 30/11/2021. 
+#https://stackoverflow.com/questions/68370810/how-to-set-a-delegate-for-a-single-cell-in-qtableview
 
 ### Essai pour changer couleur de quelques items du QTableView     
         # remplir le fond du QTableView automatiquement
@@ -268,15 +274,15 @@ class bdsuivisDialog(QtGui.QDialog):
                 filtre = "sp_codesit = '%s' AND salaries IN ('%s')" % (site[:3], self.text_sal)
             elif site != '0filtresite' and annee != '0filtreannee':
                 filtre = "sp_codesit = '%s' AND annee = '%s' AND salaries IN ('%s')" % (site[:3], annee, self.text_sal)
-            print filtre
+            #print (filtre)
             self.model.setFilter(filtre)
 
 ###
 #        color = QtGui.QColor(Qt.red)
 #        if self.model.setData(self.model.index(2,2), color, role = Qt.BackgroundRole) :
-#            QtGui.QMessageBox.warning(self, 'Alerte', u'Changement réussi dans le modèle')
+#            QtWidgets.QMessageBox.warning(self, 'Alerte', u'Changement réussi dans le modèle')
 #        else : 
-#            QtGui.QMessageBox.warning(self, 'Information', u'Changement raté dans le modèle')
+#            QtWidgets.QMessageBox.warning(self, 'Information', u'Changement raté dans le modèle')
 ###
 
 
@@ -294,16 +300,17 @@ class bdsuivisDialog(QtGui.QDialog):
         self.ui.tbv_suivtemp.setColumnWidth(5,40)
         self.ui.tbv_suivtemp.setColumnWidth(6,50)
         self.ui.tbv_suivtemp.setColumnWidth(7,50)
-        self.ui.tbv_suivtemp.setColumnWidth(8,35)
-        self.ui.tbv_suivtemp.setColumnWidth(9,115)
-        self.ui.tbv_suivtemp.setColumnWidth(10,35)
-        self.ui.tbv_suivtemp.setColumnWidth(11,70)
-        for a in range(12,23):
+        self.ui.tbv_suivtemp.setColumnWidth(8,50)
+        self.ui.tbv_suivtemp.setColumnWidth(9,35)
+        self.ui.tbv_suivtemp.setColumnWidth(10,115)
+        self.ui.tbv_suivtemp.setColumnWidth(11,35)
+        self.ui.tbv_suivtemp.setColumnWidth(12,70)
+        for a in range(13,24):
             self.ui.tbv_suivtemp.setColumnWidth(a,35)
 
         
         # Adapte les libellés dans les entêtes
-        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Type_opér', u'Opérateur','Objctf PG ou LT', 'Remarques', 'Annee', 'Salarie', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
+        listLabel = ['Id', 'Site', 'SE', u'Libellé suivi', 'FrqAn' , 'JrsPrev', u'Type_opér', u'Opérateur','Type étude','Obj_étudié', 'Remarques', 'Annee', 'Salarie', 'Janv.', u'Fév.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', u'Août', 'Sept.', 'Oct.', 'Nov.', u'Déc.']
         for column in range(23):
             self.model.setHeaderData(column,Qt.Horizontal,listLabel[column])
 
@@ -319,28 +326,28 @@ class bdsuivisDialog(QtGui.QDialog):
         qlgmax = u"""SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 't_suivprev_tablo';"""
         ok = query_longmax.exec_(qlgmax)
         if not ok:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Requête longueur champs ratée')
+            QtWidgets.QMessageBox.warning(self, 'Alerte', u'Requête longueur champs ratée')
         # Récupératuion des longueurs maximales de texte dans les champs de type "character varying", et comparaison avec les valeurs saisies par l'utilisateur
         i = 0
         while query_longmax.next():
             lgchamp = query_longmax.value(0)
             if lgchamp:
-                #print lgchamp
+                #print (lgchamp)
                 for j in range (self.model.rowCount()):
                     if self.model.data(self.model.index(j,i)):
                         if lgchamp < len(self.model.data(self.model.index(j,i))):
-                            QtGui.QMessageBox.warning(self, 'Alerte', u'Texte trop long dans la colonne {}'.format(i+1))
+                            QtWidgets.QMessageBox.warning(self, 'Alerte', u'Texte trop long dans la colonne {}'.format(i+1))
                             return
             i = i+1
 
         # Les données du modèle sont saisies en base
         submit = self.model.submitAll()
         if not submit:
-            print "rate"
+            print ("rate")
             erreur = self.model.lastError().text()
-            print unicode(erreur)
+            print ("erreur") --unicode(erreur)
         else:
-            QtGui.QMessageBox.warning(self, 'Alerte', u'Données saisies en base')
+            QtWidgets.QMessageBox.warning(self, 'Alerte', u'Données saisies en base')
 
 
 
@@ -351,7 +358,7 @@ class bdsuivisDialog(QtGui.QDialog):
             if query_idNewLine.exec_('SELECT sp_idsuivi+1 FROM bdsuivis.t_suivprev_tablo ORDER BY sp_idsuivi DESC LIMIT 1'):
                 while query_idNewLine.next():
                     identifiant = query_idNewLine.value(0)
-                    print identifiant
+                    print (identifiant)
             self.idligne = identifiant
         else:
             self.idligne = self.idligne +1
@@ -359,8 +366,8 @@ class bdsuivisDialog(QtGui.QDialog):
 
         record = self.model.record();
         record.setValue(0,identifiant)
-        record.setValue(22,self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
-        record.setValue(23,self.text_sal.replace("\',\'",","))
+        record.setValue(10,self.ui.cbx_channee.itemText(self.ui.cbx_channee.currentIndex()))
+        record.setValue(11,self.text_sal.replace("\',\'",","))
         self.model.insertRecord(self.model.rowCount(), record)
         #self.model.dataChanged.emit(self.model.createIndex(self.model.rowCount(), 0),self.model.createIndex(self.model.rowCount(), 22))
 
@@ -384,34 +391,49 @@ class bdsuivisDialog(QtGui.QDialog):
             if len(index_list) == 1:
                 self.ajoutlgn()  
                 list_values = []
-                for col in xrange(1,23):
+                for col in range(1,23):
                     value = self.model.data(self.model.index(index_list[0].row(),col), role = Qt.DisplayRole)
                     list_values.append(value)
                     self.model.setData(self.model.index(self.model.rowCount()-1,col), value, role = Qt.EditRole)
             else:
-                QtGui.QMessageBox.warning(self, 'Alerte', u'Choisir une et une seule ligne à dupliquer')
+                QtWidgets.QMessageBox.warning(self, 'Alerte', u'Choisir une et une seule ligne à dupliquer')
 
 
     def saveCsv(self):
-        path = QtGui.QFileDialog.getSaveFileName(
-                self, 'Save File', '', 'CSV(*.csv)')
+        path = QtWidgets.QFileDialog.getSaveFileName(self, 'Sauvegarder le fichier', '', 'CSV(*.csv)')   
+                #1er arg = titre de la fenêtre de sauvegarde. 2ème arg = chemin du dossier par défaut. 3ème arg = extension à afficher dans le filtre en bas de la fenêtre
         if path!= '':
-            with open(unicode(path), 'wb') as stream:
+            if path[1] == 'CSV(*.csv)' and path[0][-4:] != '.csv':
+                print (path[0][-4:])
+                filename = path[0] + '.csv'
+            else:
+                filename = path[0]
+            with open(filename, 'w') as stream:
                 writer = csv.writer(stream)
+                writer.writerow(['id', 'Site', 'SE', 'Libellé_suivi', 'FrqAnn', 'JrsPrévus', 'TypeOpé', 'Opérateur', 'Obj_PGouLT', 'Rq', 'Année', 'Salarié', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'])
                 for row in range(self.model.rowCount()):
                     rowdata = []
                     for column in range(self.model.columnCount()):
                         value = self.model.data(self.model.index(row, column))
+                        
                         if value is not None:
-                            rowdata.append(
-                                unicode(value).encode('utf8'))
+                            rowdata.append(unicode(value))#.encode('utf8')) en Python 3, ce réencodage pose des problèmes avec les accents et ajoute b'' au début de chaque cellule
                         else:
+                            print('value est nul')
                             rowdata.append('')
                     writer.writerow(rowdata)
 
 
-#Céation du délégué pour gérer la couleur des cellules individuellement.
-class monDelegue(QtGui.QItemDelegate):
+    #Filtrage par type d'étude
+    def flt_typetud(self):
+        return
+
+    #Filtrage par objet étudié
+    def flt_objetud(self):
+        return
+
+#Création du délégué pour gérer la couleur des cellules individuellement.
+class monDelegue(QtWidgets.QItemDelegate):
 
     ItemBackgroundRole = Qt.UserRole + 1
 
